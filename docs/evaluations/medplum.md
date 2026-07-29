@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Verdict** | ✅ Incumbent — retained pending [ADR-0002](../adr/index.md) |
+| **Verdict** | ✅ **Adopted** — system of record for writes ([ADR-0002](../adr/0002-clinical-data-store.md)) |
 | **Role** | Canonical FHIR R4 clinical store |
 | **License** | Apache-2.0 (one-way compatible into AGPL-3.0; runs as a separate process anyway) |
 | **Version at evaluation** | v5.1.27, published 2026-07-24 |

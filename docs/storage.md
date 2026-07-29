@@ -191,9 +191,33 @@ only makes sense if wearable data reaches Medplum first.
   (LOINC-coded, `source` retained), so the agent has a single query surface.
 - **`time_series_cache` remains a denormalized read cache** populated from Medplum.
 
-Consequence: the agent never queries the OW DB directly — it reads Medplum and the cache.
+Consequence: the agent never queries the OW DB directly — it reads the projected read model.
 Raw-fidelity access to OW remains available for debugging and for metrics that never get a
-LOINC projection. This needs confirming before implementation.
+LOINC projection.
+
+**Confirmed by [ADR-0002](adr/0002-clinical-data-store.md)**, which generalizes this shape to
+all clinical data.
+
+## The read model
+
+**Decided in [ADR-0002](adr/0002-clinical-data-store.md).** Medplum is the system of record
+for writes; ayuOS owns the query surface.
+
+- **Writes go through the Medplum FHIR API** — ingestion adapters never write SQL directly.
+  This is what buys version history, conditional create (critical, since Apple Health exports
+  are cumulative full dumps re-imported wholesale), transaction bundles, and validation.
+- **Projection tables are populated via the FHIR API** — search or Subscriptions — and
+  **never** by reading Medplum's internal tables, which its docs call *"an internal detail
+  subject to change."*
+- **The agent queries projections joined to the [`ayuos` schema](#ayuos-application-tables)**
+  with ordinary SQL. This is what makes cross-cutting queries possible: FHIR search cannot
+  express cross-resource joins, so a goal's progress against a biomarker, an experiment
+  window, and a wearable baseline is not expressible in FHIR at all.
+- **Projections are derived, disposable, and rebuildable** from Medplum. A cache, not a second
+  source of truth — so the rebuild path must be first-class and exercised in CI.
+
+`time_series_cache` above is the first instance of this pattern; ADR-0002 generalizes it into
+the standard read path. Accepted cost: reads are **eventually consistent** with Medplum.
 
 ## Encryption at rest
 
@@ -216,8 +240,11 @@ Postgres data directory is encrypted using OS-level full-disk encryption (FileVa
 
 ### Store-fit decisions
 
-- [ ] **Confirm the [OW ↔ Medplum boundary](#the-open-wearables-medplum-boundary)** — is OW the system of record with a projection into Medplum, or does wearable data live only in one store? Determines whether the agent queries one surface or two.
+- [x] ~~Confirm the [OW ↔ Medplum boundary](#the-open-wearables-medplum-boundary)~~ — **resolved by [ADR-0002](adr/0002-clinical-data-store.md)**: OW is system of record for raw streams, projected into Medplum, then into the read model. The agent queries one surface.
 - [ ] Which OW `SeriesType`s get a LOINC projection into Medplum, and which stay OW-only?
+- [ ] Which FHIR resources and fields get projected into the read model, at what granularity?
+- [ ] Projection freshness — Medplum Subscriptions (push) or polled search (pull)?
+- [ ] How is a full projection rebuild triggered, and how is it exercised in CI?
 - [ ] **Nutrition:** where does it land — merge `coachboard-v2` and treat it as OW data, model it in the `ayuos` schema, or use FHIR `NutritionIntake`?
 - [ ] ⏸ **DEFERRED — Self-feedback:** FHIR `Observation` (survey) / `QuestionnaireResponse`, or an `ayuos.self_reports` table? See [deferred decisions](#deferred-decisions).
 - [ ] ⏸ **DEFERRED — Consent records:** native FHIR `Consent` + `Provenance` in Medplum, or `ayuos.slivers`? See [deferred decisions](#deferred-decisions).

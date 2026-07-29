@@ -13,7 +13,7 @@ the old one; do not edit history.
 | ADR | Title | Status |
 |---|---|---|
 | [0001](0001-ehr-ingestion.md) | EHR ingestion strategy | Accepted |
-| 0002 | Clinical data store — Medplum vs. own FHIR store | **Open** — not yet written |
+| [0002](0002-clinical-data-store.md) | Clinical data store — Medplum writes, ayuOS owns the read model | Accepted |
 
 ## Related
 

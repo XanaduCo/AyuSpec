@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Verdict** | 🔄 Live option for [ADR-0002](../adr/index.md) — materially cheaper than first assumed |
+| **Verdict** | ❌ **Not adopted** ([ADR-0002](../adr/0002-clinical-data-store.md)) — but closer than expected, and the fallback if the projection layer outgrows Medplum |
 | **Role** | Alternative to running a FHIR server: own the schema, keep FHIR as the interchange format |
 
 ## Why this is on the table
@@ -138,8 +138,23 @@ See [FHIR libraries](fhir-libraries.md) for the full survey.
 - **[wso2/fhir-server](https://github.com/wso2/fhir-server)** (Go + Postgres, Apache-2.0) — closest to this exact design; its honest limitations list is the best available cost estimate. ⚠️ Created 2026-06-17, 7 stars.
 - **FHIRbase is dead and never had search.** Frozen ("*untill new hero will support it*"), and the shipped SQL has six CRUD functions, zero `CREATE INDEX`, and the word "search" appears zero times. Readable as a design reference only.
 
+## Why it was not adopted
+
+[ADR-0002](../adr/0002-clinical-data-store.md) chose a **read-projection layer** instead:
+Medplum keeps the write path (and with it version history, conditional create, and transaction
+bundles), while ayuOS owns SQL projections for querying. That delivers the owned-model and
+cross-cutting-query requirements without paying the ~85% search-fidelity ceiling or the
+day-one design risk.
+
+Two Medplum guarantees turned out to matter concretely: **conditional create**, because Apple
+Health exports are cumulative full dumps that get re-imported wholesale, and **version
+history**, which cannot be retrofitted.
+
 ## What would change this
 
-Adopt if [ADR-0002](../adr/index.md) concludes that owning the models is worth ~85% FHIR
-search fidelity. Reject if the anchor workflows turn out to need chaining, `_has`, or
-conformance-grade validation — or if the team is not writing TypeScript.
+This becomes the better option if the projection layer grows to cover everything the agent
+needs — at which point Medplum is only a write buffer, the owned store is the simpler system,
+and half the migration is already done. Also revisit on a Medplum licence change.
+
+Blockers to clear first: the team must be writing TypeScript, and the anchor workflows must
+not need chaining, `_has`, or conformance-grade validation.
