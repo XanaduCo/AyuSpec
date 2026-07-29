@@ -43,6 +43,8 @@ nav:
   - Home: index.md
   - Vision & Problem: vision.md
   - Architecture Overview: architecture.md
+  - Open Wearables: open-wearables.md
+  - Data Capture Strategy: data-capture.md
   - Ingestion:
     - Overview: ingestion/index.md
     - Wearables: ingestion/wearables.md
@@ -53,9 +55,13 @@ nav:
     - Genomics: ingestion/genomics.md
   - Storage: storage.md
   - AI & ML Layer: ai-ml.md
+  - Model Providers: model-providers.md
   - Agent Loop: agent-loop.md
+  - Evidence & Hypotheses: evidence.md
+  - Experimentation & Validation: experimentation.md
   - PII Gateway & Cloud Escalation: pii-gateway.md
   - Frontend & UI: frontend.md
+  - Data Sharing & Consent: sharing.md
   - Security & Privacy: security.md
   - Deployment & Infrastructure: deployment.md
   - Federated Analytics: federation.md
