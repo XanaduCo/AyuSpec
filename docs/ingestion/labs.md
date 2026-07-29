@@ -19,7 +19,7 @@ MedGemma extraction  → structured JSON (test name, value, unit, ref range, dat
 LOINC mapping        → code lookup + confidence score
   │
   ▼
-FHIR Observation     → written to Medplum with source=pdf, confidence tag
+FHIR Observation     → clinical schema, source=pdf, confidence tag
 ```
 
 ## OCR: Tesseract

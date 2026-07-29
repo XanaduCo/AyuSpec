@@ -31,7 +31,7 @@ The Health Records embedded in the export are particularly valuable: many major 
 - Input: `export.zip` → extract → `export.xml`
 - Parse `HKQuantityTypeSample`, `HKCategorySample`, `HKWorkoutActivityType` elements
 - Map Apple quantity identifiers (e.g., `HKQuantityTypeIdentifierHeartRate`) to LOINC codes
-- Write `Observation` FHIR resources to Medplum
+- Write `Observation` FHIR resources to the `clinical` schema
 - Parse embedded `ClinicalDocument` (C-CDA) records → convert to FHIR R4 via existing C-CDA→FHIR libraries
 
 ## Apple quantity type → LOINC mapping (partial)

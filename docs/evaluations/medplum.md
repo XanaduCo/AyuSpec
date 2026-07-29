@@ -2,8 +2,9 @@
 
 | | |
 |---|---|
-| **Verdict** | ✅ **Adopted** — system of record for writes ([ADR-0002](../adr/0002-clinical-data-store.md)) |
-| **Role** | Canonical FHIR R4 clinical store |
+| **Verdict** | ❌ **Server not adopted** · ✅ **`@medplum/core` adopted as a library** ([ADR-0002](../adr/0002-clinical-data-store.md)) |
+| **Role considered** | Canonical FHIR R4 clinical store |
+| **Role actually taken** | FHIRPath engine, SearchParameter registry, index extraction, validation — no server |
 | **License** | Apache-2.0 (one-way compatible into AGPL-3.0; runs as a separate process anyway) |
 | **Version at evaluation** | v5.1.27, published 2026-07-24 |
 
@@ -83,22 +84,42 @@ upgrading sporadically, stepped upgrades become ayuOS's support burden.
 with client-credentials is the pattern); hardened images have no shell, so debugging is
 logs-only; first boot takes minutes with the healthcheck showing `starting` throughout.
 
-## Why retained
+## Why the server was not adopted
 
-Nothing displaced it. It is the only option that is simultaneously Postgres-native (which the
-whole storage architecture depends on), natively arm64, free of external service
-dependencies, complete enough on R4 search, and actively maintained.
+Not weight — that objection was tested and disproven above. The decision turned on **fit**,
+per [ADR-0002](../adr/0002-clinical-data-store.md):
+
+- **FHIR search answers 2 of the agent's 10 core queries.** The rest are aggregations,
+  cross-domain joins, and vector search that FHIR search cannot express — and FHIR search
+  exists for external clients ayuOS does not have.
+- **Cross-resource joins would mean reading Medplum's Postgres schema**, which its docs call
+  *"an internal detail subject to change."*
+- **Wrong store for high-frequency wearable data** — continuous HR as FHIR `Observation`s
+  costs 20–40× the storage of a narrow time-series row.
+- The capabilities that genuinely mattered — **FHIR resource modelling and validation — are
+  available as libraries**, without a server.
+
+Four further arguments made for the server did not survive review (version history,
+conditional-create idempotency, `$everything`, transaction bundles) — see
+[ADR-0002](../adr/0002-clinical-data-store.md#why-the-case-for-medplum-did-not-hold).
+
+## What *was* adopted
+
+`@medplum/core` + `@medplum/definitions` as libraries — Apache-2.0, zero runtime
+dependencies, no server. See
+[roll your own](roll-your-own.md#the-finding-that-changed-the-cost-estimate) and
+[FHIR libraries](fhir-libraries.md).
 
 ## What would change this
 
-- The [ADR-0002](../adr/index.md) storage decision going the other way — the live objection is
-  not weight but **data modelling**: FHIR search cannot express cross-resource joins, and
-  Medplum documents its Postgres schema as *"an internal detail subject to change"*, so the
-  cross-cutting SQL a personal-health agent needs is exactly the query you are not supposed
-  to write. See [roll your own](roll-your-own.md).
-- Ops burden proving real on a 16 GB Mac Mini → [Blaze](blaze.md) or [HAPI](hapi-fhir.md).
+Adopting the server would require an external FHIR client to appear (a third-party system
+needing to read ayuOS over FHIR), or the owned store proving unable to serve the query
+catalogue. Neither is in prospect.
 
-## Required hardening for ayuOS
+## Hardening notes (retained for reference)
+
+Relevant only if the server is ever adopted — and a useful record of how much configuration
+zero-egress required:
 
 1. Pin image tags — never `latest`
 2. Add a volume for `./binary/`

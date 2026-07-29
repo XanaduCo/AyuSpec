@@ -8,7 +8,7 @@ The agent loop is the core reasoning engine. It takes a user query, orchestrates
 
 | Tool | Description |
 |---|---|
-| `query_fhir` | Run a FHIR search query against Medplum |
+| `query_clinical` | Query clinical resources by type, code, patient, and date range |
 | `get_time_series` | Retrieve time-series observations for a LOINC code over a time range |
 | `search_records` | Semantic search over embedded records (pgvector) |
 | `get_trend` | Compute change/trend for a metric over a period |

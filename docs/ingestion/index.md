@@ -1,6 +1,6 @@
 # Ingestion — Overview
 
-The ingestion layer is responsible for pulling health data from every source and writing normalized FHIR R4 resources into Medplum. Each connector is independent — adding or removing one does not affect the others.
+The ingestion layer pulls health data from every source and writes it into the store — FHIR R4 resources into the `clinical` schema, device metrics into `timeseries`. Each connector is independent; adding or removing one does not affect the others.
 
 ## Connectors
 
@@ -17,7 +17,7 @@ The ingestion layer is responsible for pulling health data from every source and
 
 - **Pull, don't push.** Connectors run on a user-configured schedule or on-demand. No always-on daemon required.
 - **Fail loudly, degrade gracefully.** A broken connector logs an error and skips; it does not block the agent from answering questions over what's already stored.
-- **Deduplication is the connector's job.** Each connector is responsible for idempotent writes. Medplum resources carry source identifiers; re-running a connector does not create duplicates.
+- **Deduplication is the connector's job.** Every ingested resource carries a `content_hash` plus `(source, source_resource_id)` provenance, so re-running a connector does not create duplicates. This matters concretely: Apple Health exports are cumulative full dumps, re-imported wholesale each time. See [Storage](../storage.md#idempotency-and-provenance).
 - **FHIR first.** Everything that can be expressed as FHIR R4 is. Time-series observations (wearable metrics) land as `Observation` resources with LOINC codes where available.
 
 ## FHIR resource types in use

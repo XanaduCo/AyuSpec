@@ -19,7 +19,7 @@ DICOM files (.dcm)
 pydicom parse        → extract metadata (patient, study, series, modality, date)
   │
   ▼
-FHIR ImagingStudy    → written to Medplum
+FHIR ImagingStudy    → clinical schema
   │
   ▼
 MedGemma vision      → summary text per series
@@ -72,7 +72,7 @@ OHIF (Open Health Imaging Foundation) is an open-source DICOM viewer that runs i
 
 ## Storage
 
-DICOM pixel data is stored on local disk (not in Postgres). Medplum `ImagingStudy` resources point to the local file paths via `endpoint`.
+DICOM pixel data is stored on local disk (not in Postgres). `ImagingStudy` resources point to the local file paths via `endpoint`.
 
 ## Getting DICOM from a hospital
 

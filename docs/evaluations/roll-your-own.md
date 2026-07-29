@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| **Verdict** | ❌ **Not adopted** ([ADR-0002](../adr/0002-clinical-data-store.md)) — but closer than expected, and the fallback if the projection layer outgrows Medplum |
-| **Role** | Alternative to running a FHIR server: own the schema, keep FHIR as the interchange format |
+| **Verdict** | ✅ **Adopted** ([ADR-0002](../adr/0002-clinical-data-store.md)) |
+| **Role** | The storage architecture: own the schema, keep FHIR as a boundary format |
 
 ## Why this is on the table
 
@@ -138,23 +138,25 @@ See [FHIR libraries](fhir-libraries.md) for the full survey.
 - **[wso2/fhir-server](https://github.com/wso2/fhir-server)** (Go + Postgres, Apache-2.0) — closest to this exact design; its honest limitations list is the best available cost estimate. ⚠️ Created 2026-06-17, 7 stars.
 - **FHIRbase is dead and never had search.** Frozen ("*untill new hero will support it*"), and the shipped SQL has six CRUD functions, zero `CREATE INDEX`, and the word "search" appears zero times. Readable as a design reference only.
 
-## Why it was not adopted
+## Why it was adopted
 
-[ADR-0002](../adr/0002-clinical-data-store.md) chose a **read-projection layer** instead:
-Medplum keeps the write path (and with it version history, conditional create, and transaction
-bundles), while ayuOS owns SQL projections for querying. That delivers the owned-model and
-cross-cutting-query requirements without paying the ~85% search-fidelity ceiling or the
-day-one design risk.
+Scoping the problem to the **actual query catalogue** decided it: FHIR search answers only 2
+of the agent's 10 core queries, and FHIR search exists to serve external clients ayuOS does
+not have. The other 8 — aggregations, cross-domain joins, vector search, windowed experiment
+analysis — are SQL work either way.
 
-Two Medplum guarantees turned out to matter concretely: **conditional create**, because Apple
-Health exports are cumulative full dumps that get re-imported wholesale, and **version
-history**, which cannot be retrofitted.
+The wearable-volume argument sealed it: high-frequency device data cannot be FHIR
+`Observation`s (20–40× storage), so a purpose-built time-series store is required regardless.
+Once the architecture contains a non-FHIR store, adding FHIR-shaped tables beside it is a
+smaller increment than operating a FHIR server beside it.
+
+See [ADR-0002](../adr/0002-clinical-data-store.md) for the full reasoning, including the four
+arguments for keeping Medplum that did not survive review.
 
 ## What would change this
 
-This becomes the better option if the projection layer grows to cover everything the agent
-needs — at which point Medplum is only a write buffer, the owned store is the simpler system,
-and half the migration is already done. Also revisit on a Medplum licence change.
-
-Blockers to clear first: the team must be writing TypeScript, and the anchor workflows must
-not need chaining, `_has`, or conformance-grade validation.
+Reverting to a FHIR server would require an external FHIR client to appear, or the ~85%
+search-fidelity ceiling to bind on a real workflow (chaining, `_has`, or conformance-grade
+validation). If validation specifically becomes the issue,
+[HAPI as a sidecar](hapi-fhir.md#as-a-validator-genuinely-best-in-class) is the cheaper answer
+than adopting a server.

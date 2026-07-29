@@ -1,254 +1,227 @@
 # Storage
 
+!!! info "Decision record"
+    Storage architecture is set by [ADR-0002: ayuOS owns its database](adr/0002-clinical-data-store.md).
+    ayuOS does not run a FHIR server. Schema details below are deliberately provisional and
+    will be settled during implementation.
+
+## Design principle
+
+**FHIR is an interchange format at the boundaries, not the storage model.**
+
+Records arrive as FHIR from [Epic, Apple Health, and Fasten Connect](ingestion/ehr.md); they
+are stored faithfully as FHIR-shaped JSONB with extracted index columns; FHIR bundles are
+generated on export. Between those boundaries the query surface is SQL we control — because
+[8 of the agent's 10 core queries](adr/0002-clinical-data-store.md#the-evidence-that-decided-it)
+are aggregations, cross-domain joins, or vector search that FHIR search cannot express.
+
 ## Overview
 
-ayuOS stores data across four locations. Three are Postgres-backed; one is the filesystem.
+**One Postgres 16 instance. Four schemas, all ours.**
 
-| Store | Purpose | Backing |
+| Schema | Holds | Shape |
 |---|---|---|
-| **Medplum** (self-hosted) | Canonical FHIR R4 store — all clinical health resources | Postgres 16 |
-| **Open Wearables DB** | Raw device time-series keyed by `SeriesType` | Postgres (own instance/schema) |
-| **pgvector** (extension) | Embeddings for RAG, time-series query cache, **ayuOS application tables** | Postgres 16 |
-| **Local disk** | Raw blobs — DICOM pixels, genome files, source PDFs | Filesystem |
+| `clinical` | FHIR resources from EHR, labs, imaging metadata, genomics | JSONB + extracted index columns |
+| `timeseries` | Wearable and device metrics | Narrow partitioned rows |
+| `ayuos` | Application objects — goals, hypotheses, experiments, plans | Native relational |
+| `vectors` | Embeddings for RAG (`pgvector`) | Vector columns |
+| *(local disk)* | Raw blobs — DICOM pixels, genome files, source PDFs | Filesystem, referenced by path |
 
-There is no separate time-series database. Postgres handles it.
+They share one instance so the agent can join across them in a single query. That is the
+entire point.
 
-!!! note "EHR adapters fetch; Medplum holds"
-    [EHR ingestion](ingestion/ehr.md) runs as adapters — an Apple Health export parser, an
-    Epic SMART-on-FHIR client, and optionally a Fasten Connect poller. None of them is a
-    store. Everything they retrieve — and everything extracted from lab PDFs — is written to
-    **Medplum**, the canonical store for medical records. See
-    [ADR-0001](adr/0001-ehr-ingestion.md).
+## Clinical resources
 
-## Medplum
+Stored as received, since ayuOS is predominantly a FHIR **consumer** — data arriving from Epic
+and Apple is already valid FHIR, so the task is faithful storage and fast query, not
+conformance-on-write.
 
-Medplum is a self-hosted FHIR R4 server written in TypeScript. It provides:
-- A FHIR REST API (`GET /fhir/R4/Observation?patient=X&code=...`)
-- A web admin UI for browsing resources
-- Subscription support (webhooks on resource changes)
-- Access control via FHIR `AccessPolicy`
+Per resource type: a JSONB `resource` column holding the untouched payload, plus **extracted
+index columns** for the search parameters we actually query. Extraction uses
+[`@medplum/core`](evaluations/fhir-libraries.md)'s write-time extractors
+(`convertToSearchableTokens`, `…Dates`, `…Quantities`, `…References`) driven from the R4
+SearchParameter registry, so the indexer follows the spec rather than hand-written cases.
 
-ayuOS runs Medplum in Docker. All ingestion connectors write to Medplum's FHIR API; the agent loop reads from it.
+The index-column design is the one HAPI, Medplum, Aidbox, and WSO2 all converged on
+independently:
 
-### Configuration
+| Param type | Columns |
+|---|---|
+| token | `system`, `code` (+ a null-system sentinel — `\|code` matches **only** where no system exists) |
+| date | `value_low`, `value_high` **plus a separate scalar sort column** |
+| reference | target type + id |
+| quantity | value, unit, canonical value/unit |
+| string | text, with `pg_trgm` for `:contains` |
 
-- Single-user deployment; no multi-tenancy required for MVP
-- Postgres as the backend (Medplum supports Postgres natively)
-- All data stored locally; no Medplum cloud
+!!! warning "Dates are intervals, not scalars"
+    FHIR date prefixes are interval operators — `eq` means "range fully contains search
+    range", and *both sides* are ranges (`2013-01-14` is `[00:00, next-day 00:00)`, while
+    `Observation.effective` may itself be a `Period`). Postgres 16's native `tstzrange` +
+    GiST gives this directly. Ranges are **not orderable**, hence the separate sort column.
 
-## pgvector
+**Scope:** ~85% FHIR search fidelity — token, reference, and correct date ranges cover the
+queries we have. Chaining, `_has`, `_filter`, and composite params are out of scope until
+something demands them.
 
-The `pgvector` Postgres extension adds:
-- Vector columns for embedding storage
-- `<->` cosine distance operator for ANN search
+## Time-series
 
-### Tables
+Wearable and device metrics live in a narrow partitioned table, **not** as FHIR
+`Observation`s.
+
+The reason is volume: continuous Garmin HR is ~10k–86k samples/day. As FHIR Observations —
+JSONB plus index columns, ~1–2 KB each — ten million samples is **10–20 GB**. As
+`(user_id, metric_id, ts, value)` it is ~24 bytes a row: **~500 MB**. A 20–40× difference,
+before JSONB parsing costs on every aggregation.
+
+| Column | Notes |
+|---|---|
+| `user_id` | |
+| `metric_id` | FK to a metric catalogue (LOINC where one exists, else an ayuOS code) |
+| `ts` | timestamptz |
+| `value` | numeric |
+| `source` | `oura`, `whoop`, `garmin`, `apple-health`, … |
+| `confidence` | `high` / `medium` / `low` |
+
+Partitioned by time. Daily aggregates and raw samples co-locate here at different grain.
+
+## Application objects
+
+First-class tables with real foreign keys into clinical and time-series data — this is what
+the owned-database decision buys. A goal's tracking metric can reference a biomarker one cycle
+and a wearable metric the next, with referential integrity either way.
+
+| Table | Purpose |
+|---|---|
+| `goals` | User health goals; hypotheses and capture prompts key to these |
+| `hypotheses` | Per [the hypothesis object](evidence.md#the-hypothesis-object) |
+| `experiments` | Per [the experiment object](experimentation.md#the-experiment-object); FK to `hypotheses` |
+| `experiment_metrics` | Outcome signals; FK to the metric catalogue or a clinical resource |
+| `interventions` | Manually-logged supplements, protocols, regimens with start/stop dates |
+| `plans` | Nutrition and protocol plans — trigger points, actions, rationale |
+| `self_reports` | ⏸ **DEFERRED** — EMA responses (energy, mood, symptoms) |
+| `screening_schedule` | Computed due dates + nudge/snooze state |
+| `slivers` | ⏸ **DEFERRED** — sliver definitions + append-only consent records |
+| `evidence_corpus` | Guideline and literature documents; embeddings in `vectors` |
+| `audit_log` | Append-only agent invocation log per [Agent Loop](agent-loop.md#audit-log) |
+| `agent_memory` | Conversation history / prior-query recall |
+
+Provider credentials are deliberately **not** here — OAuth tokens and PATs belong in a secrets
+store (OS keychain or an encrypted file), not a queryable schema.
+
+### Deferred decisions
+
+!!! danger "⏸ Two open forks — do not implement these tables until resolved"
+
+    Both got **simpler** under [ADR-0002](adr/0002-clinical-data-store.md) — there is no
+    longer a two-store split to straddle — but neither is settled.
+
+    **1. Consent records / slivers** — a plain `ayuos.slivers` table, or model the disclosure
+    trail on FHIR `Consent` + `Provenance` semantics?
+
+    The interop question survives the store decision: a recipient system could read a
+    FHIR-shaped consent trail, and we generate FHIR at the export boundary anyway. The app
+    table is simpler but keeps the disclosure record proprietary. See [Data Sharing](sharing.md).
+
+    **2. Self-feedback** — a distinct `ayuos.self_reports` table, or store as clinical
+    `Observation`s with a survey category?
+
+    Modelling them as Observations puts mood/energy/symptoms on the same query surface as
+    every other metric, so trends and correlations work for free. A separate table fits EMA
+    prompt metadata better (which prompt fired, when, adherence). Possibly both: outcomes as
+    observations, prompt metadata in `ayuos`. See
+    [Experimentation](experimentation.md#capturing-the-inputs).
+
+## Version history
+
+**Append-only, from day one.** You cannot reconstruct versions you never wrote, and
+*"what changed in my last 90 days?"* is the anchor workflow.
+
+Mechanism is open — `temporal_tables`, a hand-rolled trigger writing to a parallel
+`*_history` table, or an append-only design. Postgres has no native SQL:2011 system-versioned
+tables. The cost is roughly one trigger and one extra table per versioned relation.
+
+## Idempotency and provenance
+
+Ingestion must be safely re-runnable: **Apple Health exports are cumulative full dumps**, so
+every re-export re-imports everything.
+
+Every ingested resource carries:
+
+| Field | Purpose |
+|---|---|
+| `content_hash` | SHA-256 of the normalized payload — detects unchanged vs. modified |
+| `source` | Which adapter and provider it came from |
+| `source_resource_id` | The upstream id |
+| `ingested_at` | |
+
+Dedup key is `(source, source_resource_id)`; `content_hash` drives change detection. This is
+one indexed lookup per resource — versus FHIR conditional create, which runs **a search per
+resource** (~1,300 searches per Apple import).
+
+## Vectors
+
+`pgvector` for RAG retrieval over clinical documents, notes, and the evidence corpus.
 
 #### `resource_embeddings`
 
 | Column | Type | Notes |
 |---|---|---|
 | `id` | uuid | |
-| `resource_type` | text | FHIR resource type |
-| `resource_id` | text | Medplum resource ID |
-| `chunk_index` | int | For multi-chunk resources |
-| `content` | text | The text that was embedded |
-| `embedding` | vector(1536) | Embedding vector |
+| `source_table` | text | Which schema/table the row came from |
+| `source_id` | text | Row id |
+| `chunk_index` | int | For multi-chunk documents |
+| `content` | text | The embedded text |
+| `embedding` | vector(1536) | |
 | `created_at` | timestamptz | |
 
-Indexed with `ivfflat` for approximate nearest-neighbor search.
-
-#### `time_series_cache`
-
-A denormalized cache of time-series observations for fast range queries, populated by a sync job from Medplum:
-
-| Column | Type | Notes |
-|---|---|---|
-| `id` | uuid | |
-| `patient_id` | text | |
-| `loinc_code` | text | e.g., `8867-4` |
-| `display` | text | Human-readable name |
-| `value` | numeric | |
-| `unit` | text | |
-| `effective_at` | timestamptz | |
-| `source` | text | `oura`, `whoop`, `apple-health`, `labcorp`, etc. |
-| `confidence` | text | `high`, `medium`, `low` |
-
-Indexed on `(patient_id, loinc_code, effective_at)`.
+Indexed with `ivfflat` for approximate nearest-neighbour search.
 
 ## Store-fit map
 
-Every data class ayuOS captures, and where it lands. Derived from
-[Data Capture Strategy](data-capture.md); rows marked **⚠ gap** have no defined home today
-and are tracked in [Open questions](#open-questions).
+Where each captured data class lands. Derived from [Data Capture Strategy](data-capture.md).
 
-### Health data
-
-| Data class | Store | Resource / table |
+| Data class | Schema | Notes |
 |---|---|---|
-| Wearables & home devices | OW DB → Medplum | `SeriesType` series → projected `Observation` (see [boundary](#the-open-wearables-medplum-boundary)) |
-| Ambient environmental (UV, air quality, weather, GPS) | OW DB | Existing environmental `SeriesType`s |
-| Current & historical medical records | Medplum | `Condition`, `Procedure`, `DiagnosticReport`, `Encounter` |
-| Lab PDFs | Disk + Medplum | Blob on disk → `DocumentReference` + extracted `Observation`s |
-| Biomarkers & diagnostics (panels, VO2max, DEXA, grip) | Medplum | `Observation`, `DiagnosticReport` |
-| Screening events (colonoscopy, mammogram, vaccines) | Medplum | `Procedure`, `Immunization` |
-| Family history | Medplum | `FamilyMemberHistory` |
-| Medications | Medplum | `MedicationStatement` |
-| Imaging | Disk + Medplum | Pixel data on disk → `ImagingStudy` |
-| Genomics (raw files) | Disk + Medplum | Genome file on disk → `DocumentReference` |
-| **Nutrition / meals / macros** | ⚠ gap | Not in OW `main` (only `hydration`); not clinical. Terra nutrition payloads **dropped today** — see [Terra contract](open-wearables.md#terra-bridge-ingestion-contract) |
-| **Manually-logged interventions** (supplements, protocols) | ⚠ gap | `MedicationStatement` partially covers supplements; protocols and user-declared regimens have no home |
-| **Self-feedback** (energy, mood, symptoms) | ⏸ **DEFERRED** | FHIR `Observation` (survey) / `QuestionnaireResponse` **vs.** `ayuos.self_reports` — see [deferred decisions](#deferred-decisions) |
-| **Consumer-test interpretations** (genomic/microbiome, confidence-graded) | ⚠ gap | Source blob lands on disk; the derived interpretation has no home |
-
-### Application objects
-
-These are ayuOS's own objects — neither device data nor clinical resources. They are the
-substrate of the product loop (*understand → hypothesize → act → measure → learn*) and
-currently have **no defined store at all**. See
-[ayuOS application tables](#ayuos-application-tables) for the proposed home.
-
-| Object | Introduced in | FHIR fit |
-|---|---|---|
-| Hypotheses | [Evidence & Hypotheses](evidence.md) | None — no clean R4 resource |
-| Experiments | [Experimentation](experimentation.md) | `ResearchStudy` / `ResearchSubject` — loose fit |
-| Consent records / sliver definitions | [Data Sharing](sharing.md) | ⏸ **DEFERRED** — `Consent` + `Provenance` vs. `ayuos.slivers`; see [deferred decisions](#deferred-decisions) |
-| Goals | [Vision](vision.md) | `Goal` exists but is unspecified in ayuOS |
-| Screening due-date state (computed dates, nudge/snooze) | [Data Capture](data-capture.md) | None — app state |
-| Evidence corpus (guidelines, literature index) | [Evidence & Hypotheses](evidence.md) | N/A — not user data |
-| Audit log | [Agent Loop](agent-loop.md) | N/A — declared "append-only local", location unspecified |
-| Agent conversation memory | [Agent Loop](agent-loop.md) | N/A — open question |
-| Provider credentials (Oura PAT, Whoop/Terra OAuth) | [Wearables](ingestion/wearables.md) | N/A — needs a secrets store |
-
-!!! warning "This is an MVP risk, not a cleanup task"
-    The application objects above are not peripheral bookkeeping — they *are* the product
-    loop. A hypothesis that can't be stored can't be tested; an experiment that can't be
-    stored can't be validated. This group needs a schema decision before the loop is
-    buildable, arguably ahead of closing the nutrition gap.
-
-## ayuOS application tables
-
-**Proposed:** a dedicated `ayuos` schema in the same Postgres instance, alongside pgvector.
-Rationale: these objects are queried together with FHIR data but do not map to FHIR
-resources; forcing them into loose-fit resources (`ResearchStudy` for an n-of-1 experiment)
-buys interoperability nobody needs and costs modelling clarity.
-
-Two rows in the table below are **not** settled by that rationale — both have a genuine FHIR
-alternative with real interop consequences. They are marked ⏸ **DEFERRED** and listed under
-[Deferred decisions](#deferred-decisions).
-
-### Deferred decisions
-
-!!! danger "⏸ Two open forks — do not implement these tables until resolved"
-
-    **1. Consent records / slivers** — `ayuos.slivers` **vs.** native FHIR `Consent` + `Provenance`
-
-    Sliver disclosure is precisely what `Consent` and `Provenance` model, and Medplum
-    supports both natively. Choosing FHIR buys real interoperability (a recipient system
-    could read the consent trail) at the cost of fitting ayuOS's sliver semantics into a
-    clinical resource. The app table is simpler but keeps the disclosure record
-    proprietary. See [Data Sharing](sharing.md).
-
-    **2. Self-feedback** — `ayuos.self_reports` **vs.** FHIR `Observation` (survey) or `QuestionnaireResponse`
-
-    Self-reported energy/mood/symptoms are legitimate `Observation`s with a survey
-    category, which would put them on the same query surface as every other metric and
-    make them usable in trends and correlations for free. An app table fits EMA prompt
-    metadata better (which prompt fired, when, adherence) but splits outcome data away
-    from Medplum. See [Experimentation](experimentation.md#capturing-the-inputs).
-
-    Both are tracked in [Open questions](#store-fit-decisions). Everything else in the
-    `ayuos` schema below is proposed and internally consistent; these two are the forks.
-
-| Table | Purpose |
-|---|---|
-| `goals` | User health goals; the anchor hypotheses and capture prompts key to |
-| `hypotheses` | Fields per [the hypothesis object](evidence.md#the-hypothesis-object) |
-| `experiments` | Fields per [the experiment object](experimentation.md#the-experiment-object); FK to `hypotheses` |
-| `experiment_metrics` | Which signals track an experiment's outcome; FK to source (`loinc_code` or `SeriesType`) |
-| `self_reports` | ⏸ **DEFERRED** — EMA micro-prompt responses (energy, mood, symptoms); may become FHIR `Observation`s instead |
-| `interventions` | Manually-logged supplements, protocols, regimens with start/stop dates |
-| `screening_schedule` | Computed due dates + nudge/snooze state |
-| `slivers` | ⏸ **DEFERRED** — sliver definitions + append-only consent records; may become FHIR `Consent` + `Provenance` instead |
-| `evidence_corpus` | Guideline + literature documents; embeddings live in `resource_embeddings` |
-| `audit_log` | Append-only agent invocation log per [Agent Loop](agent-loop.md#audit-log) |
-| `agent_memory` | Conversation history / prior-query recall — pending the agent-memory open question |
-
-Provider credentials are deliberately **not** a table here — OAuth tokens and PATs belong in
-a secrets store (OS keychain or an encrypted credentials file), not in a queryable schema.
-
-## The Open Wearables ↔ Medplum boundary
-
-Two stores can hold the same wearable metric, and the spec has not said which wins.
-`time_series_cache` is documented below as "populated by a sync job from Medplum," which
-only makes sense if wearable data reaches Medplum first.
-
-**Proposed resolution:**
-
-- **Open Wearables DB is the system of record for raw device streams.** Full fidelity,
-  native `SeriesType` granularity, including metrics with no clinical meaning.
-- **A projection job writes clinically-meaningful metrics into Medplum as `Observation`s**
-  (LOINC-coded, `source` retained), so the agent has a single query surface.
-- **`time_series_cache` remains a denormalized read cache** populated from Medplum.
-
-Consequence: the agent never queries the OW DB directly — it reads the projected read model.
-Raw-fidelity access to OW remains available for debugging and for metrics that never get a
-LOINC projection.
-
-**Confirmed by [ADR-0002](adr/0002-clinical-data-store.md)**, which generalizes this shape to
-all clinical data.
-
-## The read model
-
-**Decided in [ADR-0002](adr/0002-clinical-data-store.md).** Medplum is the system of record
-for writes; ayuOS owns the query surface.
-
-- **Writes go through the Medplum FHIR API** — ingestion adapters never write SQL directly.
-  This is what buys version history, conditional create (critical, since Apple Health exports
-  are cumulative full dumps re-imported wholesale), transaction bundles, and validation.
-- **Projection tables are populated via the FHIR API** — search or Subscriptions — and
-  **never** by reading Medplum's internal tables, which its docs call *"an internal detail
-  subject to change."*
-- **The agent queries projections joined to the [`ayuos` schema](#ayuos-application-tables)**
-  with ordinary SQL. This is what makes cross-cutting queries possible: FHIR search cannot
-  express cross-resource joins, so a goal's progress against a biomarker, an experiment
-  window, and a wearable baseline is not expressible in FHIR at all.
-- **Projections are derived, disposable, and rebuildable** from Medplum. A cache, not a second
-  source of truth — so the rebuild path must be first-class and exercised in CI.
-
-`time_series_cache` above is the first instance of this pattern; ADR-0002 generalizes it into
-the standard read path. Accepted cost: reads are **eventually consistent** with Medplum.
+| Wearables & home devices | `timeseries` | Raw samples + daily aggregates |
+| Ambient environmental (UV, air quality, GPS) | `timeseries` | |
+| Medical records (current & historical) | `clinical` | FHIR resources as received |
+| Lab PDFs | disk + `clinical` | Blob on disk → `DocumentReference` + extracted Observations |
+| Biomarkers & diagnostics | `clinical` | |
+| Screening events | `clinical` + `ayuos.screening_schedule` | Events vs. computed due-dates |
+| Family history | `clinical` | `FamilyMemberHistory` |
+| Medications | `clinical` | `MedicationStatement` |
+| Imaging, genomics | disk + `clinical` | Pixel data / genome files on disk |
+| **Nutrition / meals / macros** | ⚠ gap | No source provides it yet — Terra nutrition payloads are dropped ([Terra contract](open-wearables.md#terra-bridge-ingestion-contract)) |
+| Manually-logged interventions | `ayuos.interventions` | ✅ resolved by ADR-0002 |
+| Nutrition & protocol plans | `ayuos.plans` | ✅ resolved by ADR-0002 |
+| Self-feedback | ⏸ deferred | See above |
+| **Consumer-test interpretations** | ⚠ gap | Source blob on disk; derived interpretation has no home |
 
 ## Encryption at rest
 
-Postgres data directory is encrypted using OS-level full-disk encryption (FileVault on macOS, LUKS on Linux). No application-level encryption is applied on top — the OS layer is sufficient for the local threat model.
+OS-level full-disk encryption (FileVault on macOS, LUKS on Linux). No application-level
+encryption on top — the OS layer is sufficient for the local threat model.
 
 ## Backup
 
-*To be specified.* Minimum: nightly `pg_dump` to an encrypted external drive. No cloud backup in the default configuration.
+*To be specified.* Minimum: nightly `pg_dump` to an encrypted external drive. No cloud backup
+in the default configuration. **One engine means one backup** — a direct benefit of ADR-0002.
 
 ## What is NOT in Postgres
 
-- DICOM pixel data — stored on local disk, referenced by path in `ImagingStudy`
-- Raw source files (Apple Health exports, lab PDFs, genome files) — stored on local disk, referenced by `DocumentReference.content.attachment.url`
+- DICOM pixel data — local disk, referenced by path in `ImagingStudy`
+- Raw source files (Apple Health export zips, lab PDFs, genome files) — local disk, referenced
+  by `DocumentReference.content.attachment.url`
+- Provider credentials — secrets store, not a queryable schema
 
 ## Open questions
 
-- [ ] Should embeddings use 1536 dimensions (OpenAI-compatible) or a local embedding model's native dimension?
-- [ ] What embedding model runs locally? Options: `nomic-embed-text` via Ollama, `mxbai-embed-large`, or MedGemma's embedding output.
-- [ ] Time-series cache sync frequency — on every ingestion write, or batch?
-
-### Store-fit decisions
-
-- [x] ~~Confirm the [OW ↔ Medplum boundary](#the-open-wearables-medplum-boundary)~~ — **resolved by [ADR-0002](adr/0002-clinical-data-store.md)**: OW is system of record for raw streams, projected into Medplum, then into the read model. The agent queries one surface.
-- [ ] Which OW `SeriesType`s get a LOINC projection into Medplum, and which stay OW-only?
-- [ ] Which FHIR resources and fields get projected into the read model, at what granularity?
-- [ ] Projection freshness — Medplum Subscriptions (push) or polled search (pull)?
-- [ ] How is a full projection rebuild triggered, and how is it exercised in CI?
-- [ ] **Nutrition:** where does it land — merge `coachboard-v2` and treat it as OW data, model it in the `ayuos` schema, or use FHIR `NutritionIntake`?
-- [ ] ⏸ **DEFERRED — Self-feedback:** FHIR `Observation` (survey) / `QuestionnaireResponse`, or an `ayuos.self_reports` table? See [deferred decisions](#deferred-decisions).
-- [ ] ⏸ **DEFERRED — Consent records:** native FHIR `Consent` + `Provenance` in Medplum, or `ayuos.slivers`? See [deferred decisions](#deferred-decisions).
-- [ ] **Manually-logged interventions:** extend `MedicationStatement`, or a dedicated `ayuos.interventions` table? (Note the [liability warning](data-capture.md#lifestyle-interventions) — accuracy here is a safety concern.)
-- [ ] Where do consumer-test *interpretations* (genomic/microbiome, confidence-graded) live, given the source blob is on disk?
-- [ ] Which secrets store holds provider credentials — OS keychain, or an encrypted file?
-- [ ] Does the `ayuos` schema share the Medplum Postgres instance, or get its own?
+- [ ] Which extracted index columns per resource type — generated from the SearchParameter registry, or hand-picked for the 10 queries?
+- [ ] Time-series engine: native Postgres partitioning, TimescaleDB, or a columnar extension? ⚠️ **TimescaleDB licensing must be checked** — parts are under the Timescale License, not Apache-2.0, which matters for AGPL distribution.
+- [ ] Version history mechanism — `temporal_tables`, trigger, or append-only?
+- [ ] Where do [Open Wearables](open-wearables.md) raw streams live — does OW keep its own database, or does ayuOS absorb the time-series directly? (Would collapse two Postgres instances into one.)
+- [ ] Embedding dimensions — 1536 (OpenAI-compatible) or a local model's native size?
+- [ ] Which local embedding model? `nomic-embed-text` via Ollama, `mxbai-embed-large`, or MedGemma's embedding output.
+- [ ] Metric catalogue design — LOINC where available, ayuOS codes elsewhere; how do OW `SeriesType`s map in?
+- [ ] ⏸ **DEFERRED** — self-feedback modelling (see [deferred decisions](#deferred-decisions))
+- [ ] ⏸ **DEFERRED** — consent records / slivers (see [deferred decisions](#deferred-decisions))

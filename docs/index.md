@@ -41,7 +41,7 @@ Use the left navigation to explore:
 | Decision | Choice |
 |---|---|
 | License | AGPL-3.0 (core) |
-| EHR backbone | Medplum (TypeScript, FHIR R4, self-hosted) |
+| Store | ayuOS-owned Postgres schemas; FHIR at the boundaries only |
 | Local inference | Ollama: DeepSeek-R1 distill + Qwen tool-caller + MedGemma |
 | Vector store | Postgres 16 + pgvector |
 | Wearables (P0) | Oura, Whoop, Apple Health (manual export) |

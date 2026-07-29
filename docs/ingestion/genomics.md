@@ -18,7 +18,7 @@ Raw file (23andMe TSV or VCF)
 Parser              → extract variants: (rsID, chromosome, position, genotype)
   │
   ▼
-FHIR MolecularSequence → write to Medplum (one resource per notable variant)
+FHIR MolecularSequence → clinical schema (one resource per notable variant)
   │
   ▼
 PRS calculation     → polygenic risk scores for configured traits

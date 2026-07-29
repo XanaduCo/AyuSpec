@@ -5,15 +5,16 @@ decided, and what it costs. The point is that a decision made once, with reasons
 down, does not get relitigated from memory six months later — and that when it *should* be
 revisited, the trigger is explicit.
 
-Each ADR is immutable once accepted. To change a decision, write a new ADR that supersedes
-the old one; do not edit history.
+Once an ADR has been implemented against, it is immutable — to change that decision, write a
+new ADR that supersedes it. Before implementation, an ADR may be revised in place provided the
+superseded reasoning is preserved inside it, since the reasoning is the point.
 
 ## Index
 
 | ADR | Title | Status |
 |---|---|---|
 | [0001](0001-ehr-ingestion.md) | EHR ingestion strategy | Accepted |
-| [0002](0002-clinical-data-store.md) | Clinical data store — Medplum writes, ayuOS owns the read model | Accepted |
+| [0002](0002-clinical-data-store.md) | ayuOS owns its database; FHIR is a boundary format | Accepted |
 
 ## Related
 

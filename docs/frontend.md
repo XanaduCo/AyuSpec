@@ -63,11 +63,11 @@ Leaning toward **React + Vite** given the component complexity of the timeline a
 
 ## Local serving
 
-The frontend is served by the same local process that runs the agent API. A single `ayu start` command brings up the Postgres, Medplum, Ollama (if not already running), and the web server.
+The frontend is served by the same local process that runs the agent API. A single `ayu start` command brings up Postgres, Ollama (if not already running), and the web server.
 
 ## Open questions
 
 - [ ] Framework decision (see above)
 - [ ] Should the chat support voice input?
-- [ ] How to handle the Medplum admin UI — expose it at a separate port, or integrate key views into the ayuOS UI?
+- [ ] Is a raw resource browser needed (the role Medplum's admin UI would have played), or is the timeline view sufficient?
 - [ ] PDF generation for doctor packets — headless browser (Puppeteer) or a PDF library?

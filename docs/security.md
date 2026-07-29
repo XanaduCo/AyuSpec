@@ -10,7 +10,7 @@ Out of scope for MVP: multi-user access control, remote access, adversarial netw
 
 ## Zero-egress by default
 
-In the default configuration, ayuOS makes **no outbound network connections** after initial setup. All services (Medplum, Ollama, the web frontend) run on localhost. The agent reads from local storage and writes to local storage.
+In the default configuration, ayuOS makes **no outbound network connections** after initial setup. All services (Postgres, Ollama, the web frontend) run on localhost. The agent reads from local storage and writes to local storage.
 
 The only outbound connections are:
 - Wearable API pulls (Oura, Whoop) — user-configured, on a schedule

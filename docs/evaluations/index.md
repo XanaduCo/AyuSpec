@@ -16,16 +16,16 @@ be confirmed from primary sources and should be treated as open questions, not c
 
 | Service | Verdict | One-line reason |
 |---|---|---|
-| [Medplum](medplum.md) | ✅ **Adopted** | System of record for writes; ayuOS owns the read model |
-| [Roll your own](roll-your-own.md) | ❌ Not adopted | Viable and cheaper than assumed, but a projection layer solves the requirement without the ~85% search ceiling |
+| [Roll your own](roll-your-own.md) | ✅ **Adopted** | FHIR at the boundaries, SQL inside — the query catalogue decided it |
+| [Medplum](medplum.md) | ⚖️ **Server no / library yes** | `@medplum/core` adopted as a library; the server answers 2 of 10 queries and is wrong for time-series |
 | [Blaze](blaze.md) | ⚠️ Fallback | Lightest real option (1 process) but RocksDB can't be joined against pgvector |
 | [HAPI FHIR](hapi-fhir.md) | ⚠️ Fallback | Most complete OSS search; JVM weight; the conservative retreat |
 | [Aidbox](aidbox.md) | ❌ **Disqualified** | Free tier prohibits PHI; instance phones home every ~30 min |
 | [Others surveyed](rejected-fhir-servers.md) | ❌ Rejected | Dead, amd64-only, toy, or wrong datastore — 8 servers |
 | [FHIR libraries](fhir-libraries.md) | 📚 Reference | Language-by-language: what exists for models, FHIRPath, validation |
 
-Decided in [ADR-0002](../adr/0002-clinical-data-store.md): Medplum is the system of record for
-writes; ayuOS owns a SQL read model projected from it.
+Decided in [ADR-0002](../adr/0002-clinical-data-store.md): **ayuOS owns its database.** No FHIR
+server runs; FHIR is an interchange format at the boundaries only.
 
 ## EHR ingestion
 

@@ -1,4 +1,4 @@
-# ADR-0002: Clinical data store
+# ADR-0002: ayuOS owns its database
 
 | | |
 |---|---|
@@ -6,145 +6,166 @@
 | **Date** | 2026-07-29 |
 | **Related** | [ADR-0001](0001-ehr-ingestion.md) · [Storage spec](../storage.md) |
 
+!!! note "Revised before implementation"
+    An earlier same-day draft of this ADR kept Medplum as the system of record with an ayuOS
+    read-projection layer. It was rewritten after the reasoning did not survive review — four
+    of its five arguments for Medplum turned out not to hold. Nothing had been implemented
+    against it. The refuted arguments are preserved in
+    [Why the case for Medplum did not hold](#why-the-case-for-medplum-did-not-hold), because
+    they are the substance of the decision.
+
 !!! info "Per-service detail"
-    [Medplum](../evaluations/medplum.md) · [Roll your own](../evaluations/roll-your-own.md) ·
+    [Roll your own](../evaluations/roll-your-own.md) · [Medplum](../evaluations/medplum.md) ·
     [Blaze](../evaluations/blaze.md) · [HAPI](../evaluations/hapi-fhir.md) ·
     [Aidbox](../evaluations/aidbox.md) · [Rejected servers](../evaluations/rejected-fhir-servers.md)
 
-## Context
-
-The question was whether to keep Medplum as the FHIR store or build our own. Two objections
-drove it; only one survived investigation.
-
-**Disproven — "Medplum is a complex beast; you have to run an entire cluster."** The stack was
-run and measured on Apple Silicon: **4 containers** (3 if we ship our own UI), **~600 MB RAM
-idle**, ~0% CPU, native arm64, up in ~90 seconds. Medplum's own docs explicitly bless
-*"a lightweight instance running on a small machine"* — the alarming self-hosting warnings are
-scoped to at-scale multi-tenant deployments. Weight is not a reason to move.
-
-**Survived — the data model is the real constraint.** Three concrete problems:
-
-1. **FHIR search cannot express cross-resource joins.** `_include` only walks references.
-   *"Show progress toward my ApoB goal, joined against the experiment window and the wearable
-   baseline"* is not expressible.
-2. **Polymorphic metric references.** A [goal](../experimentation.md)'s tracking metric may be
-   a biomarker (`Observation` in Medplum) one cycle and a wearable metric (`SeriesType` in
-   Open Wearables) the next — a soft reference into two stores with no FK and no type safety.
-3. **Some objects have no honest FHIR home.** A nutrition plan with trigger points and
-   rationale is not `NutritionOrder` (inpatient meal ordering) or `PlanDefinition` (clinical
-   decision support).
-
-And the escape hatch is closed: Medplum documents its Postgres schema as **"an internal detail
-subject to change"**, so the SQL join that would solve this is precisely the query we are not
-supposed to write.
-
-A separate finding reopened the build-our-own option: **`@medplum/core` and
-`@medplum/definitions` work standalone** — Apache-2.0, zero runtime dependencies, no server
-required — shipping a FHIRPath engine, the SearchParameter registry, write-time index
-extractors, and a validator that evaluates FHIR invariants. Building our own store is
-materially cheaper than assumed.
-
 ## Decision
 
-**Medplum remains the system of record for clinical FHIR resources. ayuOS owns the read
-model.**
+**ayuOS owns its database — one Postgres instance, schemas we design.**
 
-- **Writes go through the Medplum FHIR API.** Ingestion adapters never write SQL directly.
-  This is what buys version history, conditional create, transaction bundles, and validation.
-- **A projection layer maintains ayuOS-owned SQL tables**, populated *via the FHIR API* —
-  search and Subscriptions — never by reading Medplum's internal tables.
-- **The agent queries the projections and the `ayuos` schema**, joined with ordinary SQL.
-  Cross-cutting queries are native.
-- **Projections are derived, disposable, and rebuildable** from Medplum at any time. They are
-  a cache, not a second source of truth.
+**FHIR is an interchange format at the boundaries, not the storage model.** Records arrive as
+FHIR from Epic, Apple Health, and Fasten Connect; they are stored faithfully as FHIR-shaped
+JSONB with extracted index columns; and FHIR bundles are generated on export. Between those
+boundaries, the query surface is SQL we control.
 
-The existing `time_series_cache` — already specified as *"populated by a sync job from
-Medplum"* — is the first instance of this pattern. This ADR generalizes it into the standard
-read path.
+**We do not run a FHIR server.** We use [`@medplum/core` and `@medplum/definitions` as
+libraries](../evaluations/roll-your-own.md#the-finding-that-changed-the-cost-estimate) —
+Apache-2.0, zero runtime dependencies, no server — for the FHIRPath engine, the
+SearchParameter registry, write-time index extraction, and resource validation.
 
-```
-Ingestion adapters ──FHIR API──► Medplum (system of record)
-                                    │
-                                    │ FHIR search / Subscriptions
-                                    ▼
-                          ayuOS projection tables ◄──── joins ────► ayuos schema
-                                    │                                (goals, hypotheses,
-                                    ▼                                 experiments, plans)
-                              Agent queries (SQL)
-```
+## The evidence that decided it
 
-### Why this rather than the alternatives
+The question was scoped by asking what the agent actually has to answer, rather than which
+server is better in the abstract.
 
-It delivers the actual requirement — owned models and fast cross-cutting queries — **without
-rebuilding FHIR's correctness guarantees.** Two of those matter concretely here:
+| # | Query the agent must answer | FHIR search? |
+|---|---|---|
+| 1 | Latest value of a biomarker | ✅ |
+| 2 | Lipid panel over 5 years | ✅ |
+| 3 | Average HRV by week over 6 months | ❌ no aggregation |
+| 4 | Correlate sleep score with next-day glucose | ❌ no cross-resource join |
+| 5 | Goal progress joined to experiment window + wearable baseline | ❌ not expressible |
+| 6 | Notes semantically similar to a symptom description | ❌ vector search |
+| 7 | Assemble the cardiac sliver for a named provider | ❌ custom assembly |
+| 8 | What changed in my last 90 days, across every metric class | ❌ aggregation + deltas |
+| 9 | Experiment baseline window vs. intervention window | ❌ windowed aggregation |
+| 10 | Am I due for a screening, given age/sex/risk | ❌ rule evaluation |
 
-- **Idempotent ingest.** Apple Health exports are **cumulative full dumps**; every re-export
-  re-imports everything. Conditional create (`ifNoneExist`) makes re-import safe. Without it
-  we hand-roll dedup across ~1,300 Observations per import.
-- **Version history.** Cannot be retrofitted — you cannot reconstruct versions never written —
-  and *"what changed in my last 90 days?"* is the anchor workflow.
+**FHIR search answers two of ten.** The other eight are SQL, time-series, or vector work we
+were going to write regardless.
 
-It is also **reversible**. If the projections end up carrying everything the agent needs,
-migrating to a fully-owned store later is far easier than the reverse.
+This is not a defect in FHIR. **FHIR search exists so external clients can query a server in a
+standard way — and ayuOS has no external FHIR clients.** The only consumer is our own agent,
+running in-process. We were paying for an interop surface with no consumers.
+
+## Storage classes — one size does not fit
+
+The second decisive input: the data has genuinely different shapes, and forcing it all into
+FHIR resources is wrong for most of it.
+
+| Class | Store | Rationale |
+|---|---|---|
+| **Clinical resources** (Observation, Condition, DiagnosticReport…) | FHIR-shaped JSONB + extracted index columns | Arrives already-valid from Epic/Apple; store faithfully, query via extracted columns |
+| **High-frequency wearable samples** (continuous HR, per-second streams) | Narrow time-series table, partitioned | See volume analysis below |
+| **Daily/aggregate wearable metrics** | Same time-series table, coarser grain | Cheap to co-locate |
+| **Documents, notes, imaging, genomes** | Blob on disk + `pgvector` embeddings | Content is not relational |
+| **Application objects** (goals, hypotheses, experiments, plans) | Native relational tables | No honest FHIR representation; see [ADR-0002 §app objects](#application-objects-are-now-first-class) |
+
+### The wearable volume argument
+
+Continuous Garmin HR runs roughly 10k–86k samples per day. Stored as FHIR `Observation`s —
+each a JSONB document plus index columns, ~1–2 KB — ten million samples is **10–20 GB**. The
+same data as `(user_id, metric_id, ts, value)` is ~24 bytes a row: **~500 MB**.
+
+**A 20–40× storage difference**, before accounting for JSONB parsing on every aggregation.
+
+High-frequency wearable data must never be FHIR Observations. And the consequence is
+structural: **a purpose-built time-series store is required regardless of this decision**.
+Once the architecture contains a non-FHIR store, adding FHIR-shaped tables beside it is a
+smaller increment than operating a separate FHIR server beside it.
+
+## Why the case for Medplum did not hold
+
+Preserved deliberately — this is the reasoning, not just the outcome. Each of these was
+offered as something expensive to rebuild. Four do not survive.
+
+| Argument | Why it fails |
+|---|---|
+| **Version history** | Overweighted. A history table plus a trigger, or an append-only design, is ~50 lines. Postgres lacks native SQL:2011 system-versioned tables, but the `temporal_tables` extension or a hand-rolled trigger covers it. The real risk was *never writing versions at all* — which day-one design eliminates. |
+| **Idempotent ingest** | Our own mechanism is **better** for this workload. FHIR conditional create (`ifNoneExist`) runs **a search per resource** — ~1,300 searches per Apple Health import. A content hash plus a `(source, source_resource_id)` provenance key is one indexed lookup and yields change detection for free. FHIR's mechanism is built for multi-writer clinical environments; ayuOS has one writer. |
+| **`Patient/$everything` for doctor packets** | **Contradicts our own [sharing spec](../sharing.md)**, which is built on scoped, per-recipient, per-purpose slivers and states "never all-or-nothing." `$everything` is the shape the product deliberately rejects. Exports are purpose-built, not dumps. |
+| **Transaction bundles** with `urn:uuid:` resolution | **No ingestion path sends them.** Apple Health export is individual resource files; Fasten Connect is NDJSON (one resource per line); Epic patient apps do per-resource read/search with no `Patient/$export`. Irrelevant. |
+| **FHIR search** | Answers 2 of the 10 queries above, and exists for external clients we do not have. |
+
+What genuinely remained — FHIR resource modelling and validation — **is available as a
+library**, without a server.
+
+One further point in favour: **ayuOS is predominantly a FHIR *consumer*, not an author.** Data
+arriving from Epic and Apple is already valid FHIR. The task is to store and query it, not to
+guarantee conformance on write. That is the cheaper half of the problem.
 
 ## Consequences
 
 **Positive**
 
-- Cross-cutting queries become ordinary SQL over tables we designed
-- **No coupling to Medplum's internal schema** — we read through the supported API, so their
-  "subject to change" caveat never bites
-- Application objects ([hypotheses](../evidence.md), experiments, plans) join to clinical data
-  with real SQL rather than soft references resolved in application code
-- Medplum's upgrade treadmill affects only the write path; projections are rebuilt, not migrated
+- **The agent's real queries become native.** Cross-domain joins, windowed aggregations, and
+  correlations are ordinary SQL.
+- **Right storage for each data class** — time-series data stops paying a 20–40× JSONB tax.
+- **Application objects are now first-class.** Goals, hypotheses, experiments, and nutrition
+  plans are real tables with real foreign keys into clinical and wearable data — not soft
+  references resolved in application code across two stores.
+- **One engine, one backup, one `pg_dump`.** No eventual consistency, no projection lag, no
+  sync layer to maintain and rebuild.
+- **No upgrade treadmill.** Medplum's no-skip-minor policy would have become ayuOS's support
+  burden across self-hosters.
+- **No stock-configuration egress to remediate** — Medplum's default compose reaches Google
+  reCAPTCHA and Have I Been Pwned on account paths.
 
 **Negative / accepted**
 
-- **Projection lag.** Reads are eventually consistent with Medplum. Acceptable for a personal
-  health agent; must be explicit in the UI for anything time-sensitive.
-- **Double storage** of projected fields
-- **Sync logic is ours to maintain** — including the rebuild path, which must be exercised in
-  CI rather than assumed to work
-- Medplum's operational costs remain: 3–4 containers, mandatory OAuth2, required Redis, and
-  **no-skip-minor upgrades** (which becomes ayuOS's support burden at 1,000 self-hosters —
-  budget a stepped-upgrade tool in the updater)
+- **We own correctness.** Resource modelling, index extraction, and query semantics are ours.
+- **A FHIR search-fidelity ceiling of roughly 85%** — token, reference, and correct date
+  ranges cover what we need; chaining, `_has`, `_filter`, and composite params are out of
+  scope until something demands them.
+- **TypeScript lock-in for the storage layer.** Python dropped R4 at `fhir.resources` v7.0.0;
+  Rust has no R4 models at all. See [FHIR libraries](../evaluations/fhir-libraries.md).
+- **No external FHIR API for free.** If a third-party FHIR client ever needs to read ayuOS,
+  that becomes work. No such requirement exists today.
+- **Sobering precedent:** Medplum's search is ~5,650 lines across 110 schema migrations, and
+  WSO2's funded team shipped this design after ~1 month with `_sort` silently ignored and no
+  chaining. Scope discipline is the mitigation — we are targeting 10 queries, not the spec.
 
-**Required regardless of this ADR** — Medplum's stock configuration is **not zero-egress**.
-Account-creation paths call Google reCAPTCHA and Have I Been Pwned. Steady-state FHIR
-operation is genuinely offline (verified), but the hardening in
-[the Medplum evaluation](../evaluations/medplum.md#required-hardening-for-ayuos) is mandatory:
-blank the reCAPTCHA and Google keys, seed the admin via config rather than registration, add a
-volume for binary storage, pin image tags, bind ports to loopback.
+## Day-one commitments
 
-## Consistency with the Open Wearables boundary
+Cheap now, irrecoverable or expensive later. These must be in the schema before any real data
+lands:
 
-This confirms the resolution proposed in [Storage](../storage.md#the-open-wearables-medplum-boundary):
-Open Wearables remains the system of record for raw device streams; clinically meaningful
-metrics are projected into Medplum as LOINC-coded `Observation`s, and from there into the read
-model. The agent queries one surface.
+1. **Append-only version history** — you cannot reconstruct versions never written, and
+   *"what changed"* is the anchor workflow.
+2. **Date range (`low`/`high`) columns plus a separate scalar sort column.** FHIR date
+   prefixes are interval operators, not scalar comparisons, and ranges are not orderable.
+   HAPI, Medplum, Aidbox, and WSO2 all converged on exactly this shape.
+3. **Content-hash idempotency keys** plus `(source, source_resource_id)` provenance on every
+   ingested resource.
+4. **Partitioning strategy for the time-series table**, chosen before it grows.
 
 ## Alternatives considered
 
 | Alternative | Rejected because |
 |---|---|
-| **Keep Medplum as-is** (agent reads the FHIR API directly) | Cheapest and lowest-risk, but leaves the cross-cutting-query objection entirely unaddressed — the actual problem. |
-| **Own the store entirely** (FHIR-as-JSONB + `@medplum/core`) | Genuinely viable and materially cheaper than assumed, but pays a ~85% search-fidelity ceiling, requires history and date-range design to be right on day one, and locks the storage layer to TypeScript (Python dropped R4 at v7.0.0; Rust has no R4 models at all). WSO2's *funded team* built this exact design and shipped after ~1 month with `_sort` silently ignored and no chaining. Not worth it while a projection layer solves the requirement. |
-| **Blaze** | Lightest option — one process, embedded RocksDB — and therefore the **worst** fit: the clinical store becomes an opaque KV blob that cannot be joined against pgvector at all. |
-| **HAPI FHIR** | No advantage over Medplum for the store role; adds a JVM. Retained as the fallback if Medplum's ops burden proves untenable, and worth adopting **separately** as a validation sidecar if US Core conformance matters. |
-| **Aidbox** | Disqualified: free tier **prohibits PHI**, and instances **ping a licence portal every ~30 minutes**. |
-
-## What would flip this
-
-- Projection lag proving unacceptable for a core workflow
-- The projection layer growing to the point that Medplum is only a write buffer — at which
-  point the fully-owned store becomes the simpler system, and the migration is already half done
-- Medplum's no-skip-minor upgrade policy becoming a genuine support burden across self-hosters
-- A Medplum licence change (currently Apache-2.0)
+| **Medplum as system of record** | Its advantages reduce to two of ten queries plus capabilities available as libraries; and it is the wrong store for high-frequency wearable data. |
+| **Medplum for writes + ayuOS read projections** (the earlier draft) | If the projections carry everything the agent queries, Medplum becomes a write buffer holding a second copy of the data and contributing eventual consistency for nothing. |
+| **Blaze** | Lightest option, and the worst fit — embedded RocksDB makes the clinical store an opaque KV blob that cannot be joined at all. |
+| **HAPI FHIR** | Adds a JVM with no advantage for the store role. Still worth adopting **separately** as a validation sidecar if US Core conformance on imported records ever matters. |
+| **Aidbox** | Disqualified — free tier prohibits PHI; instances ping a licence portal every ~30 minutes. |
 
 ## Open questions
 
-- [ ] Which resources and fields get projected, and at what granularity?
-- [ ] Projection freshness mechanism — Medplum **Subscriptions** (push) or polled search (pull)? Subscriptions are supported and would minimize lag.
-- [ ] How is a full projection rebuild triggered and tested? (Must be a first-class, CI-exercised operation.)
-- [ ] Does the `ayuos` schema share the Medplum Postgres instance, or get its own? Sharing enables single-query joins; separating cleans the upgrade story.
-- [ ] The two [deferred decisions](../storage.md#deferred-decisions) are unchanged by this ADR — but note it **tips self-feedback toward FHIR `Observation`**, since anything in Medplum flows into the read model and joins for free.
+Schema details are deliberately deferred and will be settled during implementation.
+
+- [ ] Which extracted index columns per resource type — driven from the SearchParameter registry, or hand-picked for the 10 queries?
+- [ ] Time-series engine: native Postgres partitioning, TimescaleDB, or a columnar extension? ⚠️ **TimescaleDB licensing must be checked** — parts are under the Timescale License, not Apache-2.0, which matters for AGPL distribution.
+- [ ] Version history mechanism: `temporal_tables` extension vs. hand-rolled trigger vs. append-only.
+- [ ] Do the clinical, time-series, and `ayuos` schemas share one Postgres instance? (Assumed yes — single-instance joins are the point.)
+- [ ] Where do [Open Wearables](../open-wearables.md) raw streams live now — does OW keep its own database, or does ayuOS absorb the time-series directly?
+- [ ] The two [deferred store-fit decisions](../storage.md#deferred-decisions) — self-feedback and consent records — are unchanged, but both get simpler: there is no longer a FHIR-vs-app-table split to straddle.

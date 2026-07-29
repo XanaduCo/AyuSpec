@@ -32,7 +32,7 @@ graph TD
     end
 
     subgraph Storage Layer
-        MP[Medplum<br/>FHIR R4 store]
+        MP[clinical schema<br/>FHIR-shaped JSONB + index columns]
         PG[Postgres 16 + pgvector<br/>time-series · embeddings]
     end
 
@@ -104,8 +104,8 @@ by default. Everything else in the system is zero-egress.
 
 ## Data flow
 
-1. **Ingestion** — sources push/pull into the ingestion layer on a schedule or on-demand. All connectors write normalized FHIR resources to Medplum.
-2. **Normalization** — Medplum stores canonical FHIR R4 resources. A crosswalk layer handles LOINC/SNOMED/RxNorm deduplication across sources.
+1. **Ingestion** — sources push/pull into the ingestion layer on a schedule or on-demand. Adapters write FHIR resources into the `clinical` schema and device metrics into `timeseries`, each carrying a content hash and source provenance so re-runs are idempotent.
+2. **Normalization** — clinical resources are stored as received, with index columns extracted via `@medplum/core`. A crosswalk layer handles LOINC/SNOMED/RxNorm deduplication across sources.
 3. **Embedding** — Relevant FHIR resources and time-series observations are embedded and stored in pgvector for retrieval.
 4. **Query** — User asks a question. The agent loop retrieves relevant context via RAG, routes sub-tasks to the appropriate model (R1 for reasoning, Qwen for tool use, MedGemma for medical extraction), assembles a response with evidence labels, and returns it to the frontend.
 5. **Escalation (opt-in)** — For hard questions, the user can toggle cloud escalation. The PII gateway strips the payload; the user previews and confirms; the stripped context goes to a cloud LLM; the response is logged in the audit trail.
@@ -114,7 +114,8 @@ by default. Everything else in the system is zero-egress.
 
 | Layer | Technology | Rationale |
 |---|---|---|
-| EHR backbone | Medplum (TypeScript) | FHIR R4 native, self-hosted, Apache-2.0, active community |
+| Clinical store | ayuOS-owned Postgres schemas | FHIR at the boundaries, SQL inside — [ADR-0002](adr/0002-clinical-data-store.md) |
+| FHIR toolkit | `@medplum/core` + `@medplum/definitions` (library) | Apache-2.0, zero deps, no server — FHIRPath, SearchParameter registry, index extraction, validation |
 | EHR — base | Apple Health export parser | Raw provider FHIR JSON; no entitlement, no registration, zero egress |
 | EHR — direct | Epic SMART-on-FHIR | Free, auto-distributed to ~800 orgs, includes clinical notes |
 | EHR — premium (optional) | Fasten Connect (paid) | Breadth beyond Epic; data transits Fasten, 24h retention |

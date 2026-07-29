@@ -31,7 +31,7 @@ The anchor workflow: ask ayuOS "what changed in my last 90 days?" and get a grou
 
 - **License:** AGPL-3.0 for the core (strong copyleft, prevents commercial forks taking it private). No GPL isolation boundary — ayuOS no longer forks Fasten.
 - **Business model:** Open-core — AGPL-3.0 self-hosted tier is free forever; ayuOS Cloud managed service is subscription-funded. Data never sold in either tier.
-- **EHR backbone:** Medplum (TypeScript, FHIR R4, self-hosted)
+- **Storage (ADR-0002):** ayuOS owns its database — one Postgres, schemas we design (`clinical` FHIR-shaped JSONB + index columns · `timeseries` for wearables · `ayuos` app objects · `vectors`). **No FHIR server.** FHIR is an interchange format at the boundaries only. `@medplum/core` is used as a library (FHIRPath, SearchParameter registry, validation). Decided because 8 of the agent's 10 core queries are aggregations/joins/vector search that FHIR search cannot express, and high-frequency wearable data as FHIR Observations costs 20–40× the storage.
 - **Model providers:** Configurable per role (reasoner / tool-caller / medical extractor). Default: Ollama with DeepSeek-R1 distill + Qwen + MedGemma. Cloud APIs (Anthropic, OpenAI, Google) are opt-in; PII gateway always enforces before any cloud call. Local OpenAI-compatible endpoints (LM Studio, vLLM) also supported.
 - **Vector store:** Postgres 16 + pgvector
 - **Wearable ingestion layer:** Open Wearables (self-hosted, 13+ providers, zero transit) — default for all users
@@ -45,7 +45,7 @@ The anchor workflow: ask ayuOS "what changed in my last 90 days?" and get a grou
 
 ## What Kills Projects Like This
 
-Maintainer burnout from keeping EHR/device connectors alive (vendor APIs break constantly). The mitigations are: lean on upstream OSS (Medplum, Open Wearables) and on vendor-maintained access paths (Epic auto-distribution, Fasten Connect) rather than owning connectors; don't rebuild what already exists; establish governance and contributor community before it's needed.
+Maintainer burnout from keeping EHR/device connectors alive (vendor APIs break constantly). The mitigations are: lean on upstream OSS (Open Wearables, `@medplum/core` as a library) and on vendor-maintained access paths (Epic auto-distribution, Fasten Connect) rather than owning connectors; don't rebuild what already exists; establish governance and contributor community before it's needed. Note the distinction — we avoid owning *connectors*, but deliberately own the *store* (ADR-0002), because no third party's schema fits the query surface.
 
 **This risk is not theoretical.** Fasten Onprem — originally the EHR spine of this project — was archived mid-2026 and stopped retrieving records. Every external ingestion dependency sits behind an adapter interface for exactly this reason.
 
@@ -54,7 +54,7 @@ Maintainer burnout from keeping EHR/device connectors alive (vendor APIs break c
 - Vision and user problem
 - Architecture overview (process map, data flow)
 - Ingestion layer: wearables, Apple Health export, EHR (four tiers — see ADR-0001), lab PDFs (OCR), DICOM/imaging, genomics
-- Storage layer: Postgres/pgvector schema, Medplum FHIR store, time-series design
+- Storage layer: Postgres schemas (clinical/timeseries/ayuos/vectors), index extraction, time-series design
 - AI/ML layer: model roles (R1 vs. Qwen vs. MedGemma), routing logic, RAG design
 - Agent loop: tool definitions, reasoning chain, evidence-assertion labeling
 - PII gateway: local NER/regex, cloud escalation flow, audit log

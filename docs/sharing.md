@@ -78,6 +78,6 @@ Any hosted "share link" mechanism (where a recipient fetches the sliver from an 
 - [ ] What is the consent-record schema, and does it live in Postgres, the FHIR store (as `Consent` resources), or a dedicated append-only log?
 - [ ] Should slivers be re-generatable (a saved definition that re-runs against current data) or always point-in-time snapshots?
 - [ ] For the cloud share-link path: authentication of the recipient, link expiry defaults, and what the recipient sees.
-- [ ] Do we support FHIR `Consent` + `Provenance` resources natively (Medplum supports them) rather than a bespoke log?
+- [ ] Do we model the disclosure trail on FHIR `Consent` + `Provenance` semantics — so a recipient system could read it, since we generate FHIR at the export boundary anyway — or keep a bespoke `ayuos.slivers` log? ⏸ [Deferred](storage.md#deferred-decisions).
 - [ ] Redaction depth — can a sliver include a lab value but strip the ordering provider's identity? What's the minimum viable redaction unit?
 - [ ] How does revocation surface to a recipient who already fetched a hosted sliver?

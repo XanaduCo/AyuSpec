@@ -69,7 +69,7 @@ Milestone 7 (EHR direct sync — Tier 2)
 The following require **nothing external** for 2 users who already hold their data:
 
 - Local inference (Ollama + open weights)
-- FHIR backbone (Medplum, self-hosted)
+- The store (Postgres + pgvector, schemas we own — no FHIR server to operate)
 - Vector store (Postgres + pgvector)
 - Apple Health **export** parse (no Apple Developer account needed)
 - Lab PDF ingestion (Tesseract + MedGemma — all local)

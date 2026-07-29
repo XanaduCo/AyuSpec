@@ -15,8 +15,11 @@ The mitigations are governance and sustainability — not a business model.
 - **No GPL isolation boundary.** Earlier revisions forked GPL-3.0 Fasten Health into its own
   process. ayuOS no longer forks Fasten (see [ADR-0001](adr/0001-ehr-ingestion.md)), so no
   GPL code enters the process map.
-- **Upstream dependencies:** Medplum (Apache-2.0), Open Wearables (open source) — all
-  permissively licensed and one-way compatible into AGPL-3.0
+- **Upstream dependencies:** `@medplum/core` and `@medplum/definitions` (Apache-2.0, used as
+  libraries), Open Wearables (open source) — all permissively licensed and one-way compatible
+  into AGPL-3.0. ⚠️ Two to check before adoption: the `fhirpath` npm package carries a
+  **custom BSD-derived licence** that scanners flag as `NOASSERTION`, and **TimescaleDB** is
+  partly under the Timescale License rather than Apache-2.0.
 - **Bundled guideline corpus:** will vary by source; must be verified per document before inclusion
 
 ## Stewardship model
