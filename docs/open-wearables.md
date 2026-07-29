@@ -86,6 +86,68 @@ Terra Bridge is a paid integration layer that routes data from Terra-connected p
 
 ---
 
+## Terra Bridge ingestion contract
+
+Terra Bridge delivering data to a local webhook does **not** by itself guarantee that
+every field Terra sends is stored. Terra data lands in Open Wearables through the same
+path as any other provider: a provider strategy maps incoming fields onto the
+[`SeriesType` catalog](#the-real-differentiator-developer-agreements). A Terra field with no
+corresponding `SeriesType` has nowhere to go.
+
+So the honest answer to *"can Open Wearables ingest everything Terra sends?"* is:
+**most of it, but not everything, and only what has been explicitly mapped.**
+
+### The mapping model
+
+The target schema is the `SeriesType` catalog — ~80+ integer-ID metric types, data stored
+as normalized time-series keyed by SeriesType (per user, per provider). Terra normalizes
+its providers into its own payload categories (Activity, Body, Daily, Sleep, Nutrition,
+Menstruation, plus nested workout/session structures). Ingesting Terra losslessly requires
+a Terra strategy that maps every Terra field to a `SeriesType` — and where no `SeriesType`
+exists, one must be added (enum entry + migration) before that field can be stored.
+
+### Terra payload → OW coverage matrix
+
+Cells marked `[U]` are unverified against the current OW code (`series_types.py`, the Terra
+strategy, the `coachboard-v2` branch) and must be confirmed before this table is treated as
+authoritative — see [Open questions](#open-questions-terra-ingestion) below.
+
+| Terra payload category | Terra provides | OW `SeriesType` exists? | Status | Gap-closing work |
+|---|---|---|---|---|
+| **Body** (HR, HRV, SpO2, glucose, temp, body composition) | Scalar biometrics + samples | Yes — broad overlap | Lossless `[U]` | Confirm field-level mapping completeness |
+| **Daily** (steps, calories, distance, active durations, stress) | Daily summaries + intraday samples | Yes for most | Lossless `[U]` | Confirm intraday-sample granularity is preserved |
+| **Sleep** (durations, stages, HRV, respiration) | Summary + hypnogram | Partial | Summary maps; **hypnogram sequence** `[U]` | Decide stage-sequence representation (see nested note) |
+| **Activity / Workout** (sessions, laps, GPS, power) | Nested session objects | Partial | Scalar streams map; **laps/GPS/session structure** likely dropped | Structured session modeling (see nested note) |
+| **Nutrition** (meals, macros, micros, calorie budgets) | Full food-log data | **No on `main`** (only `hydration`) | **Dropped** | Merge `coachboard-v2` (adds nutrition SeriesTypes) + Terra-nutrition mapping |
+| **Menstruation** (cycle, flow, symptoms) | Cycle data | `[U]` | `[U]` | Confirm SeriesTypes exist; add if not |
+| **Provider-specific scores** (readiness, recovery, body battery) | Vendor scores | Mostly yes | Lossless `[U]` | Per-score confirmation |
+
+### Unmapped-field policy
+
+Open Wearables' governing rule is "if a provider exposes a field, someone has to map it" —
+there is no generic catch-all bucket, so an **unmapped Terra field is dropped, not stored as
+unknown.** Whether dropped fields should instead be *logged* (for observability) or
+*persisted raw* (so historical data isn't lost before a mapping exists) is an open design
+decision, not current behavior. Until decided, assume silent drop for anything not in the
+matrix above.
+
+### Nested / session data
+
+The `SeriesType` model is oriented to **scalar metric streams**. Terra's nested payloads —
+workout sessions with laps and GPS sample arrays, sleep with a full hypnogram — do not map
+cleanly to scalar time-series and risk lossy flattening. Capturing them faithfully likely
+needs dedicated structured storage rather than more `SeriesType` entries; see
+[Storage](storage.md).
+
+### Open questions — Terra ingestion
+
+- [ ] Does a Terra ingestion strategy already exist in the OW repo, and how complete is its field mapping?
+- [ ] Unmapped-field policy: drop silently, log, or raw-store-for-later-mapping?
+- [ ] Is merging `coachboard-v2` sufficient for Terra nutrition, or is a separate Terra-nutrition mapping also required on top?
+- [ ] How are Terra's nested session structures (laps, GPS, sleep stages) represented — flattened to SeriesTypes, or modeled as structured resources in the [storage layer](storage.md)?
+
+---
+
 ## The real differentiator: developer agreements
 
 The most durable Terra advantage isn't data types — it's **access**. Some providers require a formal developer agreement (or have closed their programs), which a commercial entity is better positioned to hold.

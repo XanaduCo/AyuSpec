@@ -51,6 +51,8 @@ For Garmin and Dexcom/CGM, where a formal developer agreement gates direct API a
 
 Terra Bridge is an optional paid add-on. Pricing follows Terra's per-user/per-connection model.
 
+Delivery to the local webhook does not guarantee every Terra field is stored — data lands only where a `SeriesType` mapping exists. See the [Terra Bridge ingestion contract](../open-wearables.md#terra-bridge-ingestion-contract) for the coverage matrix and known gaps (notably nutrition).
+
 ## Deduplication
 
 Oura and Apple Health both report steps, heart rate, sleep. The deduplication policy:
