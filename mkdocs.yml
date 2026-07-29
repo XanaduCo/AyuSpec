@@ -1,0 +1,63 @@
+site_name: ayuOS
+site_description: Open-source personal health agent — specification and architecture
+site_url: https://xanaduCo.github.io/AyuSpec
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Vision & Problem: vision.md
+  - Architecture Overview: architecture.md
+  - Ingestion:
+    - Overview: ingestion/index.md
+    - Wearables: ingestion/wearables.md
+    - Apple Health: ingestion/apple-health.md
+    - EHR (Fasten fork): ingestion/ehr.md
+    - Lab PDFs: ingestion/labs.md
+    - Imaging (DICOM): ingestion/imaging.md
+    - Genomics: ingestion/genomics.md
+  - Storage: storage.md
+  - AI & ML Layer: ai-ml.md
+  - Agent Loop: agent-loop.md
+  - PII Gateway & Cloud Escalation: pii-gateway.md
+  - Frontend & UI: frontend.md
+  - Security & Privacy: security.md
+  - Deployment & Infrastructure: deployment.md
+  - Federated Analytics: federation.md
+  - Governance & Stewardship: governance.md
+  - External Dependencies: external-deps.md
