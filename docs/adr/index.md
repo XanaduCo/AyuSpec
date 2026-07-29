@@ -15,6 +15,11 @@ the old one; do not edit history.
 | [0001](0001-ehr-ingestion.md) | EHR ingestion strategy | Accepted |
 | 0002 | Clinical data store — Medplum vs. own FHIR store | **Open** — not yet written |
 
+## Related
+
+Per-service findings live in [Service Evaluations](../evaluations/index.md). Evaluations
+record what is true about a service; ADRs pick between them.
+
 ## Status values
 
 | Status | Meaning |

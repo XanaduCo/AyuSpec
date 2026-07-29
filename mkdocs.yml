@@ -45,6 +45,20 @@ nav:
   - Decisions (ADRs):
     - Overview: adr/index.md
     - "ADR-0001: EHR ingestion": adr/0001-ehr-ingestion.md
+  - Service Evaluations:
+    - Overview: evaluations/index.md
+    - Medplum: evaluations/medplum.md
+    - Roll your own (FHIR on Postgres): evaluations/roll-your-own.md
+    - Blaze: evaluations/blaze.md
+    - HAPI FHIR: evaluations/hapi-fhir.md
+    - Aidbox: evaluations/aidbox.md
+    - Rejected FHIR servers: evaluations/rejected-fhir-servers.md
+    - FHIR libraries: evaluations/fhir-libraries.md
+    - Apple Health: evaluations/apple-health.md
+    - Epic direct: evaluations/epic-direct.md
+    - Fasten (Onprem + Connect): evaluations/fasten.md
+    - Oracle Health / Cerner: evaluations/oracle-cerner.md
+    - Open Wearables vs Terra: evaluations/open-wearables-vs-terra.md
   - Architecture Overview: architecture.md
   - Open Wearables: open-wearables.md
   - Data Capture Strategy: data-capture.md

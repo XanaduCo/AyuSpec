@@ -6,6 +6,14 @@
 | **Date** | 2026-07-29 |
 | **Supersedes** | The "fork Fasten Health as an isolated GPL service" decision in `CLAUDE.md` and the original `docs/ingestion/ehr.md` |
 
+!!! info "Per-service detail"
+    The findings behind this decision are recorded per service in
+    [Service Evaluations](../evaluations/index.md) — see
+    [Apple Health](../evaluations/apple-health.md),
+    [Epic direct](../evaluations/epic-direct.md),
+    [Fasten](../evaluations/fasten.md), and
+    [Oracle Health / Cerner](../evaluations/oracle-cerner.md).
+
 ## Context
 
 The original plan was to fork [Fasten Health](https://github.com/fastenhealth/fasten-onprem)

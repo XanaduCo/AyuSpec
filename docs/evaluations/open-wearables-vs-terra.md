@@ -1,4 +1,18 @@
-# Open Wearables vs Terra: Comparison
+# Open Wearables vs Terra
+
+| | |
+|---|---|
+| **Verdict** | ✅ **Open Wearables adopted** as default · ✅ **Terra adopted** as an optional paid bridge |
+| **Role** | Wearable ingestion layer |
+| **Spec** | [Open Wearables](../open-wearables.md) |
+
+The decision: Open Wearables is the zero-transit default; Terra Bridge is enabled per provider,
+with explicit consent, only for devices behind developer agreements Open Wearables cannot hold.
+This is the same shape later applied to EHR ingestion in [ADR-0001](../adr/0001-ehr-ingestion.md)
+— free zero-egress default, paid transiting add-on for breadth.
+
+---
+
 
 ## What is Open Wearables?
 

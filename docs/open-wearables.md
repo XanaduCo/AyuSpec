@@ -5,6 +5,7 @@ Open Wearables is the wearable ingestion layer for ayuOS. It is a self-hosted, o
 - **Stack:** FastAPI (Python), React 19 + TypeScript, PostgreSQL + Redis + Celery
 - **Providers:** 13 supported
 - **Repo:** [XanaduCo/open-wearables](https://github.com/XanaduCo/open-wearables)
+- **Evaluation:** [Open Wearables vs Terra](evaluations/open-wearables-vs-terra.md)
 
 ---
 
