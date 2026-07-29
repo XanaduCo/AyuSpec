@@ -17,9 +17,15 @@ The mitigations are governance and sustainability — not a business model.
   GPL code enters the process map.
 - **Upstream dependencies:** `@medplum/core` and `@medplum/definitions` (Apache-2.0, used as
   libraries), Open Wearables (open source) — all permissively licensed and one-way compatible
-  into AGPL-3.0. ⚠️ Two to check before adoption: the `fhirpath` npm package carries a
-  **custom BSD-derived licence** that scanners flag as `NOASSERTION`, and **TimescaleDB** is
-  partly under the Timescale License rather than Apache-2.0.
+  into AGPL-3.0. ⚠️ One to check: the `fhirpath` npm package carries a **custom BSD-derived
+  licence** that scanners flag as `NOASSERTION`. It is compiled into what we ship, so its
+  terms flow into distribution.
+
+!!! note "Server-side components are a different question"
+    Licences of things ayuOS *links against* (npm packages) flow into what we distribute.
+    Licences of things it merely *talks to over a network protocol* — Postgres and any
+    extensions the user installs — do not. Those only become relevant if ayuOS ships a
+    bundled installer containing them, or hosts them in the managed cloud tier.
 - **Bundled guideline corpus:** will vary by source; must be verified per document before inclusion
 
 ## Stewardship model

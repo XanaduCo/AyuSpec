@@ -82,7 +82,12 @@ before JSONB parsing costs on every aggregation.
 | `source` | `oura`, `whoop`, `garmin`, `apple-health`, … |
 | `confidence` | `high` / `medium` / `low` |
 
-Partitioned by time. Daily aggregates and raw samples co-locate here at different grain.
+**Engine: native Postgres declarative partitioning by time, plus a BRIN index on `ts`.** No
+extension. At single-user scale — tens of millions of rows even for a heavy user — hypertables,
+continuous aggregates, and compression are not load-bearing; they earn their keep at
+multi-tenant scale. Revisit only if profiling says so.
+
+Daily aggregates and raw samples co-locate here at different grain.
 
 ## Application objects
 
@@ -217,7 +222,7 @@ in the default configuration. **One engine means one backup** — a direct benef
 ## Open questions
 
 - [ ] Which extracted index columns per resource type — generated from the SearchParameter registry, or hand-picked for the 10 queries?
-- [ ] Time-series engine: native Postgres partitioning, TimescaleDB, or a columnar extension? ⚠️ **TimescaleDB licensing must be checked** — parts are under the Timescale License, not Apache-2.0, which matters for AGPL distribution.
+- [ ] Does native partitioning hold at the largest realistic volume, or is a hypertable extension eventually needed? (Profile before adding a dependency.)
 - [ ] Version history mechanism — `temporal_tables`, trigger, or append-only?
 - [ ] Where do [Open Wearables](open-wearables.md) raw streams live — does OW keep its own database, or does ayuOS absorb the time-series directly? (Would collapse two Postgres instances into one.)
 - [ ] Embedding dimensions — 1536 (OpenAI-compatible) or a local model's native size?

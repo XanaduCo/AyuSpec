@@ -147,7 +147,8 @@ lands:
    HAPI, Medplum, Aidbox, and WSO2 all converged on exactly this shape.
 3. **Content-hash idempotency keys** plus `(source, source_resource_id)` provenance on every
    ingested resource.
-4. **Partitioning strategy for the time-series table**, chosen before it grows.
+4. **Partitioning strategy for the time-series table**, chosen before it grows — native
+   Postgres declarative partitioning by time, no extension.
 
 ## Alternatives considered
 
@@ -164,7 +165,7 @@ lands:
 Schema details are deliberately deferred and will be settled during implementation.
 
 - [ ] Which extracted index columns per resource type — driven from the SearchParameter registry, or hand-picked for the 10 queries?
-- [ ] Time-series engine: native Postgres partitioning, TimescaleDB, or a columnar extension? ⚠️ **TimescaleDB licensing must be checked** — parts are under the Timescale License, not Apache-2.0, which matters for AGPL distribution.
+- [ ] Does native Postgres partitioning hold at the largest realistic volume, or is a hypertable extension eventually warranted? (Default is native — no extension until profiling demands one.)
 - [ ] Version history mechanism: `temporal_tables` extension vs. hand-rolled trigger vs. append-only.
 - [ ] Do the clinical, time-series, and `ayuos` schemas share one Postgres instance? (Assumed yes — single-instance joins are the point.)
 - [ ] Where do [Open Wearables](../open-wearables.md) raw streams live now — does OW keep its own database, or does ayuOS absorb the time-series directly?
