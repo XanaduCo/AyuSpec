@@ -1,14 +1,16 @@
 # AI & ML Layer
 
-## Models
+The AI layer is built around three fixed **roles** (reasoner, tool-caller, medical extractor) with configurable **providers** for each. The defaults run fully locally via Ollama. See [Model Providers](model-providers.md) for configuration options including cloud APIs and local-network inference servers.
 
-Three models run locally via Ollama, each with a distinct role:
+## Model roles
+
+Three roles, each independently configurable:
 
 | Model | Role | Size | Why |
 |---|---|---|---|
-| DeepSeek-R1 distill (8–14B) | Reasoner | 8–14B | Strong chain-of-thought reasoning at local-runnable size; handles the "what does this mean" question |
-| Qwen (tool-caller variant) | Agent backbone / tool use | ~7B | Reliable function-calling; lighter than R1; handles "what do I need to look up" routing |
-| MedGemma | Medical extraction + vision | varies | Purpose-built for medical text and imaging; used for structured extraction from clinical notes and DICOM summaries |
+| DeepSeek-R1 distill (8–14B) | Reasoner | 8–14B | Strong chain-of-thought reasoning at local-runnable size; handles the "what does this mean" question. Cloud alternative: `claude-opus-4-8`. |
+| Qwen (tool-caller variant) | Agent backbone / tool use | ~7B | Reliable function-calling; lighter than R1; handles "what do I need to look up" routing. Cloud alternative: `gpt-4o`. |
+| MedGemma | Medical extraction + vision | varies | Purpose-built for medical text and imaging; structured extraction from clinical notes and DICOM summaries. Recommended to keep local even in hybrid configurations (sees raw PHI). |
 
 ## Model routing
 
@@ -77,15 +79,11 @@ Every claim in an agent response is tagged with one of:
 
 The agent prompt requires it to produce a citation list mapping each claim to its label and source. The UI renders these inline.
 
-## Cloud escalation
+## Cloud providers
 
-When the user opts in to cloud escalation for a specific query:
-1. The assembled context (retrieved chunks + query) passes through the [PII gateway](pii-gateway.md)
-2. The user previews the stripped payload
-3. The stripped payload goes to the configured cloud LLM (Anthropic, OpenAI)
-4. The response is returned and logged in the audit trail
+Cloud providers are configured at the model-role level, not toggled per query. When a cloud provider is configured for a role, the PII gateway applies automatically and unconditionally before every call to that role. See [Model Providers](model-providers.md) for configuration and [PII Gateway](pii-gateway.md) for stripping detail.
 
-Cloud escalation is off by default. It is never automatic.
+The full-local default (all three roles on Ollama) guarantees zero data egress. Choosing a cloud provider for any role means that role's prompts — PII-stripped — will leave the machine. The audit trail logs every model call, provider, and whether data was sent off-device.
 
 ## Open questions
 

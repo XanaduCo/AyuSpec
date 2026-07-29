@@ -15,6 +15,20 @@ Inference: Your edge is credibility and mission, not a funnel. [M] Your standing
 Speculation: Phase-2 federated learning across 1,000 biohacker Mac Minis remains the weakest part of the thesis. [M] n≈1,000 self-selected biohackers is too small, too biased, and too label-noisy to produce population-grade medical intelligence. The good news: as a public good, the honest reframing — opt-in, citizen-science federated analytics that contributes to open health knowledge — fits the mission far better than the original 'make the model smarter' claim. Treat it as a public-research asset, not a capability multiplier. See §5.
 Net judgment (revised): Build it as a genuine public good. The earlier 'don't build it as a venture' caution no longer applies — there is no venture. Ship a 6–9 month MVP that wraps existing OSS (Fasten + Open Wearables + Medplum + Ollama/MedGemma) rather than rebuilding interop, and put equal weight on the thing that actually kills public-service software: a credible stewardship and sustainability model (governance, license, maintainer funding, contributor community — see §7). The 'no commercial motive' stance is not a weakness here; it is the single most credible trust claim available in a market where every other player, free or paid, has a monetization incentive. Win on trust, sovereignty, and longevity-of-maintenance — not on features the giants already give away.
 
+1b. Strategic update: open-core commercial model (supersedes "non-commercial" framing)
+The project has adopted an open-core commercial model, following the Medplum precedent:
+
+- **AGPL-3.0 self-hosted core** — free forever, full sovereignty, open and auditable. This remains the primary trust claim and the genuine public good.
+- **ayuOS Cloud (managed service)** — subscription-funded managed hosting for users who want the full capability without doing the ops work. Data is never sold or used for model training. Revenue from the managed service funds maintenance of the open-source core.
+- **Terra Bridge (paid add-on)** — optional integration with Terra's wearable API aggregation service, for providers that require formal developer agreements. Data transits Terra's cloud before landing in the user's local store. Requires explicit per-provider consent.
+- **Configurable model providers** — users may choose local inference (Ollama, default), local-network inference, or cloud APIs (Anthropic, OpenAI, Google). Cloud API calls are always PII-stripped before leaving the machine.
+
+The trust claim shifts from "there is no commercial incentive because there is no business" to "the business model is subscription — not data — so the incentive to monetize PHI structurally does not exist." This is the same claim Medplum and GitLab make. It is weaker than pure non-commercial but more sustainable and still substantially stronger than Function Health, Superpower, or any platform-giant health AI.
+
+The governance firewall remains: the open-source foundation and the commercial managed service are legally separate entities. Any integration with Elyx or Chiranjiv is opt-in, separate-codepath, and disclosed. The AGPL-3.0 license prevents a commercial fork from taking the core private.
+
+What did NOT change: the primary user value proposition (local-first, data sovereignty, open and auditable), the self-hosted tier (free, zero-egress by default), the FHIR/Medplum architecture, and the commitment to never monetize user PHI in any tier.
+
 2. Competitive landscape
 The market splits into five layers. Your concept spans all five, which is the core scoping risk. Profiles below give year founded, headcount, funding, key investors, traction, users, and revenue where verifiable; gaps are marked [U].
 2.1 Master comparison
@@ -557,14 +571,15 @@ Project name: AyuOS. From the Sanskrit āyu (आयु, 'lifespan / vitality'), 
 Before lock-in, verify: .com / .ai domains, GitHub org availability, and US/EU trademark clearance in software + health classes.  [action]
 
 9. Recommendations
-Don't rebuild interop. Fork/partner Fasten Health or integrate Metriport for the EHR/device spine. Spend your build budget on the agent, the medical-model routing, and the doctor-packet — the parts that differentiate.
-Make no-commercial-motive trust the entire pitch. Every other player — free giants and paid startups alike — has a monetization incentive around your data; a public service does not. Lead every message with local-first, zero-egress, auditable, open, and never-monetized.
+Don't rebuild interop. Fork/partner Fasten Health or integrate Metriport for the EHR/device spine. Use Open Wearables for device ingestion — it covers 13 providers zero-transit. Add Terra Bridge only for gated providers (Garmin, Dexcom) and only when users ask for it.
+Build the open-core model like Medplum. AGPL-3.0 self-hosted core is free and sovereign; ayuOS Cloud managed service is subscription-funded and funds core development. The trust claim is "subscription not data" — which is substantially stronger than any closed alternative even if weaker than pure non-commercial.
+Give users full model choice. Default Ollama + local models; configurable cloud APIs per role with PII gateway always enforced. The model provider abstraction is a product feature, not just a configuration — it is what lets a power user run `claude-opus-4-8` as their reasoner without compromising extraction-level PHI.
 Treat Phase-2 as federated analytics + research network, not 'FL makes the AI smarter.' Set scientific expectations honestly with a sophisticated audience.
-Solve stewardship and sustainability before features. Stand up a neutral steward (nonprofit/fiscal host/PBC), pick a license (AGPL-3.0 default), pursue DPG certification, and secure non-user funding (mission grants + your-entity underwriting behind a governance firewall). This — not the codebase — is what keeps a public good alive (§7).
-Let Elyx/Chiranjiv help — behind a firewall. Mission alignment and underwriting from your entities are assets, but the public tool must capture nothing centrally and any linkage must be opt-in, separate, and disclosed. Protect the trust position; it is the whole differentiator.
-Seed via self-hosting + local-LLM communities first, then longevity/QS, then 1–2 aligned podcasts. The repo and a one-click install are your funnel.
-Ship a 6-month MVP (Apple Health via iPhone companion + Oura/Whoop + manual labs + MedGemma chat + correlation dashboard + doctor packet) before touching EHR or FL. Prove the loop, then deepen.
-Make trust provable, not just claimed. Evidence-assertion labeling + a model-run audit trail are now your sharpest edge over the platform giants (ChatGPT/Copilot/Claude Health) — they cannot show their work on your hardware; you can.
+Solve stewardship and sustainability before features. Stand up a neutral steward (nonprofit/fiscal host/PBC) for the open-source foundation. The AGPL-3.0 license does the heavy lifting on anti-capture; governance formalizes it.
+Let Elyx/Chiranjiv help — behind a firewall. Mission alignment and underwriting from these entities are assets, but any integration must be opt-in, separate-codepath, and disclosed. The governance firewall between the foundation and the commercial entities protects the trust position.
+Seed via self-hosting + local-LLM communities first, then longevity/QS, then 1–2 aligned podcasts. The repo and a one-command install are your funnel.
+Ship a 6-month MVP (Apple Health manual export → Oura/Whoop → manual labs → local model chat → correlation dashboard → doctor packet) before touching EHR or federated learning. Prove the loop, then deepen.
+Make trust provable, not just claimed. Evidence-assertion labeling + a model-run audit trail (logs every call, provider, whether data left the machine) are your sharpest edge over the platform giants — they cannot show their work on your hardware; you can.
 
 10. Peer-agent review reconciliation
 What I took from the Gemini and OpenAI reviews, and — explicitly — what I rejected.  [opinion]

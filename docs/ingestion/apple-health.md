@@ -1,11 +1,12 @@
 # Apple Health Ingestion
 
-## Two paths
+## Three paths
 
-| Path | What it requires | MVP? |
+| Path | What it requires | When |
 |---|---|---|
-| Manual export parse | Nothing — user exports from iPhone | **Yes** |
-| Live HealthKit sync | Apple Developer Program ($99/yr) + provisioning + TestFlight | No (P1) |
+| Manual export parse | Nothing — user exports from iPhone | **MVP** |
+| Pre-built ayuOS Companion app | Apple Developer Program ($99/yr); user installs from TestFlight | P1 |
+| Build-your-own HealthKit app | Apple Developer Program + HealthKit entitlement; developer builds their own iOS app against the ayuOS OpenWearables API | P1 (advanced) |
 
 ## Manual export path (MVP)
 
@@ -46,11 +47,30 @@ The Health Records embedded in the export are particularly valuable: many major 
 
 *Full mapping table: TBD*
 
-## Live sync path (P1)
+## Pre-built ayuOS Companion app (P1)
 
-Requires:
-- Apple Developer Program membership ($99/yr)
-- HealthKit entitlement in app provisioning profile
-- TestFlight distribution or direct device install
+The companion app is a first-party iOS app distributed via TestFlight. It:
 
-Not on the MVP critical path. The manual export covers the same data.
+1. Reads HealthKit data continuously (background delivery for supported types)
+2. Encrypts and syncs to the user's local ayuOS server over the local network (configurable endpoint + auth token)
+3. Handles incremental sync — only sends new records since the last push
+
+**User flow:**
+1. Install companion app via TestFlight
+2. Open app → enter your ayuOS server address + token
+3. Grant HealthKit permissions
+4. Sync runs automatically; manual trigger available
+
+This eliminates the manual export step and enables near-real-time Apple Health data without any third-party intermediary. All traffic stays on the local network.
+
+**Requires:** Apple Developer Program ($99/yr) to distribute via TestFlight.
+
+## Build-your-own HealthKit app (P1 — advanced)
+
+Developers who want a custom iOS app (different UI, additional sensors, custom logic) can build against the ayuOS OpenWearables API. The server exposes an OpenAI-compatible ingest endpoint; any iOS app that can make an HTTPS POST can push HealthKit data into ayuOS.
+
+This path is documented in the OpenWearables SDK. It does not require waiting for the official companion app to support a specific data type.
+
+## Live sync compatibility notes
+
+macOS apps cannot read HealthKit data (`isHealthDataAvailable()` returns `false` on macOS per Apple WWDR). The companion app or manual export are the only paths to Apple Health data — a Mac-only ayuOS deployment cannot access HealthKit directly.

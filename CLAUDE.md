@@ -2,9 +2,13 @@
 
 ## What This Is
 
-ayuOS is a non-commercial, open-source personal health agent. The goal is to aggregate every signal about a person's health — wearables, EHR records, labs, genomics, imaging — into a single local store, and run AI-powered reasoning over it. No cloud, no data monetization, no subscription. The trust claim is architectural: if the data never leaves your machine, there is no policy that can betray you.
+ayuOS is an open-source personal health agent built on an open-core commercial model. The goal is to aggregate every signal about a person's health — wearables, EHR records, labs, genomics, imaging — into a single unified store and run AI-powered reasoning over it.
 
-The project is a public good, not a venture. The differentiation from Function Health, Superpower, etc. is not features — it is ownership and locality. The differentiator from ChatGPT Health and Claude for Healthcare is that there is no commercial incentive to ever monetize user PHI.
+**Self-hosted (free, AGPL-3.0):** Full local operation. Data never leaves the machine by default. Zero-egress is architectural: there is no network call to make. This is the sovereignty tier — the code is auditable, the user controls everything.
+
+**ayuOS Cloud (managed service):** For users who want the full capability without managing infrastructure. Subscription-funded; data is never sold or used for model training. The managed service is what funds ongoing development of the open-source core.
+
+The model is Medplum's: build the infrastructure, make everything self-hostable, offer a managed tier for users who don't want to do the ops work. The open-source core is a genuine public good; the commercial cloud is how it stays maintained.
 
 ## What We Are Doing Right Now
 
@@ -25,15 +29,18 @@ The anchor workflow: ask ayuOS "what changed in my last 90 days?" and get a grou
 
 ## Key Decisions Already Made
 
-- **License:** Apache-2.0 for the core; Fasten fork isolated behind an API boundary (GPL-3.0 → stays in its own process)
+- **License:** AGPL-3.0 for the core (strong copyleft, prevents commercial forks taking it private); Fasten fork isolated behind an API boundary (GPL-3.0 → stays in its own process)
+- **Business model:** Open-core — AGPL-3.0 self-hosted tier is free forever; ayuOS Cloud managed service is subscription-funded. Data never sold in either tier.
 - **EHR backbone:** Medplum (TypeScript, FHIR R4, self-hosted)
-- **Local inference:** Ollama — DeepSeek-R1 distill (reasoner) + Qwen tool-caller + MedGemma (medical extraction + vision)
+- **Model providers:** Configurable per role (reasoner / tool-caller / medical extractor). Default: Ollama with DeepSeek-R1 distill + Qwen + MedGemma. Cloud APIs (Anthropic, OpenAI, Google) are opt-in; PII gateway always enforces before any cloud call. Local OpenAI-compatible endpoints (LM Studio, vLLM) also supported.
 - **Vector store:** Postgres 16 + pgvector
-- **Wearables (P0):** Oura (PAT), Whoop (OAuth app), Apple Health (manual export parse)
-- **Cloud escalation:** opt-in, per-query, with local PII stripping before any payload leaves
+- **Wearable ingestion layer:** Open Wearables (self-hosted, 13+ providers, zero transit) — default for all users
+- **Wearables (P0):** Oura (PAT), Whoop (OAuth app), Apple Health (manual export parse for MVP; companion app in P1)
+- **Terra Bridge:** Optional paid add-on for gated providers (Garmin, Dexcom, etc.) that Open Wearables cannot reach. Data transits Terra's cloud before landing locally. Requires explicit per-provider consent.
+- **Apple Health live sync:** Pre-built ayuOS Companion iOS app (P1); or build-your-own against the OpenWearables API
 - **Target users (MVP):** 2 biohackers; scale target 100→1,000 users
 - **Federated analytics:** Phase 2, opt-in, citizen-science framing (not a capability multiplier)
-- **Non-commercial:** no monetization, ever; governance firewall between ayuOS and any commercial Elyx/Chiranjiv use
+- **Governance firewall:** Commercial managed service is a separate entity from the open-source foundation; any Elyx/Chiranjiv integration is opt-in, separate-codepath, and disclosed
 
 ## What Kills Projects Like This
 

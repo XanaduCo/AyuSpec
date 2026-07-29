@@ -1,5 +1,14 @@
 # Wearables Ingestion
 
+All wearable data flows through [Open Wearables](../open-wearables.md) — the self-hosted ingestion layer. Two provider tiers are available:
+
+| Tier | Providers | Data residency | Cost |
+|------|-----------|---------------|------|
+| **Open Wearables (default)** | 13 | Your server only | Infrastructure only |
+| **Terra Bridge (optional, paid)** | 50+ | Transits Terra's cloud → lands locally | Terra per-connection fee |
+
+Choose Terra Bridge only if you need a device that Open Wearables doesn't cover and you accept that wearable data will transit Terra's infrastructure before landing in your local store. See [Open Wearables](../open-wearables.md#terra-bridge-optional-paid) for detail.
+
 ## Devices (P0)
 
 ### Oura
@@ -24,11 +33,23 @@ Apple Health live sync requires an Apple Developer account ($99/yr) and HealthKi
 
 ## Devices (P1 / later)
 
-| Device | Gate | Fallback |
+| Device | Gate | Notes |
 |---|---|---|
-| Garmin | B2B-oriented API, slow approval | FIT file export → local parse |
-| Dexcom / CGM | Sandbox instant; production review | Route CGM through Apple Health export |
-| Fitbit / Google Fit | OAuth | Direct API |
+| Garmin | Developer program currently suspended | FIT file export → local parse as fallback; available via Terra Bridge |
+| Dexcom / CGM | Formal developer agreement required | Route CGM through Apple Health export (Open Wearables); available via Terra Bridge |
+| Fitbit / Google Fit | OAuth, open program | Direct API via Open Wearables |
+
+### Terra Bridge — unlocking gated devices
+
+For Garmin and Dexcom/CGM, where a formal developer agreement gates direct API access, Terra Bridge provides an alternative. Terra holds the necessary developer agreements and exposes a unified API. When a user enables Terra Bridge for a specific provider:
+
+1. Terra fetches data from the wearable vendor API on the user's behalf
+2. Terra routes the data to the user's local Open Wearables instance via webhook
+3. The data is ingested and stored locally; it does not persist in Terra's infrastructure beyond the transit
+
+**What the user accepts:** wearable data for Terra-bridged providers transits Terra's cloud. Terra's ToS permits aggregating de-identified analytics from transit data. This is an informed tradeoff — not a default.
+
+Terra Bridge is an optional paid add-on. Pricing follows Terra's per-user/per-connection model.
 
 ## Deduplication
 
