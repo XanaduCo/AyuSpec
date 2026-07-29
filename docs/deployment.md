@@ -21,9 +21,15 @@ Mac Mini (Apple Silicon)
 │   └── Medplum         — FHIR R4 server (TypeScript)
 ├── Postgres 16         — storage (via Medplum's Docker or native)
 │   └── pgvector ext.   — vector embeddings
-├── Fasten fork         — EHR connector service (Go binary, not Docker)
+├── Open Wearables      — wearable ingestion (own Postgres + Redis)
 └── ayuOS core          — agent + ingestion + web frontend (single process)
 ```
+
+!!! note "No separate EHR connector service"
+    ayuOS no longer forks Fasten, so there is no standalone EHR connector binary. EHR
+    ingestion runs inside the core process as adapters — an Apple Health export parser, an
+    Epic SMART-on-FHIR client, and optionally a Fasten Connect poller. See
+    [ADR-0001](adr/0001-ehr-ingestion.md).
 
 ## Startup
 
@@ -36,7 +42,7 @@ ayu start
 This:
 1. Checks Ollama is running and required models are pulled
 2. Starts the Medplum Docker container (if not running)
-3. Starts the Fasten fork service (if EHR sync is configured)
+3. Starts the Open Wearables service (if wearable sync is configured)
 4. Starts the ayuOS core process (agent API + web frontend)
 5. Opens `http://localhost:4000` in the default browser
 

@@ -13,11 +13,12 @@ ayuOS stores data across four locations. Three are Postgres-backed; one is the f
 
 There is no separate time-series database. Postgres handles it.
 
-!!! note "Fasten is a connector, not a store"
-    The [Fasten fork](ingestion/ehr.md) is an ingestion service running as an isolated Go
-    process behind a REST/FHIR boundary (for GPL license isolation). It *fetches* records;
-    it does not hold them. Everything Fasten retrieves — and everything extracted from lab
-    PDFs — is written to **Medplum**, which is the canonical store for medical records.
+!!! note "EHR adapters fetch; Medplum holds"
+    [EHR ingestion](ingestion/ehr.md) runs as adapters — an Apple Health export parser, an
+    Epic SMART-on-FHIR client, and optionally a Fasten Connect poller. None of them is a
+    store. Everything they retrieve — and everything extracted from lab PDFs — is written to
+    **Medplum**, the canonical store for medical records. See
+    [ADR-0001](adr/0001-ehr-ingestion.md).
 
 ## Medplum
 

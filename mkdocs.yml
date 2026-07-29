@@ -42,6 +42,9 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Vision & Problem: vision.md
+  - Decisions (ADRs):
+    - Overview: adr/index.md
+    - "ADR-0001: EHR ingestion": adr/0001-ehr-ingestion.md
   - Architecture Overview: architecture.md
   - Open Wearables: open-wearables.md
   - Data Capture Strategy: data-capture.md

@@ -40,7 +40,7 @@ Use the left navigation to explore:
 
 | Decision | Choice |
 |---|---|
-| License | Apache-2.0 (core); Fasten fork in isolated GPL-3.0 process |
+| License | AGPL-3.0 (core) |
 | EHR backbone | Medplum (TypeScript, FHIR R4, self-hosted) |
 | Local inference | Ollama: DeepSeek-R1 distill + Qwen tool-caller + MedGemma |
 | Vector store | Postgres 16 + pgvector |

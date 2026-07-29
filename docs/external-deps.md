@@ -20,14 +20,21 @@ Start the **hard/slow** approvals at week 1, even if you won't use them for mont
 | Whoop developer app | Whoop wearable data | App registration; possible brief review |
 | Apple Developer Program ($99/yr) | Live HealthKit sync (P1, not MVP) | Paid membership |
 | Dexcom developer account (sandbox) | CGM data | Sandbox instant; production review needed |
+| **Epic app registration (fhir.epic.com)** | Direct EHR sync (Tier 2) | **Free, self-service, no Epic approval gate.** Client IDs issued at creation |
+
+!!! danger "Epic registration is a one-way door — do not rush it"
+    Epic app configuration is **frozen permanently** once marked Ready for Production; adding
+    a FHIR resource later requires a new client ID and re-distribution from scratch.
+    Register early to explore the sandbox, but **finalize the USCDI v3 resource list before
+    marking production-ready**. See [ADR-0001](adr/0001-ehr-ingestion.md).
 
 ### Slow / hard (start week 1)
 
 | Dependency | What for | Lead time | Fallback |
 |---|---|---|---|
-| Epic app registration (fhir.epic.com) | Direct EHR live sync | Weeks to months; per-health-system activation | Apple Health Records export covers many institutions |
-| Oracle Health / Cerner developer | Direct EHR sync | Weeks | Same Apple Health fallback |
-| Apple Developer Program (if not done) | Live HealthKit | Days | Manual export (MVP path) |
+| Oracle Health / Cerner developer | Direct Cerner sync | Weeks; per-tenant service request | Reachable via Fasten Connect (Tier 4) |
+| Apple Developer Program (if not done) | Live HealthKit companion app | Days | Manual export (MVP path) |
+| **Fasten Connect commercial terms** | EHR breadth beyond Epic (Tier 4) | **Unknown — no published pricing, no known individual tier** | Tiers 1–2 cover Apple + Epic sources |
 
 ### Free / keyless
 
@@ -45,14 +52,16 @@ Week 1 (start immediately, even if not needed yet)
   ├── Accept MedGemma license (instant)
   ├── Generate Oura PAT (instant)
   ├── Register Whoop developer app (start now; moderate lead time)
-  ├── Submit Epic app registration (start now; slow)
+  ├── Register Epic app for SANDBOX only (free, instant — do NOT mark production yet)
   └── Enroll Apple Developer Program (if live HealthKit is wanted at P1)
 
 Milestone 3 (cloud escalation)
   └── Obtain cloud LLM API key (instant)
 
-Milestone 7 (EHR live sync)
-  └── Epic activation per health system (outcome of week-1 registration)
+Milestone 7 (EHR direct sync — Tier 2)
+  ├── Settle the refresh-token question empirically in the Epic sandbox
+  ├── Finalize the USCDI v3 resource list  ← irreversible after the next step
+  └── Mark Epic app Ready for Production → auto-distributes in ~12h
 ```
 
 ## What doesn't need approval

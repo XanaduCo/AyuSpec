@@ -14,7 +14,7 @@ In the default configuration, ayuOS makes **no outbound network connections** af
 
 The only outbound connections are:
 - Wearable API pulls (Oura, Whoop) — user-configured, on a schedule
-- EHR sync (Fasten fork) — user-triggered
+- EHR sync (Epic direct, or Fasten Connect if enabled) — user-triggered
 - Cloud escalation — explicit per-query user confirmation
 
 ## Encryption at rest

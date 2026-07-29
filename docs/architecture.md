@@ -7,7 +7,7 @@ graph TD
     subgraph Sources
         W[Wearables<br/>Oura · Whoop · Garmin · ...]
         AH[Apple Health<br/>Companion app · Manual export]
-        E[EHR<br/>Fasten fork / Apple Health Records]
+        E[EHR<br/>Epic direct · Apple Health Records]
         L[Lab PDFs]
         D[DICOM / Imaging]
         G[Genomics<br/>23andMe · VCF]
@@ -18,9 +18,14 @@ graph TD
         TB[Terra Bridge<br/>optional · paid · 50+ providers<br/>data transits Terra cloud]
     end
 
+    subgraph EHR Layer
+        EPIC[Epic direct<br/>SMART-on-FHIR · free · ~800 orgs]
+        FC[Fasten Connect<br/>optional · paid · wide catalog<br/>data transits Fasten cloud]
+    end
+
     subgraph Ingestion Layer
         WI[Wearable ingestion service]
-        EI[EHR ingestion service<br/>Fasten fork — isolated GPL process]
+        EI[EHR ingestion service<br/>adapter interface]
         LI[Lab PDF ingestion]
         DI[DICOM ingestion + viewer]
         GI[Genome parser]
@@ -47,7 +52,10 @@ graph TD
     AH --> WI
     OW --> WI
     TB -->|lands locally after transit| WI
-    E --> EI
+    E --> EPIC
+    E --> FC
+    EPIC --> EI
+    FC -->|lands locally after transit| EI
     L --> LI
     D --> DI
     G --> GI
@@ -71,19 +79,28 @@ graph TD
 
 The architecture enforces three isolation boundaries:
 
-### 1. Fasten fork isolation (license boundary)
+### 1. EHR adapter boundary (vendor-independence boundary)
 
-Fasten Health is GPL-3.0. The ayuOS core is Apache-2.0. These cannot share a process.
+EHR sources sit behind a single ingestion interface. Epic direct, the Apple Health export
+parser, and Fasten Connect are **adapters** behind it — no external service is ever the
+interface itself. This is a deliberate response to Fasten Onprem being archived mid-project;
+see [ADR-0001](adr/0001-ehr-ingestion.md).
 
-The Fasten fork runs as an independent Go service behind a well-defined REST/FHIR API. The Apache-2.0 core calls it over localhost. No GPL code is compiled into the core.
+!!! note "The GPL boundary is gone"
+    Earlier revisions isolated a GPL-3.0 Fasten fork in its own process so it could not be
+    linked into the core. **ayuOS no longer forks Fasten**, so there is no GPL code in the
+    process map and no license boundary to maintain.
 
 ### 2. PII gateway (trust boundary)
 
 All model calls — whether to a local Ollama instance or to a cloud API — pass through the PII gateway. For local providers, the gateway is a no-op passthrough. For cloud providers, stripping is applied unconditionally before the prompt leaves the machine. There is no way to send data to a cloud model without it passing through the gateway first.
 
-### 3. Terra Bridge (data residency boundary)
+### 3. Data residency boundary (Terra Bridge · Fasten Connect)
 
-Terra Bridge is an optional paid add-on. When enabled for a specific provider, that provider's data transits Terra's cloud before landing in the local Open Wearables instance. The boundary is explicit: Terra Bridge must be enabled per provider with user consent; it is never on by default.
+Two optional paid add-ons route data through a third party before it lands locally:
+**Terra Bridge** for gated wearable providers, and **Fasten Connect** for EHR breadth beyond
+Epic. Both must be enabled **per provider with explicit user consent**, and neither is ever on
+by default. Everything else in the system is zero-egress.
 
 ## Data flow
 
@@ -98,7 +115,9 @@ Terra Bridge is an optional paid add-on. When enabled for a specific provider, t
 | Layer | Technology | Rationale |
 |---|---|---|
 | EHR backbone | Medplum (TypeScript) | FHIR R4 native, self-hosted, Apache-2.0, active community |
-| EHR connectors | Fasten fork (Go) | SMART-on-FHIR clients for hundreds of providers; no point rebuilding |
+| EHR — base | Apple Health export parser | Raw provider FHIR JSON; no entitlement, no registration, zero egress |
+| EHR — direct | Epic SMART-on-FHIR | Free, auto-distributed to ~800 orgs, includes clinical notes |
+| EHR — premium (optional) | Fasten Connect (paid) | Breadth beyond Epic; data transits Fasten, 24h retention |
 | Time-series + vectors | Postgres 16 + pgvector | One database, no extra infra |
 | Wearable ingestion | Open Wearables (self-hosted) | 13+ providers, zero data transit, open source |
 | Wearable bridge (optional) | Terra Bridge (paid) | 50+ providers for gated devices; data transits Terra |

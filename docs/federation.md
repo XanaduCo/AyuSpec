@@ -35,7 +35,7 @@ There is an explicit governance firewall between ayuOS and any commercial use by
 
 - Federated gradients are published to an open research commons, not to any private entity
 - Any linkage between ayuOS participation and commercial projects requires a separate, explicit, prominently-disclosed opt-in — never bundled with general ayuOS consent
-- The ayuOS license (Apache-2.0) does not permit the federated aggregate to be used in commercial products without separate licensing
+- The ayuOS core is **AGPL-3.0**, so any derivative that offers federated aggregation as a network service must publish its source. Note this is a copyleft obligation on *code*, not a restriction on commercial use — the protection against private capture comes from the licence plus the consent and governance rules above, not from a commercial-use ban.
 
 ## Why this is weaker than it sounds
 

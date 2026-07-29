@@ -11,8 +11,12 @@ The mitigations are governance and sustainability — not a business model.
 
 ## License
 
-- **Core:** Apache-2.0
-- **Fasten fork:** GPL-3.0, isolated in its own process (see [Architecture](architecture.md) and [EHR ingestion](ingestion/ehr.md))
+- **Core:** AGPL-3.0 (strong copyleft — prevents a commercial fork taking the core private)
+- **No GPL isolation boundary.** Earlier revisions forked GPL-3.0 Fasten Health into its own
+  process. ayuOS no longer forks Fasten (see [ADR-0001](adr/0001-ehr-ingestion.md)), so no
+  GPL code enters the process map.
+- **Upstream dependencies:** Medplum (Apache-2.0), Open Wearables (open source) — all
+  permissively licensed and one-way compatible into AGPL-3.0
 - **Bundled guideline corpus:** will vary by source; must be verified per document before inclusion
 
 ## Stewardship model

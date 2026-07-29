@@ -8,7 +8,7 @@ The ingestion layer is responsible for pulling health data from every source and
 |---|---|---|---|
 | [Wearables](wearables.md) | Oura, Whoop, Apple Health | API (Oura/Whoop) + export parse (Apple) | P0 |
 | [Apple Health](apple-health.md) | iPhone Health app | Manual `export.zip` parse | P0 |
-| [EHR](ehr.md) | Epic, Cerner, 800+ institutions | Fasten fork SMART-on-FHIR | P1 |
+| [EHR](ehr.md) | Apple Health export (MVP) · Epic direct · Fasten Connect (paid) | Four tiers — see [ADR-0001](../adr/0001-ehr-ingestion.md) | MVP → P2 |
 | [Lab PDFs](labs.md) | Any lab (LabCorp, Quest, concierge) | OCR + MedGemma extraction | P0.5 |
 | [Imaging (DICOM)](imaging.md) | MRI, CT, X-ray | pydicom parse + OHIF viewer + MedGemma vision | P1 |
 | [Genomics](genomics.md) | 23andMe, VCF | Raw file parse + PRS | P1 |

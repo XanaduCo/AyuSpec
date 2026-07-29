@@ -29,13 +29,14 @@ The anchor workflow: ask ayuOS "what changed in my last 90 days?" and get a grou
 
 ## Key Decisions Already Made
 
-- **License:** AGPL-3.0 for the core (strong copyleft, prevents commercial forks taking it private); Fasten fork isolated behind an API boundary (GPL-3.0 → stays in its own process)
+- **License:** AGPL-3.0 for the core (strong copyleft, prevents commercial forks taking it private). No GPL isolation boundary — ayuOS no longer forks Fasten.
 - **Business model:** Open-core — AGPL-3.0 self-hosted tier is free forever; ayuOS Cloud managed service is subscription-funded. Data never sold in either tier.
 - **EHR backbone:** Medplum (TypeScript, FHIR R4, self-hosted)
 - **Model providers:** Configurable per role (reasoner / tool-caller / medical extractor). Default: Ollama with DeepSeek-R1 distill + Qwen + MedGemma. Cloud APIs (Anthropic, OpenAI, Google) are opt-in; PII gateway always enforces before any cloud call. Local OpenAI-compatible endpoints (LM Studio, vLLM) also supported.
 - **Vector store:** Postgres 16 + pgvector
 - **Wearable ingestion layer:** Open Wearables (self-hosted, 13+ providers, zero transit) — default for all users
 - **Wearables (P0):** Oura (PAT), Whoop (OAuth app), Apple Health (manual export parse for MVP; companion app in P1)
+- **EHR ingestion (ADR-0001):** Four tiers. Base = Apple Health export (contains raw provider FHIR JSON, zero gates). Direct = Epic SMART-on-FHIR (free, auto-distributed to ~800 orgs, includes clinical notes). P1 = iOS companion. **Premium = Fasten Connect** (paid, breadth beyond Epic, transits Fasten w/ 24h retention, per-provider consent). **We do not fork Fasten — Fasten Onprem was archived July 2026 and no longer retrieves records.**
 - **Terra Bridge:** Optional paid add-on for gated providers (Garmin, Dexcom, etc.) that Open Wearables cannot reach. Data transits Terra's cloud before landing locally. Requires explicit per-provider consent.
 - **Apple Health live sync:** Pre-built ayuOS Companion iOS app (P1); or build-your-own against the OpenWearables API
 - **Target users (MVP):** 2 biohackers; scale target 100→1,000 users
@@ -44,13 +45,15 @@ The anchor workflow: ask ayuOS "what changed in my last 90 days?" and get a grou
 
 ## What Kills Projects Like This
 
-Maintainer burnout from keeping EHR/device connectors alive (vendor APIs break constantly). The mitigations are: lean on upstream OSS (Fasten, Medplum) for connector maintenance; don't rebuild what already exists; establish governance and contributor community before it's needed.
+Maintainer burnout from keeping EHR/device connectors alive (vendor APIs break constantly). The mitigations are: lean on upstream OSS (Medplum, Open Wearables) and on vendor-maintained access paths (Epic auto-distribution, Fasten Connect) rather than owning connectors; don't rebuild what already exists; establish governance and contributor community before it's needed.
+
+**This risk is not theoretical.** Fasten Onprem — originally the EHR spine of this project — was archived mid-2026 and stopped retrieving records. Every external ingestion dependency sits behind an adapter interface for exactly this reason.
 
 ## Components to Spec (Working List)
 
 - Vision and user problem
 - Architecture overview (process map, data flow)
-- Ingestion layer: wearables, Apple Health export, EHR (Fasten fork), lab PDFs (OCR), DICOM/imaging, genomics
+- Ingestion layer: wearables, Apple Health export, EHR (four tiers — see ADR-0001), lab PDFs (OCR), DICOM/imaging, genomics
 - Storage layer: Postgres/pgvector schema, Medplum FHIR store, time-series design
 - AI/ML layer: model roles (R1 vs. Qwen vs. MedGemma), routing logic, RAG design
 - Agent loop: tool definitions, reasoning chain, evidence-assertion labeling
