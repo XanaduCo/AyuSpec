@@ -55,10 +55,10 @@ cd .. && python3 -m mkdocs build --strict   # confirm the site still builds
 | Phase | Views | State |
 |---|---|---|
 | **0 · Foundation** | shell, tokens, mocks, Explore | ✅ done |
-| **1 · Anchor loop** | Ask (deepen), Timeline (real) | ⬜ next |
-| **2 · Trust surfaces** | Settings (+ live posture), Transparency (polish) | ⬜ |
+| **1 · Anchor loop** | Ask (deepen), Timeline (real) | ✅ done |
+| **2 · Trust surfaces** | Settings (+ live posture), Transparency (polish) | ⬜ next |
 | **3 · The rest** | Experiments, Data sources, Share | ⬜ |
-| **X · Cross-cutting** | concept cards, source drawer, simplify, voice, a11y | ⬜ ongoing |
+| **X · Cross-cutting** | concept cards, source drawer, simplify, voice, a11y | 🟡 a11y ongoing |
 
 Legend: ✅ done · 🟡 partial · ⬜ not started.
 
@@ -87,32 +87,33 @@ The query the product is judged on. Make Ask and Timeline genuinely rich.
 ### Ask — deepen  · spec: [frontend#chat](../docs/frontend.md), [agent-loop](../docs/agent-loop.md), [epistemics](../docs/epistemics.md)
 Current: canned structured answers with inline evidence labels, comparison frames, concept +
 source callouts (`src/views/Ask.jsx`, `src/mock/agent.js`).
-- [ ] **Source cards click-through** — a citation/`◆ SOURCE` opens a drawer with the underlying
+- [x] **Source cards click-through** — a citation/`◆ SOURCE` opens a drawer with the underlying
       record (mock FHIR Observation/DocumentReference). *(shared "source drawer", see Cross-cutting)*
-- [ ] **Evidence label → concept card** — tapping a label expands the epistemics concept with the
+- [x] **Evidence label → concept card** — tapping a label expands the epistemics concept with the
       live claim as the worked example. *(shared concept system, see Cross-cutting)*
-- [ ] **Query history sidebar** — past questions, click to re-open. Persist in memory only.
-- [ ] **Voice input** — mic button fills a canned transcript; label it on-device. *(Cross-cutting)*
-- [ ] **"Simplify this for me"** — a follow-up that collapses a comparison frame into a ranking and
+- [x] **Query history sidebar** — past questions, click to re-open. Persist in memory only.
+- [x] **Voice input** — mic button fills a canned transcript; label it on-device. *(Cross-cutting)*
+- [x] **"Simplify this for me"** — a follow-up that collapses a comparison frame into a ranking and
       **shows its work** ("walking ranked first because you weight certainty + cost"). *(Cross-cutting)*
-- [ ] **Pre-send review on cloud answers** — when the reasoner is cloud (it is, by default), the
+- [x] **Pre-send review on cloud answers** — when the reasoner is cloud (it is, by default), the
       first answer surfaces the pre-send panel (reuse `src/mock/ledger.js` `presend` + the
       Transparency panel) before "sending". Ties the posture story into Ask.
-- Mock data: extend `agent.js` answers to reference specific `persona` records by id so the source
-  drawer can resolve them; add 2–3 more answered questions.
+- [x] Mock data: extend `agent.js` answers to reference specific `persona` records by id so the source
+  drawer can resolve them; add 2–3 more answered questions. *(added 3: heart-disease risk, lipid panel, doctor questions)*
 - **Done when:** a user can ask a suggested question, expand a claim into a concept, click a source
   to see the record, ask to simplify and see a justified ranking — all offline.
 
 ### Timeline — build for real  · spec: [frontend#timeline](../docs/frontend.md), [storage](../docs/storage.md)
 Current: a light static panel of labs/wearables/imaging/meds (`src/views/Timeline.jsx`).
-- [ ] **Zoomable time axis** — day / week / month / year toggle over the 90-day window.
-- [ ] **Tracks** — labs, wearable metrics, conditions, procedures, medications, imaging studies as
+- [x] **Zoomable time axis** — week / month / 90 days / year toggle; window clamps to the data domain
+      so "year" reaches back to the 2024 CAC scan without scrolling into empty space.
+- [x] **Tracks** — labs, wearable metrics, conditions, procedures, medications, imaging studies as
       horizontal lanes on a shared date axis.
-- [ ] **Click an event → its FHIR resource** — same source drawer as Ask (subsumes a raw resource
+- [x] **Click an event → its FHIR resource** — same source drawer as Ask (subsumes a raw resource
       browser; there is no separate resource view).
-- [ ] **Overlay mode** — select two metrics onto one axis (e.g. HRV vs. VO₂max) to see co-movement.
-- Mock data: expand `persona.js` wearable series to daily-ish resolution over 90 days (or a
-  generator seeded deterministically); add event dates for meds/imaging/labs already present.
+- [x] **Overlay mode** — select two metrics onto one axis (e.g. HRV vs. VO₂max) to see co-movement.
+- [x] Mock data: expand `persona.js` wearable series to daily resolution via a seeded generator over
+  the timeline domain; add dated `events` for meds/imaging/labs/conditions/experiment.
 - **Done when:** the "what changed" story is legible visually — zoom, scan tracks, overlay two
   metrics, drill into any event's record.
 
@@ -202,18 +203,23 @@ Current: `StubView`.
 
 These are shared systems several views depend on — build when the first consumer needs them.
 
-- [ ] **Concept-card system** — a small mock concept library (`src/mock/concepts.js`, ~6–10 from
-      epistemics.md), an `EvidenceLabel` that expands its matching concept with the live claim, and
-      one-per-response injection. Consumers: Ask, Explore, Experiments.
-- [ ] **Source drawer** — a shared slide-over that renders a mock FHIR resource / document from an
-      id. Consumers: Ask (citations), Timeline (events).
-- [ ] **Comparison-frame component** — extract the inline frame in `Ask.jsx` into
-      `components/ComparisonFrame.jsx`; used by Ask, Explore, and the "simplify" flow.
-- [ ] **Preference model / "simplify"** — a light preference profile + a ranking that shows its
-      work. Consumers: Ask, Explore.
-- [ ] **Voice input** — a reusable mic control that fills a canned transcript, labelled on-device.
-- [ ] **A11y + responsive pass** — keyboard focus states, aria on the posture pills and tabs, a
-      mobile rail (drawer) for < 760px. Dark-mode visual QA across every view.
+- [x] **Concept-card system** — a mock concept library (`src/mock/concepts.js`, 11 concepts from
+      epistemics.md), an `EvidenceLabel` that opens its matching concept with the live claim as the
+      worked example, and an inline `concept` block. Consumers: Ask (Explore/Experiments to reuse).
+- [x] **Source drawer** — a shared slide-over (`components/Drawer.jsx`, mounted in the shell) that
+      renders a FHIR resource (`src/mock/fhir.js`) OR a concept from an id. Consumers: Ask
+      (citations + labels), Timeline (events).
+- [x] **Comparison-frame component** — extracted the inline frame in `Ask.jsx` into
+      `components/ComparisonFrame.jsx`; hosts the "simplify" flow. *(Explore to adopt next)*
+- [x] **Preference model / "simplify"** — a preference profile (`src/mock/preferences.js`) + a
+      ranking that shows its work (effect kept a separate axis from certainty, so the ranking honours
+      the stated preference rather than raw effect size). Consumers: Ask.
+- [x] **Voice input** — a reusable mic control (`components/VoiceInput.jsx`) that types out a canned
+      transcript, labelled on-device.
+- [ ] **A11y + responsive pass** — *partial:* keyboard focus + `role`/`tabindex` on labels,
+      citations, voice, drawer, and zoom tabs; `Esc`/scrim-close on the drawer; Ask & Timeline
+      responsive; drawer SSR-render-checked. **Still open:** aria on the posture pills, the < 760px
+      mobile rail drawer, and full dark-mode visual QA across every view.
 
 ---
 
