@@ -163,17 +163,21 @@ Current: expandable ledger + pre-send panel + role filter (`src/views/Transparen
 Same fidelity, reusing the components built above.
 
 ### Experiments  · spec: [evidence](../docs/evidence.md), [experimentation](../docs/experimentation.md)
-Current: `StubView`.
-- [ ] **Hypothesis object + list** — statement, goal, rationale, evidence label (separate from
-      confidence), grouped by goal. Seed with Ravi's post-meal-walking hypothesis.
-- [ ] **Experiment setup** — protocol (pre/post or A-B-A), metric sources, baseline window picker,
-      **pre-registered success criteria**, confounder flags (travel/illness/alcohol).
-- [ ] **Baseline variability display** — show natural noise before the intervention.
-- [ ] **Result** — supported / not supported / **inconclusive**, with an effect-size viz (baseline
-      vs intervention distributions overlaid) and an honest label when underpowered.
-- Mock data: `experiments.js` — 1 running (post-meal walks, wk 4, 21/30), 1 complete, 1 inconclusive.
-- **Done when:** the honesty guardrails are visible — an n-of-1 that overlaps baseline reads
-  "inconclusive", not "it worked".
+Current: real view (`src/views/Experiments.jsx`).
+- [x] **Hypothesis object + list** — statement, goal, rationale, evidence label kept on a **separate
+      axis** from the agent's confidence bar, grouped by goal. Seeded with Ravi's post-meal-walking
+      hypothesis.
+- [x] **Experiment setup** — design (pre/post or A–B–A), metric sources + quality, baseline window,
+      **pre-registered success criteria**, confounder flags (travel/illness).
+- [x] **Baseline variability display** — the distribution overlay shows each day's sample + a ±1 SD
+      band, so natural noise is visible before you read the verdict.
+- [x] **Result** — supported / **inconclusive**, with the baseline-vs-intervention distributions
+      overlaid on one axis, Cohen's *d*, and an explicit "underpowered" note when n can't resolve it.
+- [x] Mock data: `experiments.js` — 1 running (post-meal walks, wk 4, 21/30), 1 supported (magnesium
+      → sleep latency, A–B–A), 1 inconclusive (cold shower → HRV, overlaps baseline). Each resolves
+      in the source drawer via `fhir.js` as an `ayuos.experiment` object.
+- **Done when:** the honesty guardrails are visible — the cold-shower n-of-1 whose effect sits inside
+  baseline noise reads "inconclusive", not "it worked". ✅
 
 ### Data sources  · spec: [ingestion](../docs/ingestion/index.md), [data-capture](../docs/data-capture.md)
 Current: `StubView`.

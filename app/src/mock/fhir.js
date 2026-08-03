@@ -8,6 +8,7 @@ import {
   labs, wearables, conditions, medications, imaging, persona,
   activeHypothesis, priorLabDate,
 } from './persona.js'
+import { experiments } from './experiments.js'
 
 const subject = { reference: 'Patient/ravi-mehta', display: persona.name }
 
@@ -140,18 +141,28 @@ export function resolveRecord(id) {
     return wrap('Prior lipid + metabolic panel', 'Bundle · drawn 2025-05-02 · LabCorp',
       panelBundle(id, 'panel-prior', priorLabDate, labs.map(priorLabObservation)))
   }
-  if (id === activeHypothesis.id) {
-    return wrap('Post-meal walks — n-of-1', 'ayuos.hypothesis · running',
+  const exp = experiments.find(e => e.id === id)
+  if (exp) {
+    return wrap(exp.hypothesis.statement.replace(/\.$/, ''), `ayuos.experiment · ${exp.status}`,
       {
         resourceType: 'Basic', // an ayuOS app object (ayuos schema), not core FHIR
-        id: activeHypothesis.id,
+        id: exp.id,
         code: { text: 'n-of-1 experiment' },
         subject,
-        hypothesis: activeHypothesis.statement,
-        status: activeHypothesis.status,
-        started: activeHypothesis.started,
-        adherence: `${activeHypothesis.adherence.done}/${activeHypothesis.adherence.of} days (week ${activeHypothesis.week})`,
-        metric: activeHypothesis.metric,
+        goal: exp.goal,
+        hypothesis: exp.hypothesis.statement,
+        rationale: exp.hypothesis.rationale,
+        evidence_strength: exp.hypothesis.evidence,
+        confidence: exp.hypothesis.confidence,
+        design: exp.design,
+        status: exp.status,
+        started: exp.started,
+        ended: exp.ended,
+        success_criterion: exp.successCriterion,
+        metrics: exp.metrics.map(m => `${m.name} (${m.unit}) · ${m.source}`),
+        baseline: `mean ${exp.baseline.stats.mean.toFixed(1)} ±${exp.baseline.stats.sd.toFixed(1)} ${exp.baseline.unit} (n=${exp.baseline.stats.n})`,
+        result: exp.status === 'running' ? undefined : exp.verdict,
+        effect_size_d: exp.effectD != null ? Number(exp.effectD.toFixed(2)) : undefined,
       })
   }
   return null

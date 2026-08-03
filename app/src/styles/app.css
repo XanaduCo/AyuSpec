@@ -465,3 +465,87 @@ table.frame td.metric { font-weight: 600; color: var(--ink); }
 .rl-model { font-size: 13px; color: var(--ink); margin-top: 3px; }
 .rl-stats { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 12px; font-size: 13px; color: var(--mute); }
 .rl-stats b { color: var(--ink); margin-right: 4px; }
+
+/* ===== experiments (n-of-1) ===== */
+.exp-page { max-width: 900px; }
+.exp-group { margin-top: 30px; }
+.exp-goal { font-family: var(--serif); font-weight: 500; font-size: 15px; color: var(--mute);
+  text-transform: none; letter-spacing: .01em; padding-bottom: 8px; margin-bottom: 14px;
+  border-bottom: 1px solid var(--line); }
+.exp-card { padding: 22px 24px; margin-bottom: 16px; }
+.exp-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.exp-head > div { display: flex; align-items: center; gap: 10px; }
+.exp-design { font-size: 11px; color: var(--faint); text-transform: uppercase; letter-spacing: .05em; }
+
+/* verdict chip — ink/brand only, NEVER green/amber (those are egress) */
+.verdict { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: .04em;
+  text-transform: uppercase; padding: 2px 9px; border-radius: 99px; border: 1px solid var(--line); }
+.verdict.v-run { color: var(--brand-ink); background: var(--brand-soft); border-color: transparent; }
+.verdict.v-sup { color: var(--ink); border-color: var(--ink); }
+.verdict.v-nul { color: var(--mute); border-style: dashed; }
+.verdict.v-inc { color: var(--mute); border-style: dashed; }
+
+.exp-statement { font-size: 18px; color: var(--ink); line-height: 1.35; margin: 2px 0 6px; }
+.exp-rationale { font-size: 13.5px; color: var(--mute); margin: 0 0 16px; max-width: 70ch; }
+
+.exp-axes { display: flex; gap: 28px; flex-wrap: wrap; padding: 12px 0; border-top: 1px solid var(--line2);
+  border-bottom: 1px solid var(--line2); margin-bottom: 14px; }
+.exp-axis { display: flex; flex-direction: column; gap: 5px; }
+.exp-axis .fl { margin-bottom: 0; }
+.conf { display: inline-flex; align-items: center; gap: 8px; }
+.conf-bar { width: 90px; height: 7px; background: var(--sunk); border-radius: 99px; overflow: hidden; }
+.conf-bar span { display: block; height: 100%; background: color-mix(in srgb, var(--brand) 60%, var(--line));
+  border-radius: 99px; }
+
+.exp-setup { display: flex; flex-direction: column; gap: 11px; margin-bottom: 16px; }
+.exp-field { display: grid; grid-template-columns: 120px 1fr; gap: 12px; align-items: start; font-size: 13.5px; }
+.exp-field .fl { margin-bottom: 0; padding-top: 2px; }
+.exp-field-v { color: var(--body); }
+.exp-field-v.pre { color: var(--ink); }
+.crit { font-family: var(--mono); font-size: 10.5px; color: var(--brand-ink); background: var(--brand-soft);
+  padding: 1px 6px; border-radius: 4px; margin-right: 4px; white-space: nowrap; }
+.exp-metrics, .exp-conf { display: flex; gap: 8px; flex-wrap: wrap; }
+.metric-tag { font-size: 12.5px; color: var(--body); border: 1px solid var(--line); border-radius: 6px;
+  padding: 2px 9px; background: var(--surface); }
+.conf-flag { font-family: var(--mono); font-size: 11.5px; color: var(--cautions); background: var(--egress-soft);
+  border-radius: 6px; padding: 2px 8px; cursor: help; }
+
+/* distribution overlay — base = neutral ink, intervention = brand indigo. No
+   green/amber: this is trend, not privacy. */
+.distplot { border: 1px solid var(--line); border-radius: var(--r); background: var(--raise);
+  padding: 14px 16px; margin-bottom: 14px; }
+.distplot-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  flex-wrap: wrap; margin-bottom: 12px; }
+.dist-rows { display: flex; flex-direction: column; gap: 6px; }
+.dist-row { display: grid; grid-template-columns: 78px 1fr 74px; align-items: center; gap: 12px; }
+.dist-label { font-size: 12px; color: var(--mute); text-align: right; }
+.dist-track { position: relative; height: 46px; border-radius: var(--r-sm); background: var(--surface);
+  border: 1px solid var(--line2); }
+.dist-band { position: absolute; top: 8px; bottom: 8px; border-radius: 5px; }
+.dist-band.base { background: color-mix(in srgb, var(--mute) 16%, transparent); border: 1px solid color-mix(in srgb, var(--mute) 30%, transparent); }
+.dist-band.interv { background: color-mix(in srgb, var(--brand) 14%, transparent); border: 1px solid color-mix(in srgb, var(--brand) 34%, transparent); }
+.dist-dot { position: absolute; width: 6px; height: 6px; border-radius: 99px; transform: translate(-50%, -50%); }
+.dist-dot.base { background: var(--mute); }
+.dist-dot.interv { background: var(--brand); }
+.dist-mean { position: absolute; top: 4px; bottom: 4px; width: 2px; transform: translateX(-50%); border-radius: 2px; }
+.dist-mean.base { background: var(--ink); }
+.dist-mean.interv { background: var(--brand); }
+.dist-stat { font-family: var(--mono); font-size: 12px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.dist-foot { display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line2); flex-wrap: wrap; }
+.dist-effect { font-size: 13px; color: var(--body); }
+.dist-effect b { margin-left: 4px; color: var(--ink); }
+
+.exp-result { border-radius: var(--r); padding: 13px 15px; background: var(--sunk); }
+.exp-result.running { background: var(--brand-soft); }
+.exp-result.inc { border: 1px dashed var(--line); background: var(--surface); }
+.exp-result-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.adherence { font-size: 12px; color: var(--brand-ink); margin-left: auto; }
+.exp-interim { font-size: 13.5px; color: var(--body); margin: 0; max-width: 74ch; }
+.underpowered { font-size: 12.5px; color: var(--cautions); margin: 10px 0 0; padding: 8px 10px;
+  background: var(--egress-soft); border-radius: var(--r-sm); max-width: 74ch; }
+@media (max-width: 560px) {
+  .exp-field { grid-template-columns: 1fr; gap: 3px; }
+  .dist-row { grid-template-columns: 60px 1fr 64px; }
+  .exp-axes { gap: 18px; }
+}

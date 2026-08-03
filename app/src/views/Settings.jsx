@@ -2,35 +2,9 @@ import { useState } from 'react'
 import { usePosture, ROLES, PROVIDERS, providerMeta, egressSummary } from '../mock/posture.jsx'
 import PosturePill from '../components/PosturePill.jsx'
 import PreSendPanel from '../components/PreSendPanel.jsx'
+import Modal from '../components/Modal.jsx'
+import Switch from '../components/Switch.jsx'
 import { presend } from '../mock/ledger.js'
-
-// A minimal on/off switch. Colour stays neutral — this is not a privacy signal,
-// so it must not borrow the green/amber language.
-function Switch({ on, onChange, id }) {
-  return (
-    <button id={id} type="button" role="switch" aria-checked={on}
-      className={`switch ${on ? 'on' : ''}`} onClick={() => onChange(!on)}>
-      <span className="knob" />
-    </button>
-  )
-}
-
-// A centred confirm modal (federation consent + the read-only send preview).
-function Modal({ title, onClose, children, footer }) {
-  return (
-    <div className="modal-scrim" onClick={onClose}>
-      <div className="modal" role="dialog" aria-modal="true" aria-label={title}
-        onClick={e => e.stopPropagation()}>
-        <div className="modal-head">
-          <b>{title}</b>
-          <button className="drawer-x" onClick={onClose} aria-label="Close">✕</button>
-        </div>
-        <div className="modal-body">{children}</div>
-        {footer && <div className="modal-foot">{footer}</div>}
-      </div>
-    </div>
-  )
-}
 
 const REVIEW_MODES = [
   { key: 'every_call', t: 'every call', d: 'full preview + confirm before every send' },
