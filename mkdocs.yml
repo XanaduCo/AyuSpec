@@ -77,6 +77,7 @@ nav:
   - Agent Loop: agent-loop.md
   - Evidence & Hypotheses: evidence.md
   - The Healthspan Model: healthspan-model.md
+  - Healthspan Explorer: https://xanaduCo.github.io/AyuSpec/healthspan-explorer/
   - Health Literacy & Epistemics: epistemics.md
   - Experimentation & Validation: experimentation.md
   - PII Gateway & Cloud Escalation: pii-gateway.md
