@@ -76,7 +76,7 @@ function localDecline(q) {
 }
 
 export default function Ask() {
-  const { posture } = usePosture()
+  const { posture, markPreviewSeen } = usePosture()
   const first = 'What changed in my last 90 days?'
 
   // Does this answer need the pre-send gate? Cloud reasoner + a cloud-marked
@@ -118,6 +118,7 @@ export default function Ask() {
   // Resolve a pending pre-send: send it (reveal the answer) or keep local.
   const resolvePresend = (index, send) => {
     cloudApproved.current = cloudApproved.current || send
+    markPreviewSeen('reasoner') // seeing the full preview here unlocks review=off for the reasoner in Settings
     setThread(t => t.map((m, i) =>
       i === index
         ? { role: 'ai', answer: send ? m.answer : localDecline(m.question) }

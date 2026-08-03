@@ -56,8 +56,8 @@ cd .. && python3 -m mkdocs build --strict   # confirm the site still builds
 |---|---|---|
 | **0 · Foundation** | shell, tokens, mocks, Explore | ✅ done |
 | **1 · Anchor loop** | Ask (deepen), Timeline (real) | ✅ done |
-| **2 · Trust surfaces** | Settings (+ live posture), Transparency (polish) | ⬜ next |
-| **3 · The rest** | Experiments, Data sources, Share | ⬜ |
+| **2 · Trust surfaces** | Settings (+ live posture), Transparency (polish) | ✅ done |
+| **3 · The rest** | Experiments, Data sources, Share | ⬜ next |
 | **X · Cross-cutting** | concept cards, source drawer, simplify, voice, a11y | 🟡 a11y ongoing |
 
 Legend: ✅ done · 🟡 partial · ⬜ not started.
@@ -124,31 +124,37 @@ Current: a light static panel of labs/wearables/imaging/meds (`src/views/Timelin
 Where the marketing claims get earned, and where posture becomes interactive.
 
 ### Settings — build + wire posture  · spec: [model-providers](../docs/model-providers.md), [tiers](../docs/tiers.md), [security](../docs/security.md), [federation](../docs/federation.md)
-Current: `StubView`.
-- [ ] **Per-role provider config** — reasoner / tools / medical, each: provider dropdown
+Current: real view (`src/views/Settings.jsx`).
+- [x] **Per-role provider config** — reasoner / tools / medical, each: provider dropdown
       (Ollama / Anthropic / OpenAI / Google / OpenAI-compatible), model, endpoint field
       (openai-compatible only), fallback, review-mode radios.
-- [ ] **Wire to `posture.jsx`** — changing a role's provider updates the shared posture context so
+- [x] **Wire to `posture.jsx`** — changing a role's provider updates the shared posture context so
       the **header pills flip green↔amber live**. This is the payoff of Phase 0's context.
-- [ ] **Review-mode rule** — `off` is disabled until the user has seen one full pre-send preview for
-      that role (enforce in UI, per ai-transparency.md).
-- [ ] **Egress posture summary** — plain-language paragraph computed from the three roles + any
-      bridged connectors ("Cloud reasoner on; PII-stripped context leaves for synthesis. Everything
-      else local."). Answers tiers.md's open question.
-- [ ] **Security block** — disk-encryption check (mock ok/warn), telemetry toggle (off default),
+- [x] **Review-mode rule** — `off` is disabled until the user has seen one full pre-send preview for
+      that role (enforce in UI, per ai-transparency.md). *(unlocked by the per-role "Preview what would
+      leave" action, or by reviewing a send in Ask — both call `markPreviewSeen`.)*
+- [x] **Egress posture summary** — plain-language paragraph computed from the three roles (pure
+      `egressSummary()` in `posture.jsx`); connections stated as all-direct for the persona. Answers
+      tiers.md's open question.
+- [x] **Security block** — disk-encryption check (mock ok), telemetry toggle (off default),
       services-bound-to-localhost indicator.
-- [ ] **Federation opt-in** — off by default; consent text modal before enabling.
-- Mock data: a `settings.js` mock or extend `posture.jsx` with the full provider option lists.
+- [x] **Federation opt-in** — off by default; consent text modal before enabling (immediate revoke).
+- [x] Mock data: extended `posture.jsx` with the full provider option lists (`PROVIDERS`), per-role
+      fallback, and preview-seen tracking. Security/federation UI state is local to the view.
 - **Done when:** flipping the reasoner to local turns the header pill green everywhere, and the
-  egress summary + review-mode lock behave per spec.
+  egress summary + review-mode lock behave per spec. ✅
 
 ### Transparency — polish  · spec: [ai-transparency](../docs/ai-transparency.md)
 Current: expandable ledger + pre-send panel + role filter (`src/views/Transparency.jsx`).
-- [ ] **More filters** — by date range and the "gateway found zero PII" case (the interesting one).
-- [ ] **Per-role landing** — arriving via `?role=` already filters; add a small role summary header.
-- [ ] **Payload retention note** + append-only/queryable framing surfaced in UI.
+- [x] **More filters** — date-range (30d / 7d / today), transit (all / left / local), and a
+      "gateway found 0 PII" toggle (the interesting one). Added a zero-PII cloud call + dated rows
+      to `ledger.js` so the filters have something to bite on.
+- [x] **Per-role landing** — arriving via `?role=` shows a role summary header (live posture pill +
+      per-role call/egress/zero-PII counts).
+- [x] **Payload retention note** + append-only/queryable framing surfaced in UI (row payload caption
+      + the "what the ledger answers" card).
 - **Done when:** the ledger answers the spec's canonical questions (has anything gone to OpenAI?
-  what left last month + cost? zero-PII payloads?) via the filter chips.
+  what left last month + cost? zero-PII payloads?) via the filter chips. ✅
 
 ---
 
