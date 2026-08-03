@@ -1,12 +1,16 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import EvidenceLabel, { Citation } from '../components/EvidenceLabel.jsx'
 import ComparisonFrame from '../components/ComparisonFrame.jsx'
 import PreSendPanel from '../components/PreSendPanel.jsx'
 import VoiceInput from '../components/VoiceInput.jsx'
+import ContextStrip, { ContextCaveats } from '../components/ContextStrip.jsx'
 import { useDrawer } from '../components/Drawer.jsx'
 import { usePosture } from '../mock/posture.jsx'
 import { ask, suggestedQuestions } from '../mock/agent.js'
 import { presend } from '../mock/ledger.js'
+import { storeStats } from '../mock/persona.js'
+import { assemble } from '../context/assemble.js'
 
 // Inline renderer: **bold**, {{ev:kind}} evidence labels, {{cite:id}} citations.
 function Inline({ text }) {
@@ -17,7 +21,7 @@ function Inline({ text }) {
     const cite = p.match(/^\{\{cite:([a-z0-9-]+)\}\}$/)
     if (cite) return <Citation key={i} id={cite[1]} />
     const b = p.match(/^\*\*([^*]+)\*\*$/)
-    if (b) return <strong key={i}>{b[1]}</strong>
+    if (b) return <strong key={i}>{b[1].replace(/\\\*/g, '*')}</strong>
     return <span key={i}>{p}</span>
   })
 }
@@ -52,8 +56,8 @@ function SourcesBlock({ block }) {
   )
 }
 
-function AnswerBlocks({ answer }) {
-  return answer.blocks.map((b, i) => {
+function Blocks({ blocks }) {
+  return blocks.map((b, i) => {
     if (b.kind === 'lead') return <p key={i} className="serif-lead">{b.text}</p>
     if (b.kind === 'p') return <p key={i}><Inline text={b.text} /></p>
     if (b.kind === 'frame') return <ComparisonFrame key={i} block={b} />
@@ -61,6 +65,94 @@ function AnswerBlocks({ answer }) {
     if (b.kind === 'sources') return <SourcesBlock key={i} block={b} />
     return null
   })
+}
+
+const ADDENDUM_LABEL = {
+  genome: 'because the genome is in scope',
+  widen: 'because the window was widened',
+  raw: 'because the raw series was requested',
+}
+
+// One answer, with its own retrieval trace and its own counterfactual state.
+//
+// The trace is recomputed from the live posture, so flipping the reasoner
+// between local and cloud in Settings changes what this answer was built from —
+// including, on several questions, whether it has an extra paragraph at all.
+function AiAnswer({ question, answer, declined }) {
+  const { posture } = usePosture()
+  const [toggles, setToggles] = useState({})
+  const where = posture.reasoner.where
+
+  const ctx = useMemo(
+    () => assemble(question, { where, toggles }),
+    [question, where, toggles])
+
+  const onToggle = (key, value) => setToggles(t => ({ ...t, [key]: value }))
+
+  return (
+    <div className="bubble ai">
+      {!declined && <ContextStrip ctx={ctx} onToggle={onToggle} />}
+      <Blocks blocks={answer.blocks} />
+      {!declined && ctx.addenda.map(a => (
+        <div key={a.key} className={`ctx-addendum ${a.blocked ? 'blocked' : ''}`}>
+          <span className="ak">
+            {a.blocked ? 'counterfactual refused' : `added ${ADDENDUM_LABEL[a.key] || ''}`}
+          </span>
+          <Blocks blocks={a.blocks} />
+        </div>
+      ))}
+      {!declined && <ContextCaveats ctx={ctx} />}
+      {!declined && <AnswerActions actions={answer.actions} />}
+    </div>
+  )
+}
+
+// The way out of the answer and into the loop. Understanding is only the first
+// quarter of vision.md's loop — act, measure, share are the rest, and until now
+// every one of them meant navigating away and rebuilding the context by hand.
+// These carry it: the proposed experiment arrives pre-selected at its
+// pre-registration step, the packet arrives with its scope already set.
+function AnswerActions({ actions }) {
+  if (!actions?.length) return null
+  return (
+    <div className="answer-actions">
+      <span className="k">next</span>
+      {actions.map((a, i) => {
+        const to = a.kind === 'experiment'
+          ? `/experiments?propose=${a.propose}`
+          : `/share?propose=${(a.domains || []).join(',')}`
+        const glyph = a.kind === 'experiment' ? '⁘' : '◨'
+        return (
+          <Link key={i} className="chip-link act" to={to}>{glyph} {a.label}</Link>
+        )
+      })}
+    </div>
+  )
+}
+
+// The pre-send gate, with the assembly trace above it.
+//
+// The two answer different questions and both belong here: the context strip
+// says *what was assembled and why*, the pre-send panel says *what that payload
+// looks like once the gateway has been through it*. The toggles are live before
+// consent rather than after, because "include the genome" is exactly the kind of
+// decision that should be made while looking at the send button.
+function PreSendBubble({ question, onSend, onCancel }) {
+  const { posture } = usePosture()
+  const [toggles, setToggles] = useState({})
+  const ctx = useMemo(
+    () => assemble(question, { where: posture.reasoner.where, toggles }),
+    [question, posture.reasoner.where, toggles])
+  return (
+    <div className="bubble ai presend-bubble">
+      <ContextStrip ctx={ctx} onToggle={(k, v) => setToggles(t => ({ ...t, [k]: v }))} />
+      <p className="note" style={{ marginTop: 0 }}>
+        The reasoner is a cloud model in this configuration. Before it runs, here is exactly
+        what would leave — PII-stripped — and what is withheld:
+      </p>
+      <PreSendPanel presend={presend} onSend={onSend} onCancel={onCancel} assembled={ctx} />
+    </div>
+  )
 }
 
 // A canned "you kept it local" answer when the user declines a cloud call —
@@ -75,9 +167,39 @@ function localDecline(q) {
   }
 }
 
+// The store, stated rather than implied. The whole context surface only earns
+// its place if the user can see that the store is far too large to hand a model
+// wholesale — so the number is on screen next to the question box.
+function StoreCard() {
+  const drawer = useDrawer()
+  return (
+    <div className="card store-card">
+      <span className="eyebrow">Your store</span>
+      <div className="big">{storeStats.withoutGenome.toLocaleString()}</div>
+      <div className="faint" style={{ fontSize: 12, marginTop: -2 }}>
+        records · {storeStats.years} years · {storeStats.analytes} analytes
+      </div>
+      <div className="rows">
+        {storeStats.groups.slice(0, 8).map(g => (
+          <div key={g.key} className={`r ${g.materialised ? '' : 'declared'}`}>
+            <span>{g.label}</span><b>{g.rows.toLocaleString()}</b>
+          </div>
+        ))}
+        <div className="r declared"><span>Genotyped variants</span><b>4.7M</b></div>
+      </div>
+      <p className="why">
+        No prompt holds this. Every answer has to choose a few dozen records out of it —
+        which is what the <b>context</b> strip on each answer shows.
+      </p>
+      <button className="btn ghost sm" style={{ marginTop: 10 }}
+        onClick={() => drawer?.openRecord('store-stats')}>Open the inventory</button>
+    </div>
+  )
+}
+
 export default function Ask() {
   const { posture, markPreviewSeen } = usePosture()
-  const first = 'What changed in my last 90 days?'
+  const drawer = useDrawer()
 
   // Does this answer need the pre-send gate? Cloud reasoner + a cloud-marked
   // answer + a review mode that asks. `new_shape` gates only the first call.
@@ -90,14 +212,13 @@ export default function Ask() {
     return !cloudApproved.current // new_shape
   }
 
-  const initialAnswer = ask(first)
-  const [thread, setThread] = useState(() => [
-    { role: 'me', text: first },
-    gateNeeded(initialAnswer)
-      ? { role: 'presend', question: first, answer: initialAnswer }
-      : { role: 'ai', answer: initialAnswer },
-  ])
-  const [history, setHistory] = useState([first])
+  // The app opens with the cursor ready and nothing asked yet (Interaction law 5).
+  // It used to land mid-thread on the pre-send gate, which meant the first thing a
+  // new user ever saw was a consent panel rather than an answer — the privacy
+  // machinery arguing for itself before it had earned the right to. The gate is
+  // still unskippable; it is now reached by asking, which is when it means something.
+  const [thread, setThread] = useState([])
+  const [history, setHistory] = useState([])
   const [input, setInput] = useState('')
   const endRef = useRef(null)
 
@@ -109,7 +230,7 @@ export default function Ask() {
     const answer = ask(question)
     const item = gateNeeded(answer)
       ? { role: 'presend', question, answer }
-      : { role: 'ai', answer }
+      : { role: 'ai', question, answer }
     setThread(t => [...t, { role: 'me', text: question }, item])
     setHistory(h => [question, ...h.filter(x => x !== question)])
     setInput('')
@@ -121,7 +242,7 @@ export default function Ask() {
     markPreviewSeen('reasoner') // seeing the full preview here unlocks review=off for the reasoner in Settings
     setThread(t => t.map((m, i) =>
       i === index
-        ? { role: 'ai', answer: send ? m.answer : localDecline(m.question) }
+        ? { role: 'ai', question: m.question, answer: send ? m.answer : localDecline(m.question), declined: !send }
         : m))
   }
 
@@ -135,22 +256,25 @@ export default function Ask() {
             ))}
           </div>
 
+          <p className="store-line">
+            Answering from <b>{storeStats.withoutGenome.toLocaleString()}</b> stored records —{' '}
+            <b>{storeStats.analytes}</b> analytes across <b>9</b> draws, <b>{storeStats.activities}</b>{' '}
+            activities, <b>1,092</b> nights, <b>4.7M</b> genotyped variants, over{' '}
+            <b>{storeStats.years}</b> years. None of that fits in a prompt, so every answer opens with
+            what it actually pulled.{' '}
+            <button onClick={() => drawer?.openRecord('store-stats')}>See the full inventory →</button>
+          </p>
+
           {thread.map((m, i) => {
             if (m.role === 'me') return <div key={i} className="bubble me">{m.text}</div>
             if (m.role === 'presend') return (
-              <div key={i} className="bubble ai presend-bubble">
-                <p className="note" style={{ marginTop: 0 }}>
-                  The reasoner is a cloud model in this configuration. Before it runs, here is exactly
-                  what would leave — PII-stripped — and what is withheld:
-                </p>
-                <PreSendPanel
-                  presend={presend}
-                  onSend={() => resolvePresend(i, true)}
-                  onCancel={() => resolvePresend(i, false)}
-                />
-              </div>
+              <PreSendBubble key={i} question={m.question}
+                onSend={() => resolvePresend(i, true)}
+                onCancel={() => resolvePresend(i, false)} />
             )
-            return <div key={i} className="bubble ai"><AnswerBlocks answer={m.answer} /></div>
+            return (
+              <AiAnswer key={i} question={m.question} answer={m.answer} declined={m.declined} />
+            )
           })}
 
           <div ref={endRef} />
@@ -179,6 +303,7 @@ export default function Ask() {
               </button>
             ))}
           </div>
+          <StoreCard />
         </aside>
       </div>
     </div>

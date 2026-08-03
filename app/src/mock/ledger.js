@@ -14,7 +14,7 @@ export const ledger = [
     payloadPreview:
 `system: You are a health reasoning assistant...
 context:
-  ApoB 95 mg/dL (2025-11-17, shifted -117d)   # was 2025-08-01
+  ApoB 95 mg/dL (2025-04-06, shifted -117d)   # was 2025-08-01
   HbA1c 5.4%   HRV 42ms   VO2max 52
   reviewed by [PROVIDER_NAME]                  # was "Dr. Sarah Chen"
   facility [FACILITY]                          # was "Marin Health"
@@ -88,7 +88,7 @@ gateway: scanned — 0 identifiers found, nothing to strip. Call still logged.`,
     tokens: 2110, respTokens: 480, cost: 0.032, review: 'new_shape',
     payloadPreview:
 `context:
-  CAC Agatston 12 (2024-... shifted -117d)
+  CAC Agatston 0 (2024-07-15, shifted -117d)   # was 2024-11-09
   reviewed by [PROVIDER_NAME]                  # was "Dr. Sarah Chen"
 query: should I be worried about my CAC score?`,
   },
@@ -101,7 +101,7 @@ export const presend = {
   tokens: 2847, cost: 0.043, review: 'new_shape',
   diff: [
     { pre: 'reviewed by ', rm: 'Dr. Sarah Chen', add: '[PROVIDER_NAME]' },
-    { pre: 'drawn ', rm: '2026-03-14', add: '2025-11-17 (−117d)' },
+    { pre: 'drawn ', rm: '2025-08-01', add: '2025-04-06 (−117d)' },
     { pre: 'ApoB 95 mg/dL · HbA1c 5.4%', keep: '✓ retained' },
   ],
   excluded: {

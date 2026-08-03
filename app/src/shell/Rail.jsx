@@ -1,21 +1,26 @@
 import { NavLink } from 'react-router-dom'
+import { useAttention } from '../state/store.js'
 
-// The eight destinations + the two group headers. Items marked `soon` are the
-// planned-fidelity stubs being filled in over phases 1–3.
+// Nine destinations + the two group headers. `Now` sits first because it is the
+// re-entry point — but it is NOT the landing route: the app still opens on Ask
+// with the cursor ready (interaction law 5). The count badge is the only nag in
+// the product, and it counts real items, never engagement.
 const NAV = [
+  { to: '/now', ic: '✱', label: 'Now', badge: true },
   { to: '/ask', ic: '✦', label: 'Ask' },
   { to: '/timeline', ic: '◷', label: 'Timeline' },
   { to: '/explore', ic: '◇', label: 'Explore' },
-  { to: '/experiments', ic: '⁘', label: 'Experiments', soon: true },
+  { to: '/experiments', ic: '⁘', label: 'Experiments' },
   { grp: 'Data' },
-  { to: '/data', ic: '⇲', label: 'Data sources', soon: true },
-  { to: '/share', ic: '◨', label: 'Share', soon: true },
+  { to: '/data', ic: '⇲', label: 'Data sources' },
+  { to: '/share', ic: '◨', label: 'Share' },
   { grp: 'Trust' },
   { to: '/transparency', ic: '▤', label: 'Transparency' },
-  { to: '/settings', ic: '⚙', label: 'Settings', soon: true },
+  { to: '/settings', ic: '⚙', label: 'Settings' },
 ]
 
 export default function Rail() {
+  const { count } = useAttention()
   return (
     <nav className="rail">
       <div className="logo">
@@ -34,7 +39,7 @@ export default function Rail() {
           >
             <span className="ic">{n.ic}</span>
             {n.label}
-            {n.soon && <span className="soon">soon</span>}
+            {n.badge && count > 0 && <span className="railbadge num">{count}</span>}
           </NavLink>
         )
       )}

@@ -43,6 +43,36 @@ Confounding isn't a flaw in your data; it's a property of the world. Naming it i
     related: ['n-of-1', 'regression-to-the-mean', 'effect-vs-certainty'],
     deepLink: 'Confounding variables — a plain-English primer',
   },
+  'measurement-quality': {
+    id: 'measurement-quality',
+    title: 'Measurement quality',
+    summary: 'Two numbers printed in the same font are not the same kind of evidence.',
+    body:
+`Every measurement has a reproducibility: run it twice on the same sample, on the same day, and see how far apart the two answers land. That spread is the noise floor, and no change smaller than it can be read as real.
+
+It varies enormously between instruments that look equally authoritative on a report. DunedinPACE has an intraclass correlation near 0.96; the first-generation epigenetic clocks sit around 0.76–0.80 — roughly an order of magnitude apart in variance. A metabolic cart measures oxygen consumption directly; a wrist wearable models it from heart rate and pace and carries a typical error of ±10–15%.
+
+So the question is never "which number is right?" but "which number's noise floor is smaller than the change I am trying to read?" A "0.7-year improvement" on an assay whose test–retest band is ±3.8 years is not a small improvement. It is not an improvement at all.
+
+The practical rule: prefer the measurement over the model of the measurement, and prefer the instrument whose error bars you know.`,
+    related: ['effect-vs-certainty', 'surrogate-endpoints', 'regression-to-the-mean'],
+    deepLink: 'Test–retest reliability and the smallest detectable change',
+  },
+  'base-rates': {
+    id: 'base-rates',
+    title: 'Base rates and what a negative is worth',
+    summary: 'A negative result carries only as much information as the test\'s sensitivity allows.',
+    body:
+`Screening tests are described by two numbers that do very different jobs. Sensitivity is how often the test finds a condition that is present — it governs what a *negative* means. Specificity is how often it stays quiet when nothing is there — it governs what a *positive* means.
+
+A test with 99.5% specificity and 16.8% early-stage sensitivity is a good test for ruling something *in* and a poor one for ruling it *out*. "No signal detected" from such a test barely shifts your probability of having early disease, because the test would probably have said the same thing either way.
+
+The other half is your starting probability — the base rate. The same negative result means something different for someone with a strong family history than for someone without one, which is why the prior matters as much as the result.
+
+The failure mode is treating the *word* "negative" as the information, rather than the arithmetic behind it.`,
+    related: ['effect-vs-certainty', 'absence-of-evidence', 'hierarchy-of-evidence'],
+    deepLink: 'Sensitivity, specificity and predictive value — a worked example',
+  },
   'regression-to-the-mean': {
     id: 'regression-to-the-mean',
     title: 'Regression to the mean',

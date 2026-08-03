@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import AppShell from './shell/AppShell.jsx'
+import Now from './views/Now.jsx'
 import Ask from './views/Ask.jsx'
 import Timeline from './views/Timeline.jsx'
 import Explore from './views/Explore.jsx'
@@ -13,7 +14,9 @@ export default function App() {
   return (
     <Routes>
       <Route element={<AppShell />}>
+        {/* Law 5: the app opens on Ask with the cursor ready, never a dashboard. */}
         <Route index element={<Navigate to="/ask" replace />} />
+        <Route path="/now" element={<Now />} />
         <Route path="/ask" element={<Ask />} />
         <Route path="/timeline" element={<Timeline />} />
         <Route path="/explore" element={<Explore />} />

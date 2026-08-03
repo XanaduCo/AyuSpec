@@ -10,11 +10,17 @@
 import { useState } from 'react'
 import Switch from './Switch.jsx'
 
-export default function PreSendPanel({ presend, onSend, onCancel }) {
+// `assembled` is optional: when Ask has actually run the context builder for this
+// question, the panel reports *that* payload rather than the canned constants, so
+// the token count under the Send button can never drift from the trace above it.
+export default function PreSendPanel({ presend, onSend, onCancel, assembled }) {
   const excl = presend.excluded
   const [includeExcluded, setIncludeExcluded] = useState(false)
   const on = !!excl?.optIn && includeExcluded
-  const tokens = presend.tokens + (on ? (excl.optInTokens || 0) : 0)
+  const base = assembled?.budget?.used ?? presend.tokens
+  const tokens = base + (on ? (excl.optInTokens || 0) : 0)
+  // Cost tracks the payload it is quoting, at the canned per-token rate.
+  const cost = presend.cost * (tokens / (presend.tokens || tokens || 1))
 
   return (
     <div className="presend">
@@ -48,8 +54,8 @@ export default function PreSendPanel({ presend, onSend, onCancel }) {
 
         <div style={{ display: 'flex', gap: 8, marginTop: 14, alignItems: 'center' }}>
           {onSend
-            ? <button className="btn warn" onClick={() => onSend(on)}>Send · ~{tokens} tok · ${presend.cost.toFixed(3)}</button>
-            : <button className="btn warn" disabled>Send · ~{tokens} tok · ${presend.cost.toFixed(3)}</button>}
+            ? <button className="btn warn" onClick={() => onSend(on)}>Send · ~{tokens} tok · ${cost.toFixed(3)}</button>
+            : <button className="btn warn" disabled>Send · ~{tokens} tok · ${cost.toFixed(3)}</button>}
           {onCancel && <button className="btn ghost" onClick={onCancel}>Keep local instead</button>}
           <span className="mono" style={{ fontSize: 11, color: 'var(--faint)', marginLeft: 'auto' }}>review: {presend.review}</span>
         </div>

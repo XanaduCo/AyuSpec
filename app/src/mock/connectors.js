@@ -4,8 +4,15 @@
 // transit, and names the free direct path it falls back to). File sources land
 // via manual upload — a local parse, no network at all. (ingestion/index.md,
 // tiers.md#axis-3-connections.) Every count and date is fabricated but coherent
-// with the persona: Oura + Whoop active, Dexcom bridged for the running CGM
-// experiment, Epic connected, Fasten offered but not enrolled, no Garmin.
+// with the persona: Oura + Whoop + Garmin + Cronometer active and direct,
+// Dexcom bridged for the running CGM experiment, Epic connected, Fasten offered
+// but not enrolled. Record counts are computed from the real mock modules rather
+// than typed, so a card can never claim a number the store does not hold.
+
+import {
+  activityStats, nutritionStats, streamStats, labStats, storeStats,
+  genomicStats, bodyCompStats, agingStats, screeningStats,
+} from './persona.js'
 
 // tier: 'direct' (green, zero-transit) · 'bridged' (amber, transits a vendor)
 // · 'file' (local upload, no network)
@@ -15,8 +22,9 @@ export const streams = [
   {
     id: 'oura', group: 'Wearables', name: 'Oura Ring', method: 'Open Wearables · PAT',
     tier: 'direct', status: 'active',
-    lastSync: '2025-08-03 06:12', nextRun: 'in ~6h (4× daily)', records: 3284,
-    metrics: 'HRV, resting HR, sleep stages, readiness',
+    lastSync: '2025-08-03 06:12', nextRun: 'in ~6h (4× daily)',
+    records: streamStats.sleepNights * (streamStats.sleepFields - 4) + 1092 * 4,
+    metrics: 'HRV, resting HR, respiratory rate, sleep stages, readiness — 1,092 nights',
     note: 'Personal access token — data goes ring → Open Wearables → your store. Nothing transits ayuOS.',
   },
   {
@@ -24,12 +32,27 @@ export const streams = [
     tier: 'direct', status: 'active',
     lastSync: '2025-08-03 05:48', nextRun: 'in ~6h (4× daily)', records: 2190,
     metrics: 'VO₂max (est.), strain, recovery, sleep',
-    note: 'Self-hosted OAuth app — zero transit through any ayuOS-operated service.',
+    note: 'Self-hosted OAuth app — zero transit through any ayuOS-operated service. Its VO₂max is a model, not a measurement: it reads 52.0 against a metabolic cart\u2019s 47.8. Both are stored; answers say which one they are quoting.',
+  },
+  {
+    id: 'garmin', group: 'Wearables', name: 'Garmin Connect', method: 'Open Wearables · OAuth',
+    tier: 'direct', status: 'active',
+    lastSync: '2025-08-03 07:31', nextRun: 'in ~6h (4× daily)', records: activityStats.activities,
+    metrics: `Per-activity records — HR zones, training load, aerobic/anaerobic effect · ${activityStats.totalKm.toLocaleString()} km`,
+    note: `${activityStats.activities} activities across ${activityStats.weeks} weeks, each with 16 fields. There is a ${activityStats.gapDays}-day hole in April 2025 — the watch stayed home during a travel week, and the gap is kept rather than interpolated.`,
+  },
+  {
+    id: 'cronometer', group: 'Nutrition', name: 'Cronometer', method: 'Open Wearables · OAuth',
+    tier: 'direct', status: 'active',
+    lastSync: '2025-08-03 08:04', nextRun: 'nightly', records: nutritionStats.nutrientRows,
+    metrics: `${nutritionStats.loggedDays} logged days × 23 nutrients + ${nutritionStats.declaredMeals.toLocaleString()} meal entries`,
+    note: `Coverage is ${nutritionStats.coveragePct}%, not 100% — logging lapsed through winter 2024–25 and resumed with the training block. Any answer that uses this data is scoped to the days that exist.`,
   },
   {
     id: 'dexcom', group: 'Wearables', name: 'Dexcom G7 (CGM)', method: 'Terra bridge',
     tier: 'bridged', status: 'active',
-    lastSync: '2025-08-03 07:55', nextRun: 'hourly · experiment window', records: 1512,
+    lastSync: '2025-08-03 07:55', nextRun: 'hourly · experiment window',
+    records: streamStats.cgmDeclaredReadings,
     metrics: 'Interstitial glucose · post-meal peaks',
     disclosure: 'Dexcom has no individual API, so readings transit Terra’s cloud before landing locally. Enabled per-provider, only for the running post-meal-walks experiment.',
     fallback: { to: 'Open Wearables (direct)', costs: 'CGM coverage for this experiment', keeps: 'every other wearable stream and all stored history' },
@@ -56,17 +79,17 @@ export const streams = [
 export const files = [
   {
     id: 'apple-health', group: 'Apple Health', name: 'Apple Health export', accept: 'export.zip',
-    tier: 'file', lastImport: '2025-07-15', records: 5120,
+    tier: 'file', lastImport: '2025-07-15', records: 5606,
     hint: 'The base EHR tier — the zip contains raw provider FHIR JSON plus device history. Cumulative full dump; re-imported wholesale, deduped by content hash.',
-    parse: { found: 5120, kind: 'FHIR resources + device samples', confidence: 0.99, took: '38s',
-      note: 'Deduped against 5,041 already stored — 79 new. No PII left the device; the whole parse ran locally.' },
+    parse: { found: 5606, kind: 'FHIR resources + device samples', confidence: 0.99, took: '38s',
+      note: 'Deduped against 5,527 already stored — 79 new. No PII left the device; the whole parse ran locally.' },
   },
   {
     id: 'labs', group: 'Labs', name: 'Lab PDF', accept: 'PDF',
-    tier: 'file', lastImport: '2025-08-01', records: 7,
-    hint: 'LabCorp / Quest / concierge PDFs. Text-layer parse first, local doc-VLM extraction where the layout is scanned. LOINC-coded on the way in.',
-    parse: { found: 7, kind: 'Observations (1 panel)', confidence: 0.94, took: '6s',
-      note: '7 analytes extracted, 1 flagged for review (ApoB unit ambiguous). MedGemma ran locally — nothing was sent to a cloud OCR service.' },
+    tier: 'file', lastImport: '2025-08-01', records: labStats.results,
+    hint: `LabCorp / Quest / concierge PDFs. ${labStats.analytes} analytes across ${labStats.draws} draws over ${labStats.months} months, LOINC-coded on the way in. One draw was ordered and never taken; one vendor switch changed units on Lp(a) and free testosterone — both are recorded as facts about the data, not smoothed away.`,
+    parse: { found: labStats.analytes, kind: `Observations (1 panel, ${labStats.analytes} analytes)`, confidence: 0.94, took: '11s',
+      note: `${labStats.analytes} analytes extracted, ${labStats.abnormalNow} flagged out of range. MedGemma ran locally — nothing was sent to a cloud OCR service.` },
   },
   {
     id: 'dicom', group: 'Imaging', name: 'DICOM study', accept: '.dcm / folder',
@@ -77,15 +100,27 @@ export const files = [
   },
   {
     id: 'genome', group: 'Genomics', name: 'Genome file', accept: '23andMe / VCF',
-    tier: 'file', lastImport: '2025-01-30', records: 1,
-    hint: 'Raw genotype or VCF. Variant parse + PRS computed locally. Genomic data is excluded from cloud models and third-party shares by default; you can opt in per call or per share, with a warning that a genome is inherently identifiable.',
-    parse: { found: 1, kind: 'MolecularSequence + PRS', confidence: 0.72, took: '22s',
-      note: 'APOE ε3/ε3, CVD PRS 70th pct (South Asian — European-GWAS caveat applied). Confidence graded: consumer array, hypothesis-generating at best.' },
+    tier: 'file', lastImport: '2025-03-24', records: genomicStats.reported,
+    hint: `30× whole genome (CRAM/VCF), superseding the 2019 consumer array. ${genomicStats.variantsCalled.toLocaleString()} variants called, ${genomicStats.reported} annotated and reported: ${genomicStats.prs} polygenic scores, ${genomicStats.pgx} pharmacogenomic genes (${genomicStats.actionablePgx} actionable), ${genomicStats.carrier} carrier results. Excluded from cloud models and third-party shares by default — opt in per call or per share, warned that a genome is inherently identifiable.`,
+    parse: { found: genomicStats.reported, kind: 'MolecularSequence + PRS + PGx', confidence: 0.91, took: '4m 38s',
+      note: 'Raw CRAM (62 GB) stays on disk; only annotated findings enter the clinical schema. Two are actionable: SLCO1B1 *1/*5 (statin myopathy) and HFE C282Y/H63D.' },
   },
 ]
 
 // Tier badge metadata. direct/file read green (zero transit); bridged reads
 // amber (transits a vendor). This is the SAME colour law as the posture header.
+// Third-party test reports arrive as PDFs and have no API anywhere. Grouped as
+// one source because that is how they arrive — a folder of reports, parsed
+// locally, no network in any tier.
+files.push({
+  id: 'tests', group: 'Third-party tests', name: 'Test report PDF', accept: 'PDF',
+  tier: 'file', lastImport: '2025-07-19',
+  records: bodyCompStats.dexaMeasures + bodyCompStats.functionalMeasures + agingStats.rows + screeningStats.rows,
+  hint: `DEXA, metabolic-cart CPET, functional battery, epigenetic panels, MCED. ${bodyCompStats.dexaScans} DEXA scans, ${bodyCompStats.vo2Tests} lab VO₂max tests, ${bodyCompStats.functionalSessions} functional sessions, ${agingStats.tests} methylation panels, ${screeningStats.tests} screening results. Each carries its own reproducibility metadata, because a delta smaller than an assay's test–retest band is not a delta.`,
+  parse: { found: 22, kind: 'DiagnosticReport (1 DEXA)', confidence: 0.93, took: '9s',
+    note: 'Parsed locally. The scan is stored with its device and operator so a future delta is only computed against a comparable scan.' },
+})
+
 export const TIERS = {
   direct: { label: 'direct · zero transit', tone: 'local', glyph: '●' },
   file: { label: 'local file · no network', tone: 'local', glyph: '●' },

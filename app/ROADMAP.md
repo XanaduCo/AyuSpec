@@ -58,6 +58,7 @@ cd .. && python3 -m mkdocs build --strict   # confirm the site still builds
 | **1 · Anchor loop** | Ask (deepen), Timeline (real) | ✅ done |
 | **2 · Trust surfaces** | Settings (+ live posture), Transparency (polish) | ✅ done |
 | **3 · The rest** | Experiments, Data sources, Share | ✅ done |
+| **4 · Consequences** | session overlay, Now, capture, live experiments, corrections | ✅ done |
 | **X · Cross-cutting** | concept cards, source drawer, simplify, voice, a11y | 🟡 a11y ongoing |
 
 Legend: ✅ done · 🟡 partial · ⬜ not started.
@@ -211,6 +212,39 @@ Current: real view (`src/views/Share.jsx`).
       consult), scope filter, and the doctor-packet builder.
 - **Done when:** a user can scope, preview, and "generate" a doctor packet, and every share lands
   in the consent log. ✅
+
+---
+
+## Phase 4 — Consequences ✅
+
+Phases 0–3 built every surface and left them all read-only: the upload said `parsed ✓` and nothing
+changed, the experiment was frozen at 21/30 forever, and there was nowhere to find out that anything
+needed you. Phase 4 gave the app verbs. The full audit against the front-end journeys and the ranked
+gap list is in [`TODO-frontend.md`](TODO-frontend.md).
+
+- [x] **Session overlay** (`src/state/store.js` + `fixtures.js`) — a mutable in-memory layer over the
+      read-only mocks. Views read `base + overlay`; `src/mock/**` is never mutated; resets on reload
+      and the UI says so. Deterministic, no `Math.random()`.
+- [x] **Imports with consequences** — the dropzone opens a reviewable parse (per-row confidence,
+      checkboxes) that **stops and asks** rather than guessing an ambiguous unit; confirming it moves
+      the Timeline, Now, the share inventory and the record counts. Each of the four imports closes a
+      question the base record genuinely leaves open.
+- [x] **Now** (`/now`, first rail item, count badge) — the re-entry point: waiting-on-you, new
+      findings, what is due, **what ayuOS does not know about you**, and the session trace. Ask is
+      still the landing route (Law 5).
+- [x] **Quick capture** (`＋` in the header) — journey 12, which had no UI at all: photo-a-bottle with
+      a mandatory interaction check, voice → structured record, passive-activity confirm, one-tap
+      experiment log, manual reading.
+- [x] **Live experiments** — log a day, backfill (marked recalled, counted separately), flag a
+      confounder, close against the pre-registered bar only, and pre-register a new one with a power
+      warning delivered *before* the days are invested.
+- [x] **Corrections** — every record drawer can fix a value, annotate it, or exclude it from
+      reasoning with a stated reason. Corrections follow the value into the doctor packet.
+- [x] **Loud connector failure** — Whoop starts the session errored (neutral, not red), names what is
+      lost and what is kept, and re-syncs.
+- [x] **Share** — the two-column Included/**Withheld** preview journey 13 §3 asks for; artifacts
+      persist and re-open.
+- [x] Colour-law fix: out-of-range labs no longer render in the reserved red.
 
 ---
 

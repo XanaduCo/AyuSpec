@@ -9,8 +9,8 @@
 // with what the packet renders — the same coherence rule as the rest of the demo.
 
 import {
-  labs, conditions, medications, imaging, wearables, genomics, familyHistory,
-  persona, anchor, addDays, daysBetween,
+  currentPanel, conditions, medications, imaging, wearables, genomics,
+  familyHistory, persona, anchor, addDays, daysBetween,
 } from './persona.js'
 
 // --- the shareable inventory, tagged on four axes the composer filters by -----
@@ -41,13 +41,59 @@ export const inventory = [
   inv('img-cac', 'Coronary calcium CT', 'cardiac', 'imaging', 'ImagingStudy', '2024-11-09', 'Agatston 0'),
   inv('img-brain-mri', 'Brain MRI', 'neuro', 'imaging', 'ImagingStudy', '2025-02-18', 'unremarkable'),
   // genomics
-  inv('gen-apoe', 'APOE ε3/ε3', 'neuro', 'genomics', 'MolecularSequence', '2025-01-30', 'not an ε4 carrier'),
-  inv('gen-prs', 'CVD polygenic score', 'cardiac', 'genomics', 'MolecularSequence', '2025-01-30', '70th pct'),
+  inv('gen-apoe', 'APOE ε3/ε3', 'neuro', 'genomics', 'MolecularSequence', '2025-03-22', 'not an ε4 carrier'),
+  inv('gen-prs', 'CVD polygenic score', 'cardiac', 'genomics', 'MolecularSequence', '2025-03-22', '70th pct'),
+
+  // --- everything the deeper store added --------------------------------------
+  // The inventory is what a sliver can contain, so it has to keep pace with the
+  // record. A composer that cannot offer the mercury result is a composer that
+  // silently narrows what a clinician gets to see.
+  inv('obs-mercury', 'Mercury, blood', 'toxicology', 'labs', 'Observation', '2025-08-01', '14.2 µg/L · above reference'),
+  inv('obs-arsenic', 'Arsenic, blood total', 'toxicology', 'labs', 'Observation', '2025-08-01', '9.4 µg/L · speciation not ordered'),
+  inv('obs-lead', 'Lead, blood', 'toxicology', 'labs', 'Observation', '2025-08-01', '1.8 µg/dL · in range'),
+  inv('obs-cadmium', 'Cadmium, blood', 'toxicology', 'labs', 'Observation', '2025-08-01', '0.38 µg/L · in range'),
+  inv('obs-lpa', 'Lp(a)', 'cardiac', 'labs', 'Observation', '2025-08-01', '76 nmol/L · above target'),
+  inv('obs-ferritin', 'Ferritin', 'metabolic', 'labs', 'Observation', '2025-08-01', '291 ng/mL · rising, in range'),
+  inv('obs-tsat', 'Transferrin saturation', 'metabolic', 'labs', 'Observation', '2025-08-01', '46%'),
+  inv('obs-tsh', 'TSH', 'hormone', 'labs', 'Observation', '2025-08-01', 'in range'),
+  inv('obs-vit-d', 'Vitamin D, 25-OH', 'metabolic', 'labs', 'Observation', '2025-08-01', '44 ng/mL'),
+  inv('obs-omega3-index', 'Omega-3 index', 'nutrition', 'labs', 'Observation', '2025-08-01', '9.6%'),
+  inv('lab-vendor-switch', 'Lab vendor switch note', 'metabolic', 'labs', 'Basic', '2025-01-11', 'Quest → LabCorp · units changed'),
+  inv('draw-2024-11-16', 'Panel ordered, never drawn', 'metabolic', 'labs', 'Basic', '2024-11-16', 'gap in the quarterly cadence'),
+
+  inv('dexa-2025-07-19', 'DEXA body composition', 'fitness', 'tests', 'DiagnosticReport', '2025-07-19', '17.8% fat · VAT 0.58 kg'),
+  inv('vo2-2025-06-14', 'VO₂max — metabolic cart', 'fitness', 'tests', 'DiagnosticReport', '2025-06-14', '47.8 mL/kg/min · measured'),
+  inv('vo2-discrepancy', 'VO₂max measured vs. estimated', 'fitness', 'tests', 'Basic', '2025-06-14', '47.8 cart vs 52.0 wearable'),
+  inv('func-2025-07-02', 'Functional capacity battery', 'fitness', 'tests', 'DiagnosticReport', '2025-07-02', 'grip 51.2 kg · FMS 17'),
+  inv('clock-2025-06-11', 'Epigenetic age panel', 'ageing', 'tests', 'DiagnosticReport', '2025-06-11', 'DunedinPACE 0.94'),
+  inv('clock-disagreement', 'Clock reliability analysis', 'ageing', 'tests', 'Basic', '2025-06-11', '3 of 6 movements readable'),
+
+  inv('scr-galleri', 'Galleri MCED', 'screening', 'screening', 'DiagnosticReport', '2025-04-28', 'no signal · caveats attached'),
+  inv('scr-colonoscopy', 'Screening colonoscopy', 'screening', 'screening', 'DiagnosticReport', '2023-09-14', 'normal · next 2033'),
+  inv('scr-sleep-study', 'Home sleep apnoea test', 'sleep', 'screening', 'DiagnosticReport', '2024-10-02', 'AHI 3.1 · no OSA'),
+
+  inv('block-summary', 'Aerobic block — weekly load', 'fitness', 'activity', 'Basic', '2025-06-15', '290 activities aggregated'),
+  inv('cgm-summary', 'CGM baseline vs. protocol', 'metabolic', 'wearables', 'Basic', anchor, 'peak 144 → 128 mg/dL'),
+  inv('sleep-summary', 'Sleep architecture summary', 'sleep', 'wearables', 'Basic', anchor, 'REM 96 → 89 min'),
+  inv('nutr-seafood-trend', 'Seafood intake trend', 'nutrition', 'nutrition', 'Basic', anchor, '3.2 → 7.8 servings/week'),
+
+  inv('gen-lpa', 'LPA rs3798220 carrier', 'cardiac', 'genomics', 'MolecularSequence', '2025-03-22', 'explains the elevated Lp(a)'),
+  inv('gen-hfe', 'HFE C282Y/H63D', 'metabolic', 'genomics', 'MolecularSequence', '2025-03-22', 'compound heterozygote'),
+  inv('pgx-slco1b1', 'SLCO1B1 *1/*5', 'cardiac', 'genomics', 'MolecularSequence', '2025-03-22', 'statin myopathy risk · CPIC'),
+  inv('gen-ldlr', 'FH panel — negative', 'cardiac', 'genomics', 'MolecularSequence', '2025-03-22', 'not monogenic'),
+
+  inv('fh-mother-t2d', 'Mother — type 2 diabetes @ 58', 'metabolic', 'notes', 'FamilyMemberHistory', '2022-03-15', 'family history'),
+  inv('fh-father-cad', 'Father — CAD @ 62', 'cardiac', 'notes', 'FamilyMemberHistory', '2022-03-15', 'family history'),
 ]
 
 export const DOMAINS = [
   { key: 'cardiac', label: 'Cardiac' },
   { key: 'metabolic', label: 'Metabolic' },
+  { key: 'toxicology', label: 'Toxicology' },
+  { key: 'fitness', label: 'Fitness' },
+  { key: 'ageing', label: 'Ageing' },
+  { key: 'screening', label: 'Screening' },
+  { key: 'nutrition', label: 'Nutrition' },
   { key: 'sleep', label: 'Sleep' },
   { key: 'neuro', label: 'Neuro' },
   { key: 'hormone', label: 'Hormone' },
@@ -55,16 +101,23 @@ export const DOMAINS = [
 export const SOURCES = [
   { key: 'labs', label: 'Labs' },
   { key: 'wearables', label: 'Wearables' },
+  { key: 'activity', label: 'Activity' },
+  { key: 'nutrition', label: 'Nutrition' },
+  { key: 'tests', label: 'Third-party tests' },
+  { key: 'screening', label: 'Screening' },
   { key: 'notes', label: 'Clinical notes' },
   { key: 'imaging', label: 'Imaging' },
   { key: 'genomics', label: 'Genomics' },
 ]
 export const RTYPES = [
   { key: 'Observation', label: 'Observation' },
+  { key: 'DiagnosticReport', label: 'DiagnosticReport' },
   { key: 'Condition', label: 'Condition' },
   { key: 'MedicationStatement', label: 'Medication' },
   { key: 'ImagingStudy', label: 'ImagingStudy' },
   { key: 'MolecularSequence', label: 'MolecularSequence' },
+  { key: 'FamilyMemberHistory', label: 'FamilyMemberHistory' },
+  { key: 'Basic', label: 'ayuOS object' },
 ]
 export const WINDOWS = [
   { key: '90d', label: 'Last 90 days', days: 90 },
@@ -109,7 +162,10 @@ export function selectScope({ domains, sources, types, window }) {
 // doctor-packet). Everything is derived from the persona so it matches the record.
 export function buildPacket(items) {
   const ids = new Set(items.map(i => i.id))
-  const inLabs = labs.filter(l => ids.has(l.id))
+  // The full current panel, so a sliver that scopes in mercury or Lp(a)
+  // actually renders it. Selecting from a deeper store and then printing the
+  // seven original analytes would be a silent narrowing.
+  const inLabs = currentPanel.filter(l => ids.has(l.id))
   const inMeds = medications.filter(m => ids.has(m.id))
   const inConds = conditions.filter(c => ids.has(c.id))
   const inImaging = imaging.filter(s => ids.has(s.id))
