@@ -233,10 +233,10 @@ writeFileSync(join(here, 'seed.sql'), sql.join('\n'));
 
 // --- inline the graph into the UI -----------------------------------------
 // Output lands in docs/ so MkDocs picks it up as a static page: it is served at
-// /healthspan-explorer/ by both `mkdocs serve` and the deployed site, with no
-// copy step in between.
+// /demo/ by both `mkdocs serve` and the deployed site, with no copy step in
+// between. (The demo is the prototype showcase; more prototypes land here.)
 const shell = readFileSync(join(here, 'app', 'index.template.html'), 'utf8');
-const appOut = join(here, '..', 'docs', 'healthspan-explorer');
+const appOut = join(here, '..', 'docs', 'demo');
 mkdirSync(appOut, { recursive: true });
 writeFileSync(join(appOut, 'index.html'),
   shell.replace('/*__GRAPH__*/null', JSON.stringify(graph)));
@@ -254,4 +254,4 @@ if (problems.length) {
   problems.slice(0, 40).forEach(p => console.error('  ! ' + p));
   process.exit(1);
 }
-console.log('\nOK -> seed/graph.json, seed.sql, ../docs/healthspan-explorer/index.html');
+console.log('\nOK -> seed/graph.json, seed.sql, ../docs/demo/index.html');

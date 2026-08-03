@@ -2,7 +2,7 @@ site/
 open-wearables/
 ayuOS-business.md
 prototype/app/index.html
-docs/healthspan-explorer/
+docs/demo/
 
 # Local review state (your personal comment queue). The tooling is committed;
 # the queue itself is not. Un-ignore if you want to keep a review audit trail.

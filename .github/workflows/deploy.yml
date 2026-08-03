@@ -34,8 +34,8 @@ jobs:
 
       - run: pip install -r requirements.txt
 
-      # Regenerates seed/graph.json, seed.sql and the explorer at
-      # docs/healthspan-explorer/index.html, which MkDocs then picks up as a
+      # Regenerates seed/graph.json, seed.sql and the demo at
+      # docs/demo/index.html, which MkDocs then picks up as a
       # static page. Must run before mkdocs: the nav entry points at that file,
       # and --strict fails if it is missing. Exits non-zero on a graph-validation
       # error, so a bad edge fails the build instead of shipping a broken explorer.

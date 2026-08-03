@@ -1,8 +1,11 @@
 {#
-  ayuOS theme override. Its only job is to expose the current page's source
-  markdown path to the review overlay (docs/assets/review.js), so a comment
-  captured in the browser knows which .md file `/loop` should edit.
-  Harmless in production — review.js self-gates to localhost + a live sidecar.
+  ayuOS theme override. Two jobs:
+  1. Expose the current page's source markdown path to the review overlay
+     (docs/assets/review.js), so a browser comment knows which .md file
+     `/loop` should edit. Harmless in production — review.js self-gates to
+     localhost + a live sidecar.
+  2. Open the standalone Demo page in a new tab (MkDocs nav YAML can't set
+     target); this runs in production too.
 #}
 {% extends "base.html" %}
 
@@ -16,6 +19,15 @@
       src: {{ (page.file.src_path if page else "") | tojson }},
       title: {{ (page.title | string if page else "") | tojson }}
     };
+    // The Demo is a standalone (non-MkDocs) page; open it in a new tab so the
+    // spec stays put. Matches the nav link and any in-content links to it
+    // (its directory URL ends in "demo/").
+    document.addEventListener("DOMContentLoaded", function () {
+      document.querySelectorAll('a[href$="demo/"], a[href$="demo/index.html"]').forEach(function (a) {
+        a.target = "_blank";
+        a.rel = "noopener";
+      });
+    });
   </script>
   {{ super() }}
 {% endblock %}

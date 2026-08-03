@@ -6,15 +6,15 @@ still cheap to change — this file is the yield.
 ## Run it
 
 ```bash
-cd prototype && node build.mjs && open ../docs/healthspan-explorer/index.html
+cd prototype && node build.mjs && open ../docs/demo/index.html
 ```
 
 `build.mjs` merges `seed/*.json`, validates the graph, emits `seed.sql`, and inlines the graph
-into `docs/healthspan-explorer/index.html`. The UI is a single self-contained file: no server,
+into `docs/demo/index.html`. The UI is a single self-contained file: no server,
 no dependencies.
 
 It is written into `docs/` so MkDocs serves it as part of the spec site — `mkdocs serve` picks
-it up at `/healthspan-explorer/`, same path as production. Run `build.mjs` before `mkdocs
+it up at `/demo/`, same path as production. Run `build.mjs` before `mkdocs
 build`: the nav entry points at that file and `--strict` fails when it is absent.
 
 To load the database (Postgres 16):

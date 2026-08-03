@@ -47,6 +47,7 @@ nav:
     - Vision & Problem: vision.md
     - Tiers & Fallbacks: tiers.md
     - Architecture Overview: architecture.md
+  - Demo: demo/index.html
   - Decisions (ADRs):
     - Overview: adr/index.md
     - "ADR-0001: EHR ingestion": adr/0001-ehr-ingestion.md
@@ -70,7 +71,6 @@ nav:
     - Evidence & Hypotheses: evidence.md
   - Healthspan & Health Literacy:
     - The Healthspan Model: healthspan-model.md
-    - Healthspan Explorer: healthspan-explorer/index.html
     - Health Literacy & Epistemics: epistemics.md
     - Experimentation & Validation: experimentation.md
   - Transparency, Privacy & Sharing:
