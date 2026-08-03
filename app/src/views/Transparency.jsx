@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { ledger, presend } from '../mock/ledger.js'
+import PreSendPanel from '../components/PreSendPanel.jsx'
 
 function redactionSummary(g) {
   const r = Object.entries(g.redactions || {})
@@ -50,29 +51,8 @@ export default function Transparency() {
       <div className="grid g2" style={{ marginBottom: 22 }}>
         <div className="card">
           <span className="eyebrow">Pre-send review · before the cloud call left</span>
-          <div className="presend" style={{ marginTop: 12 }}>
-            <div className="top">
-              <b>◍ About to leave your device</b>
-              <span className="pill egress"><span className="led" />{presend.destination}</span>
-            </div>
-            <div className="body">
-              <div className="diff">
-                {presend.diff.map((d, i) => (
-                  <div key={i}>
-                    {d.pre}
-                    {d.rm && <span className="rm">{d.rm}</span>}{d.rm && ' '}
-                    {d.add && <span className="add">{d.add}</span>}
-                    {d.keep && <span style={{ color: 'var(--local)' }}> {d.keep}</span>}
-                  </div>
-                ))}
-              </div>
-              <div className="excl">⊘ Withheld entirely: <b>{presend.excluded.type}</b> — {presend.excluded.reason}.</div>
-              <div style={{ display: 'flex', gap: 8, marginTop: 14, alignItems: 'center' }}>
-                <button className="btn warn">Send · ~{presend.tokens} tok · ${presend.cost.toFixed(3)}</button>
-                <button className="btn ghost">Cancel</button>
-                <span className="mono" style={{ fontSize: 11, color: 'var(--faint)', marginLeft: 'auto' }}>review: {presend.review}</span>
-              </div>
-            </div>
+          <div style={{ marginTop: 12 }}>
+            <PreSendPanel presend={presend} />
           </div>
         </div>
         <div className="card">

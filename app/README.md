@@ -27,8 +27,13 @@ in CI.
 
 - **`src/shell/`** — the app shell: left rail, the always-on posture header, routing.
 - **`src/mock/`** — the single source of truth for the demo:
-  - `persona.js` — Ravi Mehta's coherent 90-day dataset (every view reads from here).
-  - `agent.js` — a fake agent-tool API returning canned, structured answers.
+  - `persona.js` — Ravi Mehta's coherent dataset: labs, meds, imaging, wearables (with a seeded
+    daily series over the timeline domain), and dated `events`. Every view reads from here.
+  - `agent.js` — a fake agent-tool API returning canned, structured answers; citations reference
+    record ids, and `cloud` answers trigger the pre-send review.
+  - `fhir.js` — resolves a record id → a FHIR-shaped resource for the source drawer.
+  - `concepts.js` — the epistemics concept library + evidence-label → concept mapping.
+  - `preferences.js` — Ravi's preference profile + the "simplify" ranking that shows its work.
   - `ledger.js` — the model-call ledger and a pre-send review.
   - `posture.jsx` — the resolved per-role model posture (green = local, amber = cloud).
 - **`src/explore/`** — the healthspan model, folded in from the original single-file
@@ -36,8 +41,10 @@ in CI.
   by `prototype/build.mjs`), so a graph rebuild flows straight into the app.
 - **`src/views/`** — one file per rail destination. `Ask`, `Timeline`, `Explore`, and
   `Transparency` are functional; `Experiments`, `Data sources`, `Share`, and `Settings`
-  are planned-fidelity stubs being filled in over phases 1–3.
-- **`src/components/`** — shared atoms (evidence labels, posture pills, stub view).
+  are planned-fidelity stubs being filled in over phases 2–3.
+- **`src/components/`** — shared atoms and cross-cutting systems: `EvidenceLabel` (+ `Citation`),
+  `PosturePill`, `StubView`, `Drawer` (the shared source/concept slide-over + `DrawerProvider`),
+  `ComparisonFrame` (with the simplify ranking), `PreSendPanel`, `VoiceInput`.
 
 ## Design invariants
 
