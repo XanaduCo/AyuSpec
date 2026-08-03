@@ -27,7 +27,9 @@ A sliver is defined by five things:
 
 Slivers are composed, not exported wholesale. A user (or the agent, on request) selects:
 
-- **By domain** — cardiac, metabolic, sleep, mental health, reproductive, genomic, etc.
+- **By domain** — cardiac, metabolic, sleep, mental health, reproductive, genomic, etc. Including
+  genomic content is allowed but off by default; because a genome cannot be de-identified, the
+  composer warns that the sliver will be identifiable before it is produced (see [PII Gateway](pii-gateway.md#genomic-data)).
 - **By source** — labs only, wearables only, clinical notes only
 - **By time window** — last 90 days, since a given event, all-time
 - **By resource type** — Observations, DiagnosticReports, Conditions, Medications

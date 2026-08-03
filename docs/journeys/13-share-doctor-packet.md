@@ -79,11 +79,12 @@ exactly what left.
   chrome (Law 8) — values render in tabular monospaced numerals with their reference ranges; the
   imaging entry shows the **MedGemma summary text**, never pixels ([why](../ingestion/imaging.md)).
 
-!!! note "The genome exclusion here is a *choice*, not the hard-exclusion rule"
-    Genomic sequence is a permanent [hard exclusion](../pii-gateway.md#hard-exclusions) from any
-    *cloud model* payload. In this journey Ravi is excluding it from a **share** by his own
-    deliberate scope decision — a different mechanism. The composer treats it like any other
-    resource he can include or omit; he omits it because the cardiologist has no need for it.
+!!! note "Genomic content is off by default, but includable"
+    Genomic data is [excluded from cloud models and shares by default](../pii-gateway.md#genomic-data);
+    the user can opt to include it, warned that a genome cannot be de-identified and the share will
+    be identifiable. In this journey Ravi leaves it out by his own deliberate scope decision — the
+    composer treats it like any other resource he can include or omit, and he omits it because the
+    cardiologist has no need for it.
 
 ### Step 4 — The agent generates the curated brief (local R1)
 

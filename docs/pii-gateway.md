@@ -42,7 +42,7 @@ The gateway applies local NER (Named Entity Recognition) and regex patterns to r
 | Phone / fax numbers | | Regex |
 | MRN / account numbers | `MRN: 12345678` | Regex |
 | SSN | | Regex |
-| Genomic data | All `MolecularSequence` and PRS content | Hard exclusion |
+| Genomic data | All `MolecularSequence` and PRS content | Excluded by default; opt-in per call |
 | Insurance / financial | | Regex |
 
 ### Date shifting
@@ -72,13 +72,16 @@ Every model call is written to the local, append-only ledger — cloud and local
 
 Regardless of user settings, review mode, or tier, these are **never** sent to a cloud model:
 
-- Genomic data (`MolecularSequence`, PRS scores, raw variant data)
 - Imaging pixel data (DICOM files)
 - Raw source documents (original PDFs, Apple Health export files)
 
-These are excluded rather than stripped because stripping cannot make them safe. A genome is itself an identifier — it uniquely fingerprints the person and their blood relatives, so masking a name changes nothing. Imaging pixel data and raw source documents are not the clean, extracted text the [stripper](#what-it-strips) operates on: they carry unbounded, unpredictable identifiers — burned-in DICOM tags, scanned letterheads, export metadata — that local NER and regex cannot be trusted to catch. For everything the gateway strips, masking is sufficient; for these three, only exclusion is. The value they'd add to a text prompt is also low: a cloud reasoner works from the *extracted* findings (variants of interest, a radiologist's impression, parsed lab values), which flow through the normal stripping path, not from the raw artifact.
+These are excluded rather than stripped because stripping cannot make them safe: they are not the clean, extracted text the [stripper](#what-it-strips) operates on. They carry unbounded, unpredictable identifiers — burned-in DICOM tags, scanned letterheads, export metadata — that local NER and regex cannot be trusted to catch. For everything the gateway strips, masking is sufficient; for these two, only exclusion is. The value they'd add to a text prompt is also low: a cloud reasoner works from the *extracted* findings (a radiologist's impression, parsed lab values), which flow through the normal stripping path, not from the raw artifact.
 
 When an exclusion drops content that was relevant to the query, the user is told — in the preview if one is shown, and in the ledger entry regardless. A silently narrowed answer is worse than a disclosed one.
+
+## Genomic data
+
+Genomic data (`MolecularSequence`, PRS scores, raw variant data) is **excluded by default**, but — unlike the hard exclusions above — the user can opt to send it to a cloud model, or include it in a [sliver](sharing.md) shared with a third party. The gateway cannot de-identify it: a genome is itself an identifier that uniquely fingerprints the person and their blood relatives, so masking a name changes nothing. The opt-in therefore carries a plain warning that the data is identifiable and stays that way. It is off unless the user turns it on, and every send is recorded in the ledger like any other call.
 
 ## Measurement & the trust contract
 

@@ -104,5 +104,13 @@ export const presend = {
     { pre: 'drawn ', rm: '2026-03-14', add: '2025-11-17 (−117d)' },
     { pre: 'ApoB 95 mg/dL · HbA1c 5.4%', keep: '✓ retained' },
   ],
-  excluded: { type: 'MolecularSequence', reason: 'genomic data is never sent to a cloud model, in any tier' },
+  excluded: {
+    type: 'MolecularSequence',
+    reason: 'genomic data is excluded by default — a genome is itself an identifier, so masking a name changes nothing',
+    // Unlike imaging pixels or raw documents, genomic data is a *default* exclusion,
+    // not a hard one: the user can opt to include it, warned it stays identifiable.
+    optIn: true,
+    optInWarning: 'A genome cannot be de-identified. If you send it, the payload is permanently identifiable — of you and your blood relatives. Recorded in the ledger like any other call.',
+    optInTokens: 480, // extra tokens the APOE genotype + CVD PRS add to the payload
+  },
 }

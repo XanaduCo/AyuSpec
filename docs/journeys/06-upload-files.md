@@ -127,14 +127,15 @@ scan, and a genome report that pretends to know more than it does.
 - **System does:** the parser extracts variants `(rsID, chromosome, position, genotype)` from the
   ~650k-SNP TSV into FHIR `MolecularSequence` resources; computes **polygenic risk scores** for the
   configured traits against the bundled ClinVar/dbSNP snapshot; and surfaces notable calls. A second
-  persistent red badge appears: **`genomic sequence · never leaves device`**.
+  persistent red badge appears: **`genomic sequence · stays local by default`**.
 - **Value returned this step:** a findings card — **APOE ε3/ε3** surfaced (the common,
   non-ε4 genotype), plus a **CVD polygenic risk score at the 70th percentile**. His genome is no
   longer an opaque download; it's readable.
 - **Modality:** upload → findings card.
-- **UX constraints / laws:** **second hard exclusion in red (Law 4)** — genomic sequence and PRS
-  content are *never* sent to a cloud model because a genome is itself an identifier that masking
-  a name cannot make safe ([Genomics ingestion](../ingestion/genomics.md#privacy-note)).
+- **UX constraints / laws:** **default exclusion in red (Law 4)** — genomic sequence and PRS
+  content are withheld from cloud models by default because a genome is itself an identifier that
+  masking a name cannot make safe; the user can opt in, warned it's identifiable
+  ([Genomics ingestion](../ingestion/genomics.md#privacy-note)).
 
 ### Step 7 — See the genome findings labeled as hypotheses
 

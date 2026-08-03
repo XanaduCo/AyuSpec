@@ -55,11 +55,11 @@ Ravi has just run the anchor query ([Journey 09](09-anchor-query.md)) and pushed
   1. **The exact payload, verbatim** — system prompt + retrieved context (ApoB trend, lisinopril, `CAC 0`, `VO₂max 52`, father's MI) + the user query, as it will be transmitted.
   2. **The redaction diff, in place** — `Dr. Sarah Chen → [PROVIDER_NAME]`, `2026-03-14 → 2025-11-17 (shifted −117d)`, facility names → `[FACILITY]`. Date-shifting preserves relative timing ("lab drawn 3 days after the visit") without leaking calendar dates.
   3. **The destination** — `anthropic · claude-opus-4-8 · api.anthropic.com`.
-  4. **What was withheld entirely** — the **`MolecularSequence` hard exclusion**, flagged in **red**: his APOE genotype and CVD polygenic score were *dropped, not masked*, with the reason ("a genome is itself an identifier; masking a name changes nothing") and the consequence stated plainly: *the answer cannot use your genetic risk — its cardiac trajectory is genome-blind.* Imaging pixel data is likewise never sent.
+  4. **What was withheld entirely** — his **`MolecularSequence` data, excluded by default**, flagged in **red**: his APOE genotype and CVD polygenic score were *dropped, not masked*, with the reason ("a genome is itself an identifier; masking a name changes nothing") and the consequence stated plainly: *the answer cannot use your genetic risk — its cardiac trajectory is genome-blind.* He *could* opt in to send it, warned it stays identifiable; he leaves it off. Imaging pixel data is a true hard exclusion and is never sent.
   5. **Token count and estimated cost** — `2,847 tokens · ~$0.04`.
-- **Value returned this step:** he can *see his genome and MRI never go* — the single fact that earns his trust — and he learns the answer's blind spot before he reads the answer, not after. The redaction diff is checkable against his own timeline (Law 4's verification path).
+- **Value returned this step:** he can *see his genome and MRI didn't go* — the single fact that earns his trust — and he learns the answer's blind spot before he reads the answer, not after. The redaction diff is checkable against his own timeline (Law 4's verification path).
 - **Modality:** the pre-send review panel (a signature component).
-- **UX constraints / laws:** Law 4 — egress is previewed, never assumed. Red marks the hard exclusion as a *stop*, not a warning (color law). The withheld-context disclosure is non-negotiable: a silently narrowed answer is worse than a disclosed one ([PII Gateway](../pii-gateway.md#hard-exclusions)).
+- **UX constraints / laws:** Law 4 — egress is previewed, never assumed. Red marks content withheld by default (his genome) — off unless he deliberately opts in — and the true hard exclusions (color law). The withheld-context disclosure is non-negotiable: a silently narrowed answer is worse than a disclosed one ([PII Gateway](../pii-gateway.md#genomic-data)).
 
 ### Step 4 — Confirm, and the answer comes back stronger
 
@@ -114,7 +114,7 @@ Ravi has just run the anchor query ([Journey 09](09-anchor-query.md)) and pushed
 |---|---|---|
 | 1 | Read the local answer critically before escalating | Confidence the weakness is the reasoner, not the data — so cloud is the right lever |
 | 2 | Configure one role, paste an API key | The recommended hybrid, exact: frontier synthesis, PHI-handling roles still green; the change visible instantly |
-| 3 | Read the pre-send review in full | Sees his genome and MRI never leave; learns the answer's blind spot *before* reading it; a checkable redaction diff |
+| 3 | Read the pre-send review in full | Sees his genome and MRI didn't leave; learns the answer's blind spot *before* reading it; a checkable redaction diff |
 | 4 | Click Confirm and send | A stronger, honest synthesis **plus** a permanent, queryable receipt of the exact trade |
 | 5 | Click the amber pill | Proof the indicator and the ledger agree, and that only the escalated role left |
 | 6 | Choose a standing review mode | Friction that matches his trust, fully reversible, with the ledger never suppressible |
@@ -122,7 +122,7 @@ Ravi has just run the anchor query ([Journey 09](09-anchor-query.md)) and pushed
 ## UX & modality constraints
 
 - **Dominant laws:** Law 1 (posture always on screen; amber flip never silent), Law 4 (egress previewed, never assumed). Law 6 lurks in the fallback (below); Law 3 rides on the returned answer.
-- **Color semantics carry the meaning:** green pills = stayed local; the one amber pill = the reasoner's stripped context leaves; **red** = the hard exclusion withheld entirely. None of these three hues is ever decorative here.
+- **Color semantics carry the meaning:** green pills = stayed local; the one amber pill = the reasoner's stripped context leaves; **red** = the genome, withheld by default (an opt-in he declined), alongside the true hard exclusions. None of these three hues is ever decorative here.
 - **Input modality:** Settings form + the pre-send review panel are the operative surfaces; the question itself is voice or text in Ask.
 - **Latency:** local reasoning already streamed over seconds; the cloud call adds network round-trip but returns a stronger answer. The pre-send panel is instant (it renders the already-built payload).
 - **Empty/first-run state:** the very first cloud call for a role *always* shows the full preview — `every_call` is forced, `off` is not selectable. There is no configuration in which a first egress is silent.
@@ -138,7 +138,7 @@ Ravi has just run the anchor query ([Journey 09](09-anchor-query.md)) and pushed
 | **Invalid / expired API key** | The call **falls back to the local reasoner** rather than failing. The posture pill shows what *actually ran* — it flips back to **green** for that call, because the indicator reflects resolved runtime state, not config. | The answer, on local models. He notices the green pill and re-checks the key. |
 | **Offline / provider outage** | Same fallback to local; the ledger records the fallback. Offline is a first-class state in the self-hosted tier, not an error. | Every workflow completes on local models alone ([Model Providers](../model-providers.md#fallback-behaviour)). |
 | **He revokes the provider** | Reasoner returns to Ollama; posture returns to **three greens**; the historical ledger rows stay. | Full local operation, and the permanent record of the calls he *did* make. |
-| **He wants this question genome-aware** | The hard exclusion cannot be lifted for a cloud model, any setting, any tier. The honest path is to ask it against the *local* reasoner, which can see the genome. | A genome-aware answer — at the local reasoner's quality ceiling. The trade is explicit, not hidden. |
+| **He wants this question genome-aware** | Two honest paths: opt in to send the genome to the cloud model — warned it's identifiable and stays that way — or ask it against the *local* reasoner, which sees the genome with nothing leaving the device. | Either a genome-aware cloud answer he explicitly authorised, or one at the local reasoner's quality ceiling. The trade is explicit, not hidden. |
 
 **Contrast — Maya never takes this step.** [Maya](14-verify-and-maintain.md) runs all three roles local, always, and accepts a weaker synthesis as the price of zero-egress; she is the user who pulls the network cable to prove it and audits the ledger for any row at all. Ravi's amber pill is a legitimate, different risk posture — the system's job is not to pick between them ([Tiers](../tiers.md)).
 

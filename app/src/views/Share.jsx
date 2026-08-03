@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import Modal from '../components/Modal.jsx'
+import Switch from '../components/Switch.jsx'
 import { useDrawer } from '../components/Drawer.jsx'
 import {
   DOMAINS, SOURCES, RTYPES, WINDOWS, FORMATS,
@@ -31,11 +32,20 @@ export default function Share() {
   const [recipient, setRecipient] = useState('')
   const [log, setLog] = useState(seedConsentLog)
   const [packet, setPacket] = useState(null)
+  const [includeGenome, setIncludeGenome] = useState(false)
 
   const scope = { domains, sources, types, window: timeWindow }
   const included = useMemo(() => selectScope(scope), [domains, sources, types, timeWindow])
   const fmt = FORMATS.find(f => f.key === format)
-  const canGenerate = included.length > 0 && purpose.trim() && recipient.trim()
+
+  // Genomic content is off by default even when it matches the scope: a genome
+  // can't be de-identified, so it's held back until the user explicitly opts in,
+  // warned the sliver will be identifiable (sharing.md / pii-gateway.md).
+  const isGenomic = i => i.source === 'genomics' || i.type === 'MolecularSequence'
+  const matchedGenomic = useMemo(() => included.filter(isGenomic), [included])
+  const withGenome = includeGenome && matchedGenomic.length > 0
+  const visible = withGenome ? included : included.filter(i => !isGenomic(i))
+  const canGenerate = visible.length > 0 && purpose.trim() && recipient.trim()
 
   // The agent proposes a scope from a natural-language ask, then shows exactly
   // what's in/out before producing anything (sharing.md composition model).
@@ -61,14 +71,15 @@ export default function Share() {
       purpose: purpose.trim(),
       recipient: recipient.trim(),
       scope: scopeText(),
-      count: included.length,
+      count: visible.length,
       format,
       egress: fmt.egress,
+      genomic: withGenome,
       expiry: fmt.egress ? '30 days' : null,
       revoked: false,
     }
     setLog(l => [entry, ...l])
-    if (format === 'packet') setPacket(buildPacket(included))
+    if (format === 'packet') setPacket(buildPacket(visible))
   }
 
   const revoke = id => setLog(l => l.map(e => e.id === id ? { ...e, revoked: true } : e))
@@ -156,11 +167,31 @@ export default function Share() {
           <div className="card preview-card">
             <div className="preview-head">
               <span className="eyebrow">Preview · exactly what's included</span>
-              <span className="pv-count num">{included.length}</span>
+              <span className="pv-count num">{visible.length}</span>
             </div>
-            {included.length === 0
+            {visible.length === 0
               ? <p className="note">Nothing matches this scope — widen it to include something.</p>
-              : <PreviewList items={included} />}
+              : <PreviewList items={visible} />}
+
+            {matchedGenomic.length > 0 && (
+              <div className={`callout ${withGenome ? 'egress' : ''} genome-optin`} style={{ marginTop: 12 }}>
+                <label className="optin-row" style={{ marginTop: 0 }}>
+                  <Switch on={includeGenome} onChange={setIncludeGenome}
+                    label="Include genomic data in this sliver" />
+                  <span>
+                    Include <b>{matchedGenomic.length}</b> genomic item{matchedGenomic.length > 1 ? 's' : ''}
+                    {' '}({matchedGenomic.map(g => g.label).join(', ')})
+                    <span className="faint"> · held back by default</span>
+                  </span>
+                </label>
+                <div className="note" style={{ margin: '6px 0 0' }}>
+                  {withGenome
+                    ? '⚠ This sliver will carry genomic data. A genome can’t be de-identified — the recipient can identify you and your blood relatives from it.'
+                    : 'A genome can’t be de-identified. Turn this on only if the recipient needs it — the sliver becomes permanently identifiable.'}
+                </div>
+              </div>
+            )}
+
             <button className="btn pri" style={{ width: '100%', marginTop: 14 }}
               disabled={!canGenerate} onClick={generate}>
               {fmt.egress ? 'Review & generate link →' : `Generate ${fmt.label.toLowerCase()}`}
@@ -310,6 +341,7 @@ function ConsentRow({ e, onRevoke }) {
           {e.egress
             ? <span className="tier-badge egress" style={{ marginLeft: 8 }}><span className="led" />hosted link</span>
             : <span className="tier-badge local" style={{ marginLeft: 8 }}><span className="led" />file</span>}
+          {e.genomic && <span className="tier-badge egress" style={{ marginLeft: 8 }} title="Carries genomic data — identifiable"><span className="led" />genomic · identifiable</span>}
           {e.revoked && <span className="revoked-tag">revoked</span>}
         </div>
         <div className="cr-meta">

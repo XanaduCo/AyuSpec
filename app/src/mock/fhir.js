@@ -148,10 +148,10 @@ export function resolveRecord(id) {
       id: 'gen-apoe',
       subject,
       type: 'dna',
-      // ayuOS withholds genomic data from every cloud model at the gateway; this
-      // resource is stored and shareable in a local file, never sent for inference.
+      // ayuOS excludes genomic data from cloud models and shares by default; the
+      // user can opt in per call or per share, warned that a genome is identifiable.
       variant: [{ gene: v.gene, genotype: v.genotype, rsid: v.rsid }],
-      note: [{ text: `${v.note} Genomic data is never sent to a cloud model in any tier.` }],
+      note: [{ text: `${v.note} Genomic data is excluded from cloud models by default; sending it requires an explicit opt-in, with an identifiability warning.` }],
     })
   }
   if (id === 'gen-prs') {

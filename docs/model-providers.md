@@ -102,7 +102,7 @@ When any model role is configured to a cloud provider, the PII gateway is applie
 
 What is configurable is how often the user is *asked to confirm* — the `review` mode above — not whether stripping happens. Those two were conflated in an earlier revision of this spec; [PII Gateway](pii-gateway.md#when-it-activates) is now the single source of truth on the distinction.
 
-What the gateway strips: names (patient, provider, institution), dates of birth, addresses, facility names, insurance IDs, MRNs, phone numbers, email addresses. Genomic data, imaging pixel data, and raw source documents are excluded outright and never sent. See [PII Gateway](pii-gateway.md) for full detail.
+What the gateway strips: names (patient, provider, institution), dates of birth, addresses, facility names, insurance IDs, MRNs, phone numbers, email addresses. Imaging pixel data and raw source documents are excluded outright and never sent; genomic data is excluded by default, but the user can opt to send it, with an identifiability warning. See [PII Gateway](pii-gateway.md) for full detail.
 
 ## Supported providers
 

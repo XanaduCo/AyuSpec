@@ -121,7 +121,7 @@ export default function Transparency() {
             <div className="stat"><span className="lab">Calls recorded (30d)</span><span className="val num">{ledger.filter(r => r.daysAgo <= 30).length}</span></div>
             <div className="stat"><span className="lab">Left the device (30d)</span><span className="val num">{ledger.filter(r => r.daysAgo <= 30 && r.left).length} <span className="u">${ledger.filter(r => r.daysAgo <= 30 && r.left).reduce((s, r) => s + r.cost, 0).toFixed(2)}</span></span></div>
             <div className="stat"><span className="lab">Ever sent to OpenAI</span><span className="val num">0</span></div>
-            <div className="stat"><span className="lab">Genomic data sent to cloud</span><span className="val num">0 <span className="u">hard exclusion</span></span></div>
+            <div className="stat"><span className="lab">Genomic data sent to cloud</span><span className="val num">0 <span className="u">excluded by default · opt-in</span></span></div>
           </div>
           <p className="note" style={{ marginTop: 12 }}>The ledger is a Postgres table in the <span className="mono">ayuos</span> schema — <b>append-only</b>, queryable by the agent as a tool, and never transmitted. No mode can suppress it; <span className="mono">review: off</span> removes the prompt, never the record.</p>
         </div>

@@ -40,9 +40,6 @@ button { font-family: inherit; }
 .navlink .ic { width: 17px; text-align: center; opacity: .7; font-size: 14px; }
 .navlink.active { background: var(--brand-soft); color: var(--brand-ink); }
 .navlink.active .ic { opacity: 1; }
-.navlink .soon { margin-left: auto; font-family: var(--mono); font-size: 9px; letter-spacing: .06em;
-  text-transform: uppercase; color: var(--faint); border: 1px solid var(--line); border-radius: 4px;
-  padding: 1px 4px; }
 
 .main { display: flex; flex-direction: column; min-width: 0; height: 100%; }
 .header {
@@ -207,6 +204,11 @@ table.frame td.metric { font-weight: 600; color: var(--ink); }
 .diff .add { background: var(--local-soft); color: var(--local); border-radius: 4px; padding: 0 4px; }
 .excl { margin-top: 12px; padding: 10px 12px; border: 1px dashed var(--block); border-radius: 9px;
   font-size: 12.5px; color: var(--block); background: var(--block-soft); }
+/* When the user opts to include the genome, the withheld line flips to a live egress warning. */
+.excl.on { border-style: solid; border-color: var(--egress); color: var(--egress); background: var(--egress-soft); }
+/* Genome opt-in toggle inside the pre-send panel. Neutral switch, warning-tinted label. */
+.optin-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: 12.5px; cursor: pointer; }
+.optin-row > span { line-height: 1.35; }
 .presend { border: 1px solid var(--egress); background: var(--egress-soft); border-radius: var(--r-lg);
   overflow: hidden; }
 .presend .top { display: flex; justify-content: space-between; align-items: center; gap: 10px;

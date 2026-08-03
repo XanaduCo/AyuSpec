@@ -62,7 +62,7 @@ The audit log is append-only and stored locally; it is never transmitted anywher
 ## Genomic data handling
 
 Genomic data is treated with additional caution beyond standard PHI:
-- Never included in cloud escalation payloads (hard exclusion in the PII gateway)
+- Excluded from cloud escalation payloads by default; the user can opt in per call, with a warning that a genome is inherently identifiable (see [PII Gateway](pii-gateway.md#genomic-data))
 - Not included in the embedded/indexed corpus by default (query via dedicated `get_genomic_variants` tool only)
 - Stored in a separate Postgres schema with more restrictive access
 

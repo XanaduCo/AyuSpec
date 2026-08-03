@@ -190,8 +190,9 @@ not the differentiator:
   inspectable, always. See [AI Transparency](ai-transparency.md).
 - **The PII gateway is unbypassable on any call leaving the device.** It is enforced in the
   code path, not by a setting.
-- **Genomic data, imaging pixel data, and raw source documents never go to a cloud model** —
-  hard exclusion, regardless of tier or user setting ([PII Gateway](pii-gateway.md#hard-exclusions)).
+- **Imaging pixel data and raw source documents never go to a cloud model** — hard exclusion,
+  regardless of tier or user setting. Genomic data is excluded by default but the user can opt to
+  send it, with an identifiability warning ([PII Gateway](pii-gateway.md#genomic-data)).
 - **Full export, at any time, in open formats.** No tier can strand your data.
 - **The same MIT-licensed core.** No feature is cloud-exclusive as a lock-in mechanism.
 

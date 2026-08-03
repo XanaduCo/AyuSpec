@@ -78,7 +78,7 @@ export const files = [
   {
     id: 'genome', group: 'Genomics', name: 'Genome file', accept: '23andMe / VCF',
     tier: 'file', lastImport: '2025-01-30', records: 1,
-    hint: 'Raw genotype or VCF. Variant parse + PRS computed locally. Genomic data is never sent to a cloud model in any tier — it is withheld at the gateway outright.',
+    hint: 'Raw genotype or VCF. Variant parse + PRS computed locally. Genomic data is excluded from cloud models and third-party shares by default; you can opt in per call or per share, with a warning that a genome is inherently identifiable.',
     parse: { found: 1, kind: 'MolecularSequence + PRS', confidence: 0.72, took: '22s',
       note: 'APOE ε3/ε3, CVD PRS 70th pct (South Asian — European-GWAS caveat applied). Confidence graded: consumer array, hypothesis-generating at best.' },
   },

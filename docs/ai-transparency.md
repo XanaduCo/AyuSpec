@@ -82,8 +82,9 @@ Two constraints on the modes, both enforced in code:
    `Dr. Sarah Chen` → `[PROVIDER_NAME]`, `2026-03-14` → `2025-11-17 (shifted −117d)`.
 3. **The destination** — provider, model, API hostname.
 4. **What was withheld entirely** — hard exclusions that were dropped rather than masked, and
-   why. If genomic context was relevant to the query and excluded, the user is told, because
-   otherwise the answer's limits are invisible.
+   why. If genomic context was relevant to the query and excluded (its default), the user is told,
+   because otherwise the answer's limits are invisible — along with the option to opt in and send
+   it, with an identifiability warning.
 5. **Token count and estimated cost**, where the provider publishes pricing.
 
 ---
