@@ -31,17 +31,26 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: npm
+          cache-dependency-path: app/package-lock.json
 
       - run: pip install -r requirements.txt
 
-      # Regenerates seed/graph.json, seed.sql and the demo at
-      # docs/demo/index.html, which MkDocs then picks up as a
-      # static page. Must run before mkdocs: the nav entry points at that file,
-      # and --strict fails if it is missing. Exits non-zero on a graph-validation
-      # error, so a bad edge fails the build instead of shipping a broken explorer.
-      - name: Build healthspan graph and explorer
+      # Compiles and validates seed/graph.json (and seed.sql). Exits non-zero on
+      # a graph-validation error, so a bad edge fails the build. Must run before
+      # the app build, which imports seed/graph.json.
+      - name: Compile healthspan graph
         working-directory: prototype
         run: node build.mjs
+
+      # Builds the React demo to docs/demo/index.html, which MkDocs then serves
+      # at /demo/. Must run before mkdocs: the nav entry points at that file and
+      # --strict fails if it is missing.
+      - name: Build demo app
+        working-directory: app
+        run: |
+          npm ci
+          npm run build
 
       - name: Build spec site
         run: mkdocs build --strict

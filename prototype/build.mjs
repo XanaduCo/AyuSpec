@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Merge authored seed slices -> validated graph.json -> seed.sql + inlined UI.
 // Run: node build.mjs
-import { readFileSync, writeFileSync, readdirSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -231,15 +231,11 @@ for (const e of graph.edges) {
 sql.push('COMMIT;');
 writeFileSync(join(here, 'seed.sql'), sql.join('\n'));
 
-// --- inline the graph into the UI -----------------------------------------
-// Output lands in docs/ so MkDocs picks it up as a static page: it is served at
-// /demo/ by both `mkdocs serve` and the deployed site, with no copy step in
-// between. (The demo is the prototype showcase; more prototypes land here.)
-const shell = readFileSync(join(here, 'app', 'index.template.html'), 'utf8');
-const appOut = join(here, '..', 'docs', 'demo');
-mkdirSync(appOut, { recursive: true });
-writeFileSync(join(appOut, 'index.html'),
-  shell.replace('/*__GRAPH__*/null', JSON.stringify(graph)));
+// The compiled graph (seed/graph.json) is consumed directly by the React demo
+// in ../app, which builds to ../docs/demo via Vite (see .github/workflows/
+// deploy.yml). This script no longer emits any HTML — it only compiles and
+// validates the graph and the SQL seed. The old single-file explorer template
+// (app/index.template.html) is retained for reference only.
 
 // --- report ----------------------------------------------------------------
 const counts = t => byType(t).length;
@@ -254,4 +250,4 @@ if (problems.length) {
   problems.slice(0, 40).forEach(p => console.error('  ! ' + p));
   process.exit(1);
 }
-console.log('\nOK -> seed/graph.json, seed.sql, ../docs/demo/index.html');
+console.log('\nOK -> seed/graph.json, seed.sql');

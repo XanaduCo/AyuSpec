@@ -2,6 +2,10 @@ site/
 open-wearables/
 ayuOS-business.md
 prototype/app/index.html
+
+# The React demo app: dependencies are installed in CI; the build output lands
+# in docs/demo (ignored below) and is served by MkDocs at /demo/.
+app/node_modules/
 docs/demo/
 
 # Local review state (your personal comment queue). The tooling is committed;
