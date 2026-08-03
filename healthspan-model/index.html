@@ -1,0 +1,2600 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Open-source personal health agent — specification and architecture">
+      
+      
+      
+        <link rel="canonical" href="https://xanaduCo.github.io/AyuSpec/healthspan-model/">
+      
+      
+        <link rel="prev" href="../evidence/">
+      
+      
+        <link rel="next" href="../epistemics/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>The Healthspan Model - ayuOS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#the-healthspan-model" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="ayuOS" class="md-header__button md-logo" aria-label="ayuOS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ayuOS
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              The Healthspan Model
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="ayuOS" class="md-nav__button md-logo" aria-label="ayuOS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ayuOS
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vision/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vision & Problem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisions (ADRs)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Decisions (ADRs)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0001-ehr-ingestion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0001: EHR ingestion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0002-clinical-data-store/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0002: Clinical data store
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Service Evaluations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Service Evaluations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/medplum/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Medplum
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/roll-your-own/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roll your own (FHIR on Postgres)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/blaze/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Blaze
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/hapi-fhir/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HAPI FHIR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/aidbox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Aidbox
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/rejected-fhir-servers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rejected FHIR servers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/fhir-libraries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FHIR libraries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/apple-health/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Apple Health
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/epic-direct/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Epic direct
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/fasten/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fasten (Onprem + Connect)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/oracle-cerner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Oracle Health / Cerner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/open-wearables-vs-terra/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Open Wearables vs Terra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../open-wearables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Open Wearables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-capture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Capture Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ingestion
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Ingestion
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/wearables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Wearables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/apple-health/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Apple Health
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/ehr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    EHR (Fasten fork)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/labs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lab PDFs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/imaging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Imaging (DICOM)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/genomics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Genomics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ai-ml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI & ML Layer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model-providers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Providers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent-loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evidence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence & Hypotheses
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Healthspan Model
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Healthspan Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#not-a-tree-a-graph-with-tree-shaped-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Not a tree — a graph with tree-shaped navigation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#node-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Node types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#edge-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#measurement-quality-tiers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Measurement quality tiers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#effectiveness-ordering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Effectiveness ordering
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modifier-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modifier resolution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Modifier resolution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#worked-example-aerobic-capacity-running-real-bodies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Worked example — aerobic capacity, running, real bodies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#worked-example-pre-diabetes-as-a-sharpener" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Worked example — pre-diabetes as a sharpener
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#chronic-condition-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chronic condition coverage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Chronic condition coverage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#red-flag-routing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Red-flag routing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#storage-shipping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Storage &amp; shipping
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agent-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent integration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authoring-maintenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authoring &amp; maintenance
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Authoring &amp; maintenance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#build-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build order
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relationship-to-other-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relationship to other components
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prototype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prototype
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../epistemics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Health Literacy & Epistemics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../experimentation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experimentation & Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pii-gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PII Gateway & Cloud Escalation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../frontend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontend & UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sharing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Sharing & Consent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security & Privacy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment & Infrastructure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../federation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Federated Analytics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Governance & Stewardship
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../external-deps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    External Dependencies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#not-a-tree-a-graph-with-tree-shaped-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Not a tree — a graph with tree-shaped navigation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#node-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Node types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#edge-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#measurement-quality-tiers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Measurement quality tiers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#effectiveness-ordering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Effectiveness ordering
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modifier-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modifier resolution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Modifier resolution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#worked-example-aerobic-capacity-running-real-bodies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Worked example — aerobic capacity, running, real bodies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#worked-example-pre-diabetes-as-a-sharpener" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Worked example — pre-diabetes as a sharpener
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#chronic-condition-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chronic condition coverage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Chronic condition coverage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#red-flag-routing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Red-flag routing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#storage-shipping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Storage &amp; shipping
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agent-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent integration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authoring-maintenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authoring &amp; maintenance
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Authoring &amp; maintenance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#build-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build order
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relationship-to-other-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relationship to other components
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prototype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prototype
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="the-healthspan-model">The Healthspan Model<a class="headerlink" href="#the-healthspan-model" title="Permanent link">&para;</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Status: draft</p>
+<p>Structure is decided (typed graph, tree-shaped navigation, modifier resolution). Content authoring, coverage targets, and clinical review process are open. See <a href="#open-questions">Open questions</a>.</p>
+</div>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>The healthspan model is ayuOS's <strong>bundled knowledge graph of the body</strong>: every system, what is known to preserve its function with age, how to measure that function honestly, which interventions help and by how much, and how a person's own conditions, anatomy, and environment reshape those recommendations.</p>
+<p>It is the substrate that makes the rest of the system concrete. <a href="../evidence/">Evidence &amp; Hypotheses</a> needs a curated intervention library to form hypotheses from; <a href="../epistemics/">Health Literacy &amp; Epistemics</a> needs real cells to fill its comparison frames with; <a href="../experimentation/">Experimentation</a> needs to know which marker is worth measuring and how noisy it is. All three currently hand-wave that content. This is it.</p>
+<p><strong>Framing: healthspan, not lifespan.</strong> The organizing question for every node is <em>what preserves function</em>, not <em>what extends survival</em>. A recommendation earns its place by protecting the capacity to do things — walk up stairs at 80, think clearly, sleep, see, digest, recover.</p>
+<h3 id="not-a-tree-a-graph-with-tree-shaped-navigation">Not a tree — a graph with tree-shaped navigation<a class="headerlink" href="#not-a-tree-a-graph-with-tree-shaped-navigation" title="Permanent link">&para;</a></h3>
+<p>The instinct is a large tree. The content isn't shaped like one: walking serves cardiovascular <em>and</em> metabolic <em>and</em> musculoskeletal <em>and</em> neurocognitive function; chronic back pain modifies running, rucking, rowing, and deadlifts across three different branches. Modelled as a tree, every shared node gets duplicated into each branch and the copies drift apart — the classic failure of health-content taxonomies.</p>
+<p>So: <strong>the body-systems hierarchy is the browsing spine</strong> (it is what the user sees and navigates), but the underlying structure is a typed graph. One canonical node per intervention, per marker, per modifier — reached from every system it serves.</p>
+<h2 id="node-types">Node types<a class="headerlink" href="#node-types" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Node</th>
+<th>What it is</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>System</code></td>
+<td>Top-level body system — the navigation spine</td>
+<td>Cardiovascular, Metabolic, Musculoskeletal, Neurocognitive, Respiratory, Renal/Hepatic, Immune, Endocrine/Reproductive, Sensory (vision/hearing/oral), Integumentary</td>
+</tr>
+<tr>
+<td><code>Function</code></td>
+<td>The specific capacity that declines with age — what we're actually preserving</td>
+<td>Aerobic capacity, vascular compliance, insulin sensitivity, lean mass, bone density, balance, executive function, sleep architecture</td>
+</tr>
+<tr>
+<td><code>Marker</code></td>
+<td>An observable that estimates a function, with an explicit <a href="#measurement-quality-tiers">quality tier</a></td>
+<td>VO₂max, ApoB, CAC score, HbA1c, grip strength, DEXA lean mass, gait speed, wearable HRV</td>
+</tr>
+<tr>
+<td><code>Intervention</code></td>
+<td>Something the user can do</td>
+<td>Zone 2 running, swimming, rucking, resistance training, post-meal walking, fibre intake, sleep-timing regularity, statin adherence, hearing protection</td>
+</tr>
+<tr>
+<td><code>Modifier</code></td>
+<td>Anything about the user that changes an intervention's suitability</td>
+<td>Chronic low back pain, plantar fasciitis, flat feet, knee osteoarthritis, pre-diabetes, hot climate, no gym access, night-shift work, pregnancy, age band</td>
+</tr>
+<tr>
+<td><code>Outcome</code></td>
+<td>The healthspan-relevant endpoint a function protects</td>
+<td>Independent mobility, cognitive independence, freedom from dialysis, preserved vision</td>
+</tr>
+<tr>
+<td><code>RiskFactor</code></td>
+<td>A user state that <strong>sharpens</strong> priorities rather than blocking an action</td>
+<td>Elevated ApoB, family history of early CAD, low VO₂max percentile, visceral adiposity</td>
+</tr>
+</tbody>
+</table>
+<p>Every node carries <code>citations</code>, <code>last_reviewed</code>, and <code>review_status</code>. Uncited content does not ship (see <a href="#authoring-maintenance">Authoring &amp; maintenance</a>).</p>
+<h2 id="edge-types">Edge types<a class="headerlink" href="#edge-types" title="Permanent link">&para;</a></h2>
+<p>The edges are where the real knowledge lives.</p>
+<table>
+<thead>
+<tr>
+<th>Edge</th>
+<th>From → To</th>
+<th>Payload</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PART_OF</code></td>
+<td>Function → System</td>
+<td>The navigation spine</td>
+</tr>
+<tr>
+<td><code>PROTECTS</code></td>
+<td>Function → Outcome</td>
+<td>Why this function matters for healthspan</td>
+</tr>
+<tr>
+<td><code>SUPPORTS</code></td>
+<td>Intervention → Function</td>
+<td><code>effect_size</code>, <code>evidence_strength</code>, <code>certainty</code>, <code>time_to_effect</code>, <code>dose_response</code></td>
+</tr>
+<tr>
+<td><code>MEASURED_BY</code></td>
+<td>Function → Marker</td>
+<td><code>validity</code> (how well the marker proxies the function), <code>noise</code>, <code>quality_tier</code></td>
+</tr>
+<tr>
+<td><code>BLOCKS</code></td>
+<td>Modifier → Intervention</td>
+<td>Hard contraindication with reason and severity</td>
+</tr>
+<tr>
+<td><code>CAUTIONS</code></td>
+<td>Modifier → Intervention</td>
+<td>Proceed with stated caveat</td>
+</tr>
+<tr>
+<td><code>REQUIRES</code></td>
+<td>Modifier → Intervention</td>
+<td>Prerequisite that must come first (e.g. back pain → posterior-chain strengthening before running)</td>
+</tr>
+<tr>
+<td><code>ADJUSTS</code></td>
+<td>Modifier → Intervention</td>
+<td>Dose, technique, equipment, or environment change — not a block</td>
+</tr>
+<tr>
+<td><code>SUBSTITUTES</code></td>
+<td>Intervention → Intervention</td>
+<td>Alternative serving the same <code>Function</code> when the first is blocked, with the effectiveness delta</td>
+</tr>
+<tr>
+<td><code>RISK_OF</code></td>
+<td>Intervention → adverse event</td>
+<td>Baseline incidence, severity, and which modifiers raise it</td>
+</tr>
+<tr>
+<td><code>ELEVATES</code></td>
+<td>RiskFactor <strong>or Modifier</strong> → Intervention/Function/<strong>Marker</strong></td>
+<td>Raises priority — the "sharpening" mechanism. A Modifier source covers preference and access ("I want to swim"), because adherence realism beats theoretical superiority. A Marker target is <em>measurement</em> sharpening: pre-diabetes promotes CGM over a Tier C proxy. Both widenings were forced by <a href="https://github.com/xanaduCo/AyuSpec/tree/main/prototype/NOTES.md">prototype authoring</a></td>
+</tr>
+<tr>
+<td><code>INTERACTS</code></td>
+<td>Intervention ↔ Intervention</td>
+<td>Additive, redundant, or antagonistic; also drug/supplement interactions</td>
+</tr>
+</tbody>
+</table>
+<p>The critical property: <code>BLOCKS</code> / <code>CAUTIONS</code> / <code>REQUIRES</code> / <code>ADJUSTS</code> / <code>SUBSTITUTES</code> are edges from <strong>modifiers</strong>, authored once. Adding "chronic back pain" once reshapes every intervention it touches, everywhere in the graph.</p>
+<h2 id="measurement-quality-tiers">Measurement quality tiers<a class="headerlink" href="#measurement-quality-tiers" title="Permanent link">&para;</a></h2>
+<p>A first-class axis, because the difference between a CPET-measured VO₂max and a watch's estimate is the difference between a real answer and a plausible one. Every <code>MEASURED_BY</code> edge carries a tier:</p>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Meaning</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A — Reference</strong></td>
+<td>Direct or gold-standard measurement; the thing itself</td>
+<td>CPET VO₂max, DEXA body composition, CAC score, oral glucose tolerance test, polysomnography</td>
+</tr>
+<tr>
+<td><strong>B — Strong proxy</strong></td>
+<td>Validated clinical measure, well-characterised error</td>
+<td>ApoB, HbA1c, blood pressure (proper technique), grip strength, gait speed, 1RM</td>
+</tr>
+<tr>
+<td><strong>C — Consumer estimate</strong></td>
+<td>Wearable/consumer-device derived; useful for <em>trends in one person</em>, unreliable in absolute terms and across devices</td>
+<td>Watch VO₂max estimate, wearable HRV, sleep staging, step-derived activity, optical SpO₂</td>
+</tr>
+<tr>
+<td><strong>D — Self-report</strong></td>
+<td>Subjective or recalled</td>
+<td>Perceived energy, food recall, symptom scales, sleep quality rating</td>
+</tr>
+</tbody>
+</table>
+<p>Each marker also carries <code>noise</code> (typical within-person variability), <code>cost</code>, <code>invasiveness</code>, <code>min_useful_interval</code> (measuring ApoB weekly tells you nothing), and <code>ingestible_via</code> — a link into <a href="../ingestion/">ingestion</a> saying whether ayuOS can actually get this automatically.</p>
+<p>This is directly load-bearing elsewhere: <a href="../experimentation/#methodology-support">experimentation</a> needs <code>noise</code> for its power/duration heuristics, and a Tier C marker with high noise should tell the user honestly that their planned two-week n-of-1 cannot detect the effect they're hoping for.</p>
+<h2 id="effectiveness-ordering">Effectiveness ordering<a class="headerlink" href="#effectiveness-ordering" title="Permanent link">&para;</a></h2>
+<p>Interventions serving the same <code>Function</code> are <strong>ordinally ranked</strong> — not scored. A single composite score would smuggle in exactly the prescriptive weighting this project refuses to make.</p>
+<p>Each <code>SUPPORTS</code> edge carries the axes the <a href="../epistemics/#the-comparison-frame">comparison frame</a> renders: effect size, evidence strength (the <a href="../evidence/#strength-of-evidence-labeling">existing ladder</a>), certainty, time to effect, cost, risk, effort, reversibility, and adherence realism (the intervention people actually keep doing beats the theoretically superior one they abandon in three weeks).</p>
+<p>The default ordering is by effect size × evidence strength, presented with all axes visible. Re-ranking against a user's own weights happens <strong>only</strong> through the opt-in <a href="../epistemics/#the-preference-model-simplify-this-for-me">preference model</a>, and always shows its work.</p>
+<p><strong>This resolves an open question in <a href="../epistemics/#open-questions">epistemics.md</a>:</strong> comparison-frame cells come from this graph — authored, cited, reviewed — not synthesized by the model at query time. No cited edge, no cell.</p>
+<h2 id="modifier-resolution">Modifier resolution<a class="headerlink" href="#modifier-resolution" title="Permanent link">&para;</a></h2>
+<p>The mechanism behind "if you have chronic back pain, running is trickier." Deterministic, inspectable, and explained to the user rather than applied silently.</p>
+<div class="highlight"><pre><span></span><code>User profile
+  (conditions from the clinical store, anatomy, environment,
+   equipment, constraints, life stage)
+        │
+        ▼
+Candidate interventions for the target Function
+        │
+        ▼
+Collect all modifier edges that apply
+        │
+        ▼
+Resolve  ──►  BLOCK       — remove, state why, offer SUBSTITUTES
+              REQUIRES    — show prerequisite first, sequenced
+              ADJUST      — dose / technique / equipment / environment
+              CAUTION     — keep, attach the caveat
+              ELEVATE     — raise priority (risk-factor sharpening)
+        │
+        ▼
+Re-ordered candidate set + every modification shown with its reason
+</code></pre></div>
+<p>Precedence: <code>BLOCK</code> &gt; <code>REQUIRES</code> &gt; <code>ADJUST</code> &gt; <code>CAUTION</code> &gt; <code>ELEVATE</code>. Modifications are never hidden — the user sees "swimming moved up because of your knee osteoarthritis," not a silently reordered list.</p>
+<h3 id="worked-example-aerobic-capacity-running-real-bodies">Worked example — aerobic capacity, running, real bodies<a class="headerlink" href="#worked-example-aerobic-capacity-running-real-bodies" title="Permanent link">&para;</a></h3>
+<p>Target function: <strong>aerobic capacity</strong> (<code>PART_OF</code> Cardiovascular; also <code>SUPPORTS</code>-linked from Metabolic and Neurocognitive). Candidate interventions include walking, rucking, hiking, cycling, swimming, rowing, running.</p>
+<p>Modifier edges on <strong>running</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Modifier</th>
+<th>Edge</th>
+<th>Resolution shown to the user</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Chronic low back pain</td>
+<td><code>REQUIRES</code></td>
+<td>Posterior-chain and trunk strengthening first; return to running progressively. Rowing also cautioned (loaded flexion); swimming and cycling substitute cleanly.</td>
+</tr>
+<tr>
+<td>Plantar fasciitis / heel pain</td>
+<td><code>ADJUSTS</code></td>
+<td>Footwear with adequate heel cushioning; reduce volume; calf and plantar loading work. Substitute cycling or pool running while symptomatic.</td>
+</tr>
+<tr>
+<td>Flat feet / overpronation</td>
+<td><code>ADJUSTS</code></td>
+<td>Footwear selection; gradual volume progression. Evidence for orthotics is mixed — labelled as such rather than asserted.</td>
+</tr>
+<tr>
+<td>Downhill-heavy routes</td>
+<td><code>CAUTIONS</code></td>
+<td>Eccentric load raises soreness and injury risk; introduce descent volume gradually.</td>
+</tr>
+<tr>
+<td>Hot / humid conditions</td>
+<td><code>ADJUSTS</code></td>
+<td>Heat illness risk. Shift timing, cut intensity, hydrate, acclimatise over ~10–14 days. Escalates to <code>BLOCK</code> above thresholds combined with certain medications.</td>
+</tr>
+<tr>
+<td>Knee osteoarthritis</td>
+<td><code>CAUTIONS</code></td>
+<td>Running is not contraindicated by default (contrary to popular belief — this is a citation-heavy node); load management and quadriceps strengthening. Cycling and swimming substitute.</td>
+</tr>
+<tr>
+<td>Recent cardiac event / exertional chest pain</td>
+<td><code>BLOCK</code></td>
+<td>Routes to clinician — see <a href="#red-flag-routing">red-flag routing</a>.</td>
+</tr>
+</tbody>
+</table>
+<p>Note what the graph buys: <strong>socks, shoes, terrain, and weather are all first-class modifiers</strong>, not prose buried in an article. They can be asked about, matched against the user's actual context, and explained.</p>
+<h3 id="worked-example-pre-diabetes-as-a-sharpener">Worked example — pre-diabetes as a sharpener<a class="headerlink" href="#worked-example-pre-diabetes-as-a-sharpener" title="Permanent link">&para;</a></h3>
+<p>Pre-diabetes is a <code>RiskFactor</code>, so it <em>sharpens</em> rather than blocks. Its <code>ELEVATES</code> edges raise the priority of post-meal walking, resistance training, sleep regularity, fibre intake, and weight loss where applicable — and shift measurement toward Tier A/B markers (OGTT, HbA1c, fasting insulin, CGM-derived glycaemic variability) rather than the Tier C consumer signals that would otherwise be the default.</p>
+<p>The user still sees the full comparison frame. Nothing is decided for them; the ordering just reflects that these interventions have larger expected effects <em>given this state</em>.</p>
+<h2 id="chronic-condition-coverage">Chronic condition coverage<a class="headerlink" href="#chronic-condition-coverage" title="Permanent link">&para;</a></h2>
+<p>In scope: common chronic conditions, as modifiers and sharpeners — hypertension, dyslipidaemia, pre-diabetes and type 2 diabetes, obesity, MASLD, early CKD, osteoarthritis, osteopenia/osteoporosis, chronic low back pain, obstructive sleep apnoea, asthma/COPD, GERD, IBS, migraine, hypothyroidism, PCOS, gout, atrial fibrillation, depression and anxiety.</p>
+<p>Out of scope: treatment of acute disease, prescription drug selection or dosing, oncology treatment, anything requiring diagnosis. The model describes how a <em>known</em> condition reshapes lifestyle recommendations and measurement priorities. It does not diagnose and it does not treat.</p>
+<h3 id="red-flag-routing">Red-flag routing<a class="headerlink" href="#red-flag-routing" title="Permanent link">&para;</a></h3>
+<p>Some modifiers must not produce a plan at all. These are authored as <code>BLOCKS</code> edges with <strong>no
+target</strong> — the halt is global, across every intervention, so naming them one at a time would be
+both wrong and unmaintainable. Exertional chest pain, syncope, unexplained weight loss, neurological deficits, and similar patterns are authored as <code>BLOCK</code> edges whose resolution is "this warrants clinical evaluation" — full stop, no alternatives offered, no lifestyle substitute suggested. This is the one place the system is deliberately directive, and the direction is always <em>toward</em> a clinician.</p>
+<h2 id="storage-shipping">Storage &amp; shipping<a class="headerlink" href="#storage-shipping" title="Permanent link">&para;</a></h2>
+<p>The graph is <strong>bundled content, not user data</strong> — so it gets its own schema (<code>knowledge</code>), separate from the user's <code>clinical</code> / <code>timeseries</code> / <code>ayuos</code> schemas in <a href="../storage/">storage</a>. That separation means it can be versioned, replaced, and reviewed independently of anything the user owns, and a model update never touches personal data.</p>
+<table>
+<thead>
+<tr>
+<th>Table</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>knowledge.nodes</code></td>
+<td>Typed nodes with content, citations, <code>last_reviewed</code></td>
+</tr>
+<tr>
+<td><code>knowledge.edges</code></td>
+<td>Typed edges with their payloads</td>
+</tr>
+<tr>
+<td><code>knowledge.citations</code></td>
+<td>Source records, linked to the <a href="../evidence/#evidence-sources">evidence corpus</a></td>
+</tr>
+<tr>
+<td><code>knowledge.model_version</code></td>
+<td>Shipped version; user-visible, so a changed recommendation can be traced to a content update</td>
+</tr>
+</tbody>
+</table>
+<p>Authored as reviewable flat files (YAML per node/edge) in the repo, compiled into Postgres at install/update time, and embedded into <code>vectors</code> for semantic retrieval. Ships offline with the install, like the guideline corpus.</p>
+<h2 id="agent-integration">Agent integration<a class="headerlink" href="#agent-integration" title="Permanent link">&para;</a></h2>
+<p>New <a href="../agent-loop/">agent-loop</a> tools:</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>query_health_model</code></td>
+<td>Traverse systems → functions → interventions/markers</td>
+</tr>
+<tr>
+<td><code>resolve_modifiers</code></td>
+<td>Given the user's profile and a candidate set, apply modifier resolution</td>
+</tr>
+<tr>
+<td><code>rank_interventions</code></td>
+<td>Ordered candidates with all comparison axes, optionally through the preference model</td>
+</tr>
+<tr>
+<td><code>suggest_markers</code></td>
+<td>What to measure for a function, by quality tier and what ayuOS can already ingest</td>
+</tr>
+</tbody>
+</table>
+<p>The agent <strong>retrieves, it does not invent</strong>. Any intervention claim in a response must trace to a graph edge with citations, or it carries <code>EVIDENCE: NONE</code> and the corresponding <a href="../epistemics/">epistemics</a> concept. This is the strongest available guard against the confident-but-wrong failure mode, because the check is structural rather than a prompt instruction.</p>
+<h2 id="authoring-maintenance">Authoring &amp; maintenance<a class="headerlink" href="#authoring-maintenance" title="Permanent link">&para;</a></h2>
+<p>The honest risk: <strong>this is the largest content-maintenance burden in the project</strong>, and content rot here is worse than code rot — a stale recommendation looks exactly like a current one.</p>
+<p>Mitigations:</p>
+<ul>
+<li><strong>Citations are mandatory.</strong> CI rejects any node or edge without a citation and a <code>last_reviewed</code> date. Non-negotiable.</li>
+<li><strong>Guideline-first sourcing.</strong> Anchor to existing guideline bodies (ACSM, AHA/ACC, ADA, USPSTF, NICE, WHO) before reaching for individual trials. Pin the guideline version; a new guideline edition becomes a review task.</li>
+<li><strong>Staleness surfacing.</strong> Nodes past their review horizon are flagged in the UI, not silently trusted.</li>
+<li><strong>Clinician-scientist review</strong> as the gate for merge — the process the project is already standing up for <a href="../epistemics/">epistemics</a> content.</li>
+<li><strong>Contribution model.</strong> Community PRs are welcome and must carry citations; review authority stays with the clinical reviewer. This is a natural high-value contribution surface for <a href="../governance/">governance</a>.</li>
+</ul>
+<h3 id="build-order">Build order<a class="headerlink" href="#build-order" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Scope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>v0 (MVP)</strong></td>
+<td>3 systems deep rather than 10 shallow — Cardiovascular, Metabolic, Musculoskeletal. ~15 functions, ~60 markers, ~70 interventions, ~50 modifiers. Enough to make the anchor workflow and the comparison frame real.</td>
+</tr>
+<tr>
+<td><strong>v1</strong></td>
+<td>Neurocognitive, Respiratory, Sleep (cross-cutting), Renal/Hepatic. Full chronic-condition modifier set.</td>
+</tr>
+<tr>
+<td><strong>v2</strong></td>
+<td>Sensory, Immune, Endocrine/Reproductive, Integumentary. Interaction edges between interventions.</td>
+</tr>
+</tbody>
+</table>
+<p>Depth beats breadth in v0: a shallow node for every system reads as complete while being useless, which is the failure mode of every "wellness knowledge base" already on the market.</p>
+<h2 id="relationship-to-other-components">Relationship to other components<a class="headerlink" href="#relationship-to-other-components" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../evidence/">Evidence &amp; Hypotheses</a> — this <strong>is</strong> the curated intervention library that spec calls for; hypotheses are formed by walking <code>SUPPORTS</code> edges against the user's goals and gaps.</li>
+<li><a href="../epistemics/">Health Literacy &amp; Epistemics</a> — supplies the comparison-frame cells and the modifier explanations; the graph is what makes the frame honest rather than generated.</li>
+<li><a href="../experimentation/">Experimentation &amp; Validation</a> — <code>MEASURED_BY</code> noise and tier data drive marker selection and power/duration heuristics.</li>
+<li><a href="../agent-loop/">Agent Loop</a> — new retrieval tools; the no-uncited-claims rule.</li>
+<li><a href="../storage/">Storage</a> — new <code>knowledge</code> schema, versioned separately from user data.</li>
+<li><a href="../governance/">Governance</a> — clinical review gate and the contribution model.</li>
+<li><a href="../ingestion/">Ingestion</a> — <code>ingestible_via</code> links markers to whether ayuOS can actually collect them.</li>
+</ul>
+<h2 id="prototype">Prototype<a class="headerlink" href="#prototype" title="Permanent link">&para;</a></h2>
+<p>A working prototype lives in <a href="https://github.com/xanaduCo/AyuSpec/tree/main/prototype"><code>prototype/</code></a>:
+Postgres DDL, a 168-node / 522-edge seed graph authored against this spec, and a self-contained
+UI that resolves modifiers from stated facts ("I want to swim", "I have heel pain") and renders
+the comparison frame with its explanation trail. <a href="https://github.com/xanaduCo/AyuSpec/tree/main/prototype/NOTES.md"><code>prototype/NOTES.md</code></a>
+records what building it forced this spec to change.</p>
+<h2 id="open-questions">Open questions<a class="headerlink" href="#open-questions" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] Coverage target for v0 — are the numbers above right, and which three systems if not these?</li>
+<li>[ ] Where do effect sizes come from when guidelines report only direction? Do we author a coarse ordinal (small/moderate/large) rather than fake precision?</li>
+<li>[ ] How is the user's modifier profile assembled — inferred from the clinical store, explicitly confirmed by the user, or both? Inferring "chronic back pain" from a single coded encounter is fragile.</li>
+<li>[ ] Do we model dose-response as structured data (intensity × duration × frequency) or prose per edge?</li>
+<li>[ ] Interaction edges: worth the combinatorics in v1, or defer entirely to v2?</li>
+<li>[ ] Supplement coverage — the biohacker audience expects it, but it is the weakest-evidence, highest-noise region of the graph. Ship it labelled honestly, or scope it out of v0?</li>
+<li>[ ] Localisation and context: food, climate, and access assumptions are culturally specific. Does the graph carry regional variants, or ship one variant and accept the limitation?</li>
+<li>[ ] How do we version <em>user-visible</em> recommendations — if a v2 content update reverses advice the user acted on, do we surface that proactively?</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

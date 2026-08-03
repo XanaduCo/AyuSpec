@@ -1,0 +1,2267 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Open-source personal health agent — specification and architecture">
+      
+      
+      
+        <link rel="canonical" href="https://xanaduCo.github.io/AyuSpec/data-capture/">
+      
+      
+        <link rel="prev" href="../open-wearables/">
+      
+      
+        <link rel="next" href="../ingestion/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Data Capture Strategy - ayuOS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#data-capture-strategy" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="ayuOS" class="md-header__button md-logo" aria-label="ayuOS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ayuOS
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Data Capture Strategy
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="ayuOS" class="md-nav__button md-logo" aria-label="ayuOS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ayuOS
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vision/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vision & Problem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisions (ADRs)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Decisions (ADRs)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0001-ehr-ingestion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0001: EHR ingestion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0002-clinical-data-store/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0002: Clinical data store
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Service Evaluations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Service Evaluations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/medplum/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Medplum
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/roll-your-own/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roll your own (FHIR on Postgres)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/blaze/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Blaze
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/hapi-fhir/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HAPI FHIR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/aidbox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Aidbox
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/rejected-fhir-servers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rejected FHIR servers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/fhir-libraries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FHIR libraries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/apple-health/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Apple Health
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/epic-direct/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Epic direct
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/fasten/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fasten (Onprem + Connect)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/oracle-cerner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Oracle Health / Cerner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/open-wearables-vs-terra/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Open Wearables vs Terra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../open-wearables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Open Wearables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Capture Strategy
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Capture Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-signalaccessibility-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The signal/accessibility matrix
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-cutting-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-cutting principles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#capture-strategy-by-data-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Capture strategy by data class
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Capture strategy by data class">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#wearables-home-devices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wearables &amp; home devices
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#current-medical-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current medical records
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#biomarkers-diagnostics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Biomarkers &amp; diagnostics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lifestyle-interventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lifestyle &amp; interventions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#self-feedback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-feedback
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#screening-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Screening history
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#historical-medical-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Historical medical records
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#family-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Family history
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#consumer-test-reports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consumer test reports
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environmental-exposures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environmental exposures
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ingestion
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Ingestion
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/wearables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Wearables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/apple-health/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Apple Health
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/ehr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    EHR (Fasten fork)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/labs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lab PDFs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/imaging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Imaging (DICOM)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/genomics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Genomics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ai-ml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI & ML Layer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model-providers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Providers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent-loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evidence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence & Hypotheses
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../healthspan-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Healthspan Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../epistemics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Health Literacy & Epistemics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../experimentation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experimentation & Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pii-gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PII Gateway & Cloud Escalation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../frontend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontend & UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sharing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Sharing & Consent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security & Privacy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment & Infrastructure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../federation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Federated Analytics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Governance & Stewardship
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../external-deps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    External Dependencies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-signalaccessibility-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The signal/accessibility matrix
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-cutting-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-cutting principles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#capture-strategy-by-data-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Capture strategy by data class
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Capture strategy by data class">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#wearables-home-devices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wearables &amp; home devices
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#current-medical-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current medical records
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#biomarkers-diagnostics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Biomarkers &amp; diagnostics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lifestyle-interventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lifestyle &amp; interventions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#self-feedback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-feedback
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#screening-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Screening history
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#historical-medical-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Historical medical records
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#family-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Family history
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#consumer-test-reports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consumer test reports
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environmental-exposures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environmental exposures
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="data-capture-strategy">Data Capture Strategy<a class="headerlink" href="#data-capture-strategy" title="Permanent link">&para;</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Status: draft stub</p>
+<p>The framework and principles are defined; per-class capture UX and the facilitation/booking layer are still open. See <a href="#open-questions">Open questions</a>.</p>
+</div>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Every loop in ayuOS — <strong>understand → hypothesize → act → measure → learn</strong> — runs on data the user has to get <em>in</em>. This document is the strategy for that: which classes of health data exist, how accessible each is, how useful each is, and how ayuOS lowers the friction of capturing it.</p>
+<p>The governing insight is that <strong>usefulness and accessibility rarely line up</strong>. The most decisive signals (functional biomarkers, the interventions record) are the hardest to capture; the easiest to capture (consumer genomic PDFs) are often the least useful. ayuOS's job is to spend capture effort where the signal-to-friction ratio is highest, and to make the high-value/high-friction classes cheaper through passive inference, sub-10-second logging, and a facilitation layer.</p>
+<p>This is the design behind user job #3 in the <a href="../vision/#what-users-want-to-do">vision</a>. It motivates the whole <a href="../ingestion/">Ingestion</a> layer — Ingestion is <em>how</em> each pipeline works; this is <em>what to prioritize and why</em>.</p>
+<h2 id="the-signalaccessibility-matrix">The signal/accessibility matrix<a class="headerlink" href="#the-signalaccessibility-matrix" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Data class</th>
+<th>Accessibility</th>
+<th>Usefulness</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#wearables-home-devices">Wearables &amp; home devices</a></td>
+<td>Partial (wearables) / Easy (home devices)</td>
+<td><strong>High</strong> — only daily-updating signal</td>
+<td>P0</td>
+</tr>
+<tr>
+<td><a href="#current-medical-records">Current medical records</a></td>
+<td>Moderate, increasingly parseable</td>
+<td><strong>High</strong></td>
+<td>P0</td>
+</tr>
+<tr>
+<td><a href="#biomarkers-diagnostics">Biomarkers &amp; diagnostics</a></td>
+<td>Hard — requires facility visits</td>
+<td><strong>Very high</strong></td>
+<td>P0 (facilitated)</td>
+</tr>
+<tr>
+<td><a href="#lifestyle-interventions">Lifestyle &amp; interventions</a></td>
+<td>Variable, often high-friction</td>
+<td><strong>Critical</strong> — the entire "action" side</td>
+<td>P0</td>
+</tr>
+<tr>
+<td><a href="#self-feedback">Self-feedback</a></td>
+<td>Easy but unreliable</td>
+<td><strong>High</strong> — fastest subjective signal</td>
+<td>P1</td>
+</tr>
+<tr>
+<td><a href="#screening-history">Screening history</a></td>
+<td>Scattered across records</td>
+<td>Low analytically / <strong>high for retention</strong></td>
+<td>P1</td>
+</tr>
+<tr>
+<td><a href="#historical-medical-records">Historical medical records</a></td>
+<td>Tedious</td>
+<td>Moderate — trend lines</td>
+<td>P1</td>
+</tr>
+<tr>
+<td><a href="#family-history">Family history</a></td>
+<td>Moderate</td>
+<td>Moderate — one-time prior</td>
+<td>P1</td>
+</tr>
+<tr>
+<td><a href="#consumer-test-reports">Consumer test reports</a></td>
+<td>Easy (PDFs), noisy</td>
+<td>Low — hypothesis-generating at best</td>
+<td>P2</td>
+</tr>
+<tr>
+<td><a href="#environmental-exposures">Environmental exposures</a></td>
+<td>Ambient easy / personal hard</td>
+<td>Low–moderate</td>
+<td>P2 (ambient only)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="cross-cutting-principles">Cross-cutting principles<a class="headerlink" href="#cross-cutting-principles" title="Permanent link">&para;</a></h2>
+<p>These recur across the classes below and are the real product design:</p>
+<ol>
+<li><strong>Passive before manual.</strong> Infer from streams that already exist before asking the user to log anything. Manual capture is a last resort, not a default.</li>
+<li><strong>Sub-10-second logging.</strong> Anything the user must log manually gets a photo / one-tap / voice path. If it takes longer than ten seconds, adherence dies.</li>
+<li><strong>Time-boxed, hypothesis-linked capture.</strong> High-friction, high-signal streams (CGM, nutrition) run as <strong>experiment windows</strong> tied to a <a href="../evidence/">hypothesis</a> — never standing diaries. A CGM is "experiment mode," not always-on.</li>
+<li><strong>Adherence is a product problem, not a user virtue.</strong> Assume users are undisciplined. Use EMA-style micro-prompts at contextually smart moments instead of relying on motivation.</li>
+<li><strong>Confidence-graded interpretation.</strong> Noisy inputs (consumer genomics, microbiome) are labeled as hypotheses; where methodology is unverifiable, say so rather than fake precision. Ties to <a href="../evidence/#strength-of-evidence-labeling">evidence strength labeling</a>.</li>
+<li><strong>Own the scores.</strong> Where a vendor's AI scores are closed but raw metrics are open, recompute our own — don't depend on a black box.</li>
+<li><strong>The facilitation wedge.</strong> For classes users can't self-serve (biomarkers, imaging), booking and logistics <em>are</em> the product — goal-linked test menus, lab/imaging partnerships, "re-baseline" bundles.</li>
+<li><strong>Cheapest recurring value is a reminder.</strong> A due-date engine ("you're due for X") is the lowest-effort retention mechanism in the product.</li>
+</ol>
+<div class="admonition warning">
+<p class="admonition-title">Interventions are the highest-liability data</p>
+<p>The medications/supplements record is both the most important for attribution <em>and</em> the most dangerous to get wrong (interactions, dosing). Capture accuracy here is a safety concern, not just a completeness one.</p>
+</div>
+<h2 id="capture-strategy-by-data-class">Capture strategy by data class<a class="headerlink" href="#capture-strategy-by-data-class" title="Permanent link">&para;</a></h2>
+<h3 id="wearables-home-devices">Wearables &amp; home devices<a class="headerlink" href="#wearables-home-devices" title="Permanent link">&para;</a></h3>
+<p><em>Watches, rings, BP cuffs, smart scales, CGM.</em></p>
+<p>The only daily-updating signals in the system — they drive compliance and close the loop between infrequent lab draws (a CGM gives two-week feedback on a diet change that HbA1c takes a quarter to reflect). Wearables are partially open (closed AI scores, open basic metrics); home devices are cheap, Bluetooth, and gated only by habit.</p>
+<p><strong>Fix:</strong> <a href="../open-wearables/">Terra</a> for near-parity, direct integrations (e.g. Huawei) where needed, recompute our own scores from raw metrics. Ship a device bundle at onboarding with auto-sync. Run CGM as a time-boxed experiment, not always-on.</p>
+<h3 id="current-medical-records">Current medical records<a class="headerlink" href="#current-medical-records" title="Permanent link">&para;</a></h3>
+<p>Usually PDF, variable formats, increasingly parseable. High value, mostly an engineering problem.</p>
+<p><strong>Fix:</strong> FHIR/LOINC ingestion pipeline; national record systems (NEHR/HealthHub) where accessible. See <a href="../ingestion/ehr/">EHR ingestion</a>.</p>
+<h3 id="biomarkers-diagnostics">Biomarkers &amp; diagnostics<a class="headerlink" href="#biomarkers-diagnostics" title="Permanent link">&para;</a></h3>
+<p><em>Blood panels, inflammation markers, VO2max, grip strength, DEXA, CAC, bone density.</em></p>
+<p>Very high value — blood markers generate hypotheses, and functional measures (VO2max, grip strength) are among the strongest all-cause mortality predictors. Slow-changing, so ideal for a milestone cadence. But hard to access: users can't navigate the system, and it requires facility visits.</p>
+<p><strong>Fix:</strong> the facilitation wedge — goal-linked test menus, lab and imaging partnerships, concierge booking. Bundle into annual "re-baseline" packages, which double as renewal timing. (Commercial hooks — the facilitation/booking layer — are a business-model question; see the open question below.)</p>
+<h3 id="lifestyle-interventions">Lifestyle &amp; interventions<a class="headerlink" href="#lifestyle-interventions" title="Permanent link">&para;</a></h3>
+<p><em>Exercise, nutrition, supplements, medications, protocols.</em></p>
+<p><strong>Critical</strong> — this is the entire action side of every loop. Without the interventions record you cannot attribute any marker change to any cause. Friction is wildly variable: runs are easy, gym sessions high-friction, nutrition logging has the worst friction-to-signal ratio anywhere, and supplement/med regimens are almost never documented.</p>
+<p><strong>Fix:</strong> passive inference from wearables first; sub-10-second logging (photo, one-tap, voice) for the rest. Photo-of-the-bottle intake for supplements/meds; prompt on any "I started taking X" mention. Nutrition <strong>only</strong> in time-boxed experiment windows tied to a hypothesis — never a standing food diary. Feeds attribution in <a href="../experimentation/">Experimentation</a>.</p>
+<h3 id="self-feedback">Self-feedback<a class="headerlink" href="#self-feedback" title="Permanent link">&para;</a></h3>
+<p><em>Energy, mood, symptoms, sleep quality.</em></p>
+<p>The fastest-updating subjective signal, and often the outcome the user actually cares about. Easy to capture only for the disciplined — i.e. unreliable for most.</p>
+<p><strong>Fix:</strong> EMA-style micro-prompts (1–2 questions) tied to active goals, fired at contextually smart moments. Treat adherence as a product problem. This is the manual-capture path referenced in <a href="../experimentation/#capturing-the-inputs">Experimentation</a>.</p>
+<h3 id="screening-history">Screening history<a class="headerlink" href="#screening-history" title="Permanent link">&para;</a></h3>
+<p><em>Colonoscopy, mammogram, skin checks, vaccinations.</em></p>
+<p>Scattered across records, rarely consolidated. Low analytical value but <strong>high retention value</strong> — "you're due for X" is the cheapest recurring value the product delivers.</p>
+<p><strong>Fix:</strong> extract during record ingestion; maintain a <strong>due-date engine</strong> against age/sex/risk guidelines; nudge and facilitate booking.</p>
+<h3 id="historical-medical-records">Historical medical records<a class="headerlink" href="#historical-medical-records" title="Permanent link">&para;</a></h3>
+<p>Very tedious to retrieve, easier if doctor-mediated. Moderate value — the payoff is long-term trend lines (lipids, glucose, BP, weight).</p>
+<p><strong>Fix:</strong> country-specific retrieval playbooks (GDPR Art. 15 in the EU; HealthHub + clinic requests in SG); OCR/LLM extraction into a longitudinal timeline; accept incompleteness. See <a href="../ingestion/labs/">Lab PDF ingestion</a>.</p>
+<h3 id="family-history">Family history<a class="headerlink" href="#family-history" title="Permanent link">&para;</a></h3>
+<p>Moderately hard to gather. A cheap one-time prior that shifts risk stratification and test prioritization.</p>
+<p><strong>Fix:</strong> conversational AI intake at onboarding (an interview, not a form); prompt for updates only on life events.</p>
+<h3 id="consumer-test-reports">Consumer test reports<a class="headerlink" href="#consumer-test-reports" title="Permanent link">&para;</a></h3>
+<p><em>Genomic, epigenetic, microbiome.</em></p>
+<p>PDFs are available but noisy, with often-opaque methodology. <strong>Low</strong> value — hypothesis-generating at best, and can distract from high-yield interventions.</p>
+<p><strong>Fix:</strong> a confidence-graded interpretation layer; label outputs explicitly as hypotheses; where methodology is unverifiable, say so rather than pretending precision. See <a href="../ingestion/genomics/">Genomics ingestion</a>.</p>
+<h3 id="environmental-exposures">Environmental exposures<a class="headerlink" href="#environmental-exposures" title="Permanent link">&para;</a></h3>
+<p><em>Air quality, water, noise, toxins, occupational.</em></p>
+<p>Ambient data (air quality, UV) is easy via location APIs; personal exposures (mold, occupational, water) are hard and need specialized testing. Low–moderate value today — occasionally decisive (respiratory issues, unexplained inflammation, sleep disruption from noise/light) but weak loops for most users.</p>
+<p><strong>Fix:</strong> two tiers. Passive location-based ambient data is nearly free — ingest it and hold it as context for hypothesis generation. Personal exposure testing only when a specific unresolved problem warrants it, through the same <a href="#biomarkers-diagnostics">facilitation channel</a> as biomarkers. Don't build UI around this early; keep it as background signal the AI can reach for.</p>
+<h2 id="open-questions">Open questions<a class="headerlink" href="#open-questions" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] What is the passive-inference layer — a set of rules, or a model that watches streams and proposes "did you start X?" prompts?</li>
+<li>[ ] What's the concrete sub-10-second capture UX for photo/voice/one-tap, and where does it live in the <a href="../frontend/">frontend</a>?</li>
+<li>[ ] Does the facilitation/booking layer belong in the open-source core or the managed cloud tier? (It implies partnerships and PII handling.)</li>
+<li>[ ] What guideline source powers the screening due-date engine, and how is it kept current per country?</li>
+<li>[ ] How much of the country-specific record-retrieval playbook can be automated vs. documented for the user to execute?</li>
+<li>[ ] Where do onboarding-interview outputs (family history, goals) land in the schema — FHIR <code>FamilyMemberHistory</code> + a goals object?</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

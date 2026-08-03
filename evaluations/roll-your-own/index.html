@@ -1,0 +1,2237 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Open-source personal health agent — specification and architecture">
+      
+      
+      
+        <link rel="canonical" href="https://xanaduCo.github.io/AyuSpec/evaluations/roll-your-own/">
+      
+      
+        <link rel="prev" href="../medplum/">
+      
+      
+        <link rel="next" href="../blaze/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Roll your own (FHIR on Postgres) - ayuOS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#roll-your-own-fhir-on-postgres-jsonb" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ayuOS" class="md-header__button md-logo" aria-label="ayuOS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ayuOS
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Roll your own (FHIR on Postgres)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ayuOS" class="md-nav__button md-logo" aria-label="ayuOS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ayuOS
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vision/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vision & Problem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisions (ADRs)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Decisions (ADRs)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0001-ehr-ingestion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0001: EHR ingestion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0002-clinical-data-store/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0002: Clinical data store
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Service Evaluations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Service Evaluations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../medplum/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Medplum
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roll your own (FHIR on Postgres)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roll your own (FHIR on Postgres)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-is-on-the-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why this is on the table
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-finding-that-changed-the-cost-estimate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The finding that changed the cost estimate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-scope-is-smaller-than-it-looks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The scope is smaller than it looks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-design-consensus-to-follow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The design consensus to follow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#two-things-that-must-be-day-one-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Two things that must be day-one decisions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-honest-counterweight" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The honest counterweight
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#language-constraint-unexpected" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Language constraint (unexpected)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-lose-ranked-by-retrofit-difficulty" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you lose, ranked by retrofit difficulty
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reference-implementations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference implementations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-it-was-adopted" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why it was adopted
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-would-change-this" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What would change this
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blaze/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Blaze
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hapi-fhir/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HAPI FHIR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../aidbox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Aidbox
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rejected-fhir-servers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rejected FHIR servers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fhir-libraries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FHIR libraries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apple-health/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Apple Health
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../epic-direct/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Epic direct
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fasten/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fasten (Onprem + Connect)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../oracle-cerner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Oracle Health / Cerner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../open-wearables-vs-terra/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Open Wearables vs Terra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../open-wearables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Open Wearables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../data-capture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Capture Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ingestion
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Ingestion
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ingestion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ingestion/wearables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Wearables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ingestion/apple-health/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Apple Health
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ingestion/ehr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    EHR (Fasten fork)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ingestion/labs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lab PDFs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ingestion/imaging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Imaging (DICOM)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ingestion/genomics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Genomics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ai-ml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI & ML Layer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../model-providers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Providers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../agent-loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../evidence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence & Hypotheses
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../healthspan-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Healthspan Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../epistemics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Health Literacy & Epistemics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../experimentation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experimentation & Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pii-gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PII Gateway & Cloud Escalation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../frontend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontend & UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sharing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Sharing & Consent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security & Privacy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment & Infrastructure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../federation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Federated Analytics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Governance & Stewardship
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../external-deps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    External Dependencies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-is-on-the-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why this is on the table
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-finding-that-changed-the-cost-estimate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The finding that changed the cost estimate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-scope-is-smaller-than-it-looks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The scope is smaller than it looks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-design-consensus-to-follow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The design consensus to follow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#two-things-that-must-be-day-one-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Two things that must be day-one decisions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-honest-counterweight" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The honest counterweight
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#language-constraint-unexpected" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Language constraint (unexpected)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-lose-ranked-by-retrofit-difficulty" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you lose, ranked by retrofit difficulty
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reference-implementations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference implementations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-it-was-adopted" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why it was adopted
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-would-change-this" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What would change this
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="roll-your-own-fhir-on-postgres-jsonb">Roll your own — FHIR on Postgres JSONB<a class="headerlink" href="#roll-your-own-fhir-on-postgres-jsonb" title="Permanent link">&para;</a></h1>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Verdict</strong></td>
+<td>✅ <strong>Adopted</strong> (<a href="../../adr/0002-clinical-data-store/">ADR-0002</a>)</td>
+</tr>
+<tr>
+<td><strong>Role</strong></td>
+<td>The storage architecture: own the schema, keep FHIR as a boundary format</td>
+</tr>
+</tbody>
+</table>
+<h2 id="why-this-is-on-the-table">Why this is on the table<a class="headerlink" href="#why-this-is-on-the-table" title="Permanent link">&para;</a></h2>
+<p>The objection to Medplum is not weight — it's <strong>being boxed in on data modelling</strong>:</p>
+<ul>
+<li>A goal's tracking metric is polymorphic (a biomarker <code>Observation</code> one cycle, a wearable
+  <code>SeriesType</code> the next), so it becomes a soft reference into two different stores with no FK.</li>
+<li>A nutrition plan — trigger points, what to eat, why — has no honest FHIR home.
+  <code>NutritionOrder</code> is inpatient meal ordering; <code>PlanDefinition</code> is clinical decision support.</li>
+<li><strong>FHIR search cannot express cross-resource joins.</strong> <code>_include</code> only walks references. The
+  cross-cutting queries a personal health agent needs require dropping to SQL — and Medplum
+  documents its schema as <em>"an internal detail subject to change."</em></li>
+</ul>
+<h2 id="the-finding-that-changed-the-cost-estimate">The finding that changed the cost estimate<a class="headerlink" href="#the-finding-that-changed-the-cost-estimate" title="Permanent link">&para;</a></h2>
+<p><strong><code>@medplum/core</code> and <code>@medplum/definitions</code> work standalone — Apache-2.0, zero runtime
+dependencies, no Medplum server required.</strong> Verified by installing into an empty project and
+running offline:</p>
+<div class="highlight"><pre><span></span><code>missing required status        → INVALID ✅
+valueQuantity + valueString    → INVALID: Conflicting choice of type ✅
+obs-6 invariant violation      → INVALID ✅
+unknown property               → INVALID ✅
+status: &#39;bogus&#39;                → passes ❌ (no terminology binding)
+</code></pre></div>
+<p>That <code>obs-6</code> line matters: it evaluates FHIR <strong>invariants</strong> (FHIRPath <code>constraint</code>
+expressions), which JSON Schema structurally cannot. It is the only fully-offline JS validator
+found that does.</p>
+<p>What you get without running a server:</p>
+<table>
+<thead>
+<tr>
+<th>Need</th>
+<th>Exported function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FHIRPath</td>
+<td><code>parseFhirPath</code>, <code>evalFhirPath</code>, <code>evalFhirPathTyped</code></td>
+</tr>
+<tr>
+<td>SearchParameter registry</td>
+<td><code>getSearchParameter(s)</code>, <code>getSearchParameterDetails</code>, <code>indexSearchParameterBundle</code></td>
+</tr>
+<tr>
+<td><strong>Write-time index extraction</strong></td>
+<td><code>convertToSearchableTokens</code> / <code>Dates</code> / <code>Quantities</code> / <code>References</code> / <code>Strings</code> / <code>Uris</code> / <code>Numbers</code></td>
+</tr>
+<tr>
+<td>Validation</td>
+<td><code>validateResource(resource, options)</code></td>
+</tr>
+<tr>
+<td>In-memory search matching</td>
+<td><code>matchesSearchRequest</code>, <code>parseSearchRequest</code></td>
+</tr>
+</tbody>
+</table>
+<p>Cost: <strong>93 MB</strong> of <code>@medplum/definitions</code>, 242 ms startup indexing.</p>
+<p>This is the hard, spec-fiddly part available as a library. <strong>You supply only the SQL and your
+own schema.</strong></p>
+<h2 id="the-scope-is-smaller-than-it-looks">The scope is smaller than it looks<a class="headerlink" href="#the-scope-is-smaller-than-it-looks" title="Permanent link">&para;</a></h2>
+<p>Counted against the actual R4 registry, scoped to the 16 resource types a personal health app
+touches:</p>
+<ul>
+<li><strong>295</strong> relevant <code>(resourceType, code)</code> SearchParameters</li>
+<li><strong>76% are token or reference</strong> (114 token, 108 reference); date is only 26</li>
+<li>The <em>"what changed in my last 90 days"</em> anchor workflow needs <strong>~28</strong>, all standard</li>
+<li>FHIRPath features required across all 1,372 R4 expressions: <code>|</code> union (83), <code>.where()</code> (77,
+  only 8 distinct argument shapes), <code>as</code> (69), <code>is</code> (28), <code>resolve()</code> (50), <code>.exists()</code> (1) —
+  and <strong>zero</strong> uses of <code>.ofType()</code>, <code>.extension()</code>, <code>%resource</code>, <code>descendants()</code>, <code>iif()</code></li>
+</ul>
+<p><strong><code>resolve()</code> is the single blocker</strong>, and all 50 occurrences are the identical form
+<code>.where(resolve() is Patient)</code> — special-case-able.</p>
+<blockquote>
+<p>Token + reference + a correct date-range implementation gets you <strong>~85%</strong> of what ayuOS needs.</p>
+</blockquote>
+<h2 id="the-design-consensus-to-follow">The design consensus to follow<a class="headerlink" href="#the-design-consensus-to-follow" title="Permanent link">&para;</a></h2>
+<p>HAPI, Medplum, Aidbox, and WSO2 converged independently on the same shape:</p>
+<p><strong>JSONB resource blob + per-type shadow index columns/tables + <code>low</code>/<code>high</code> range columns +
+a separate scalar sort column.</strong> Postgres 16's native <code>tstzrange</code>/<code>tstzmultirange</code> + GiST
+gives you this nearly free.</p>
+<p>Two spec facts drive the difficulty:</p>
+<ul>
+<li><strong>Date prefixes are interval operators, not scalar comparisons.</strong> <code>eq</code> means "range fully
+  contains search range"; <code>2013-01-14</code> is itself the range <code>[00:00, next-day 00:00)</code>; and the
+  stored <code>Observation.effective</code> may be a <code>Period</code>. All four reference implementations solved
+  this with low/high columns — and all four carry a <strong>separate sort column, because ranges
+  are not orderable</strong>.</li>
+<li><strong>Token search has three forms</strong>, one counterintuitive: <code>code</code> matches any system,
+  <code>system|code</code> is exact, and <strong><code>|code</code> matches only where there is NO system</strong>. HAPI uses
+  three precomputed hashes; Medplum uses delimited <code>text[]</code> with a null-system sentinel.</li>
+</ul>
+<h2 id="two-things-that-must-be-day-one-decisions">Two things that must be day-one decisions<a class="headerlink" href="#two-things-that-must-be-day-one-decisions" title="Permanent link">&para;</a></h2>
+<p>Both are cheap now and <strong>irrecoverable later</strong>:</p>
+<ol>
+<li><strong>Append-only version history.</strong> One extra table, one INSERT per write. You cannot
+   reconstruct versions you never wrote — and <em>"what changed"</em> is the anchor workflow.</li>
+<li><strong>Date range + separate sort columns.</strong> Retrofitting means reindexing everything.</li>
+</ol>
+<p>Also note the dependency chain: FHIR defines <strong>conditional create/update</strong> as <em>"performs a
+search using its standard search facilities"</em>, and transaction Bundles may carry search-URI
+references servers SHALL resolve. So idempotent ingest and transaction processing are
+<em>downstream of search</em> — nearly free once search exists, impossible before.</p>
+<h2 id="the-honest-counterweight">The honest counterweight<a class="headerlink" href="#the-honest-counterweight" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Medplum's search implementation is <strong>~5,650 lines</strong> (<code>search.ts</code> 1,916 · <code>sql.ts</code> 1,457 ·
+  <code>token-column.ts</code> 524 · <code>range-column.ts</code> 390 · lookups ~1,084) plus <code>repo.ts</code> at 2,649 for
+  CRUD/history — and they are on <strong>schema migration v110</strong>.</li>
+<li><strong><code>wso2/fhir-server</code></strong> is a funded team building this exact design. Its own README, after
+  ~1 month, documents: <code>_sort</code> <strong>silently ignored</strong>, <code>quantity</code>/<code>uri</code> indexed but not
+  queryable, <code>sa</code>/<code>eb</code> "parse but fall back to <code>eq</code>", no chaining or <code>_has</code> at all.</li>
+</ul>
+<p>The 85% version is achievable. Full fidelity is a multi-year artifact.</p>
+<h2 id="language-constraint-unexpected">Language constraint (unexpected)<a class="headerlink" href="#language-constraint-unexpected" title="Permanent link">&para;</a></h2>
+<p>If you own the store, <strong>you write it in TypeScript</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Language</th>
+<th>Blocker</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Python</strong></td>
+<td><code>fhir.resources</code> <strong>dropped R4 at v7.0.0</strong>. Options are R4B (a semantic compromise) or pinning 6.5.0 — pydantic v1, unmaintained since Jan 2023.</td>
+</tr>
+<tr>
+<td><strong>Rust</strong></td>
+<td><strong>No R4 models exist anywhere.</strong> <code>fhir-sdk</code> ships stu3/r4b/r5 only, with FHIRPath and validation explicitly unimplemented.</td>
+</tr>
+<tr>
+<td><strong>Go</strong></td>
+<td><code>fhir-toolbox-go</code> is genuinely good (real FHIRPath v2.0.0 with UCUM) but is <strong>v0.0.4</strong>.</td>
+</tr>
+</tbody>
+</table>
+<p>See <a href="../fhir-libraries/">FHIR libraries</a> for the full survey.</p>
+<h2 id="what-you-lose-ranked-by-retrofit-difficulty">What you lose, ranked by retrofit difficulty<a class="headerlink" href="#what-you-lose-ranked-by-retrofit-difficulty" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Loss</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Hard</strong></td>
+<td>Version history / <code>_history</code> / vread</td>
+<td>Must be in the write path from day one</td>
+</tr>
+<tr>
+<td><strong>Hard</strong></td>
+<td>Conditional create + transaction Bundles</td>
+<td>Downstream of search; breaks ingest without it</td>
+</tr>
+<tr>
+<td><strong>Moderate</strong></td>
+<td><code>_include</code>/<code>_revinclude</code>, chaining, CapabilityStatement, Subscriptions</td>
+<td>Bolt on later</td>
+</tr>
+<tr>
+<td><strong>Cheap</strong></td>
+<td>AccessPolicy / compartments</td>
+<td>Near-irrelevant at n=1; and <code>compartmentdefinition-patient.json</code> hands you <code>$everything</code> as data (145 resource types, 66 with linking params)</td>
+</tr>
+<tr>
+<td><strong>Cheap</strong></td>
+<td>Terminology / <code>$validate</code> / ValueSet expansion</td>
+<td>Never part of a FHIR <em>store</em>; delegate</td>
+</tr>
+</tbody>
+</table>
+<h2 id="reference-implementations">Reference implementations<a class="headerlink" href="#reference-implementations" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Medplum's schema is the best documented</strong> — <a href="https://www.medplum.com/docs/contributing/search-architecture">search architecture</a>. Four strategies: <code>COLUMN</code>, <code>TOKEN_COLUMN</code>, <code>RANGE_COLUMN</code> (native <code>TSTZMULTIRANGE</code>/<code>NUMMULTIRANGE</code> + <code>__xxxSort</code> scalars), <code>LOOKUP_TABLE</code>.</li>
+<li><strong><a href="https://github.com/wso2/fhir-server">wso2/fhir-server</a></strong> (Go + Postgres, Apache-2.0) — closest to this exact design; its honest limitations list is the best available cost estimate. ⚠️ Created 2026-06-17, 7 stars.</li>
+<li><strong>FHIRbase is dead and never had search.</strong> Frozen ("<em>untill new hero will support it</em>"), and the shipped SQL has six CRUD functions, zero <code>CREATE INDEX</code>, and the word "search" appears zero times. Readable as a design reference only.</li>
+</ul>
+<h2 id="why-it-was-adopted">Why it was adopted<a class="headerlink" href="#why-it-was-adopted" title="Permanent link">&para;</a></h2>
+<p>Scoping the problem to the <strong>actual query catalogue</strong> decided it: FHIR search answers only 2
+of the agent's 10 core queries, and FHIR search exists to serve external clients ayuOS does
+not have. The other 8 — aggregations, cross-domain joins, vector search, windowed experiment
+analysis — are SQL work either way.</p>
+<p>The wearable-volume argument sealed it: high-frequency device data cannot be FHIR
+<code>Observation</code>s (20–40× storage), so a purpose-built time-series store is required regardless.
+Once the architecture contains a non-FHIR store, adding FHIR-shaped tables beside it is a
+smaller increment than operating a FHIR server beside it.</p>
+<p>See <a href="../../adr/0002-clinical-data-store/">ADR-0002</a> for the full reasoning, including the four
+arguments for keeping Medplum that did not survive review.</p>
+<h2 id="what-would-change-this">What would change this<a class="headerlink" href="#what-would-change-this" title="Permanent link">&para;</a></h2>
+<p>Reverting to a FHIR server would require an external FHIR client to appear, or the ~85%
+search-fidelity ceiling to bind on a real workflow (chaining, <code>_has</code>, or conformance-grade
+validation). If validation specifically becomes the issue,
+<a href="../hapi-fhir/#as-a-validator-genuinely-best-in-class">HAPI as a sidecar</a> is the cheaper answer
+than adopting a server.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

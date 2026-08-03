@@ -1,0 +1,2292 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Open-source personal health agent — specification and architecture">
+      
+      
+      
+        <link rel="canonical" href="https://xanaduCo.github.io/AyuSpec/ingestion/ehr/">
+      
+      
+        <link rel="prev" href="../apple-health/">
+      
+      
+        <link rel="next" href="../labs/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>EHR (Fasten fork) - ayuOS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ehr-ingestion" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ayuOS" class="md-header__button md-logo" aria-label="ayuOS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ayuOS
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              EHR (Fasten fork)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ayuOS" class="md-nav__button md-logo" aria-label="ayuOS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ayuOS
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vision/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vision & Problem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisions (ADRs)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Decisions (ADRs)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0001-ehr-ingestion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0001: EHR ingestion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0002-clinical-data-store/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0002: Clinical data store
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Service Evaluations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Service Evaluations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../evaluations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../evaluations/medplum/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Medplum
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../evaluations/roll-your-own/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roll your own (FHIR on Postgres)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../evaluations/blaze/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Blaze
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../evaluations/hapi-fhir/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HAPI FHIR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../evaluations/aidbox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Aidbox
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../evaluations/rejected-fhir-servers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rejected FHIR servers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../evaluations/fhir-libraries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FHIR libraries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../evaluations/apple-health/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Apple Health
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../evaluations/epic-direct/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Epic direct
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../evaluations/fasten/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fasten (Onprem + Connect)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../evaluations/oracle-cerner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Oracle Health / Cerner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../evaluations/open-wearables-vs-terra/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Open Wearables vs Terra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../open-wearables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Open Wearables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../data-capture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Capture Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ingestion
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Ingestion
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../wearables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Wearables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apple-health/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Apple Health
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    EHR (Fasten fork)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    EHR (Fasten fork)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#four-tiers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Four tiers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tier-1-apple-health-export-mvp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tier 1: Apple Health export (MVP)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tier-2-direct-epic-smart-on-fhir-p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tier 2: Direct Epic SMART-on-FHIR (P1)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tier 2: Direct Epic SMART-on-FHIR (P1)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-refresh-token-fork-unresolved" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The refresh-token fork (unresolved)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#endpoint-discovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Endpoint discovery
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#not-available-to-patient-apps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Not available to patient apps
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tier-3-ios-companion-app-p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tier 3: iOS companion app (P1)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tier-4-fasten-connect-premium-paid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tier 4: Fasten Connect (premium, paid)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-deliberately-not-built" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What is deliberately not built
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deduplication-with-other-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deduplication with other sources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-available" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data available
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../labs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lab PDFs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../imaging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Imaging (DICOM)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../genomics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Genomics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ai-ml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI & ML Layer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../model-providers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Providers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../agent-loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../evidence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence & Hypotheses
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../healthspan-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Healthspan Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../epistemics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Health Literacy & Epistemics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../experimentation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experimentation & Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pii-gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PII Gateway & Cloud Escalation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../frontend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontend & UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sharing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Sharing & Consent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security & Privacy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment & Infrastructure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../federation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Federated Analytics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Governance & Stewardship
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../external-deps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    External Dependencies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#four-tiers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Four tiers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tier-1-apple-health-export-mvp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tier 1: Apple Health export (MVP)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tier-2-direct-epic-smart-on-fhir-p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tier 2: Direct Epic SMART-on-FHIR (P1)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tier 2: Direct Epic SMART-on-FHIR (P1)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-refresh-token-fork-unresolved" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The refresh-token fork (unresolved)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#endpoint-discovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Endpoint discovery
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#not-available-to-patient-apps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Not available to patient apps
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tier-3-ios-companion-app-p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tier 3: iOS companion app (P1)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tier-4-fasten-connect-premium-paid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tier 4: Fasten Connect (premium, paid)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-deliberately-not-built" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What is deliberately not built
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deduplication-with-other-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deduplication with other sources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-available" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data available
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="ehr-ingestion">EHR Ingestion<a class="headerlink" href="#ehr-ingestion" title="Permanent link">&para;</a></h1>
+<div class="admonition info">
+<p class="admonition-title">Decision record</p>
+<p>The tiering below is recorded in <a href="../../adr/0001-ehr-ingestion/">ADR-0001: EHR ingestion strategy</a>,
+which supersedes the earlier "fork Fasten Health as an isolated GPL service" plan.
+<strong>Fasten Onprem was archived in July 2026 and no longer retrieves EHR records.</strong></p>
+</div>
+<h2 id="four-tiers">Four tiers<a class="headerlink" href="#four-tiers" title="Permanent link">&para;</a></h2>
+<p>Free, zero-egress paths are the default. A paid add-on exists for breadth and requires
+explicit per-provider consent — the same shape as <a href="../../open-wearables/">Open Wearables / Terra Bridge</a>
+for devices.</p>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Path</th>
+<th>Coverage</th>
+<th>Note text?</th>
+<th>Egress</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1 — Base</strong></td>
+<td><a href="../apple-health/">Apple Health export</a></td>
+<td>~450 multi-site US systems</td>
+<td>❌</td>
+<td><strong>Zero</strong></td>
+<td>MVP</td>
+</tr>
+<tr>
+<td><strong>2 — Direct</strong></td>
+<td>Epic SMART-on-FHIR</td>
+<td>~800 Epic orgs + Outside Records</td>
+<td>✅</td>
+<td>Epic only</td>
+<td>P1</td>
+</tr>
+<tr>
+<td><strong>3 — Live</strong></td>
+<td>iOS companion app</td>
+<td>Apple sources, incremental</td>
+<td>❌</td>
+<td>Zero (LAN)</td>
+<td>P1</td>
+</tr>
+<tr>
+<td><strong>4 — Premium</strong></td>
+<td>Fasten Connect (paid)</td>
+<td>Cerner, Meditech, athena, payers</td>
+<td>✅</td>
+<td><strong>Transits Fasten</strong></td>
+<td>P2</td>
+</tr>
+</tbody>
+</table>
+<p>No single tier covers a typical user's providers — they are complementary.</p>
+<h2 id="tier-1-apple-health-export-mvp">Tier 1: Apple Health export (MVP)<a class="headerlink" href="#tier-1-apple-health-export-mvp" title="Permanent link">&para;</a></h2>
+<p>The export zip contains <strong>raw provider FHIR JSON</strong>, one file per resource under
+<code>clinical-records/</code>. This is not a PDF pile and not only CDA — verified against Apple's DTD
+embedded in <code>export.xml</code>:</p>
+<div class="highlight"><pre><span></span><code>&lt;!ATTLIST ClinicalRecord
+  type CDATA #REQUIRED   identifier CDATA #REQUIRED   sourceName CDATA #REQUIRED
+  sourceURL CDATA #REQUIRED   fhirVersion CDATA #REQUIRED   receivedDate CDATA #REQUIRED
+  resourceFilePath CDATA #REQUIRED &gt;
+</code></pre></div>
+<p>Real record: <code>sourceName="UCSF Health" fhirVersion="4.0.1" resourceFilePath="/clinical-records/Observation-UUID.json"</code></p>
+<p><strong>Why this is the base tier:</strong> zero entitlement, zero App Review, zero Epic registration,
+zero hospital involvement. It works today on a Mac Mini, where the HealthKit API is
+unavailable. Typical volume: ~1,300 Observations, ~250 DiagnosticReports, ~115
+MedicationRequests per user.</p>
+<p><strong>What it costs:</strong></p>
+<ul>
+<li><strong>Manual and un-automatable</strong> — no Shortcuts action; every export is a full cumulative dump</li>
+<li><strong>Provenance requires a join</strong> — the FHIR files carry no institution name; <code>sourceName</code>
+  lives only on the <code>&lt;ClinicalRecord&gt;</code> stub in a multi-GB <code>export.xml</code> you must SAX-stream</li>
+<li><strong>Mixed DSTU2 and R4</strong> in the same export, per record</li>
+<li><strong>No clinical note text</strong> — <code>DocumentReference</code> entries point at <code>Binary/&lt;id&gt;</code> and the
+  Binary files are not in the export. Treat them as a coverage manifest.</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">We own this parser</p>
+<p>Neither Fasten nor Medplum ships an Apple Health importer
+(<a href="https://github.com/fastenhealth/fasten-onprem/issues/479">fasten-onprem#479</a> has been
+open since June 2024). This is net-new code — but a zip parser, not a connector to
+maintain.</p>
+</div>
+<p><code>export_cda.xml</code> is <strong>not</strong> provider records — it is a CCD Apple generates from your own
+HealthKit vitals and results. Ignore it.</p>
+<h2 id="tier-2-direct-epic-smart-on-fhir-p1">Tier 2: Direct Epic SMART-on-FHIR (P1)<a class="headerlink" href="#tier-2-direct-epic-smart-on-fhir-p1" title="Permanent link">&para;</a></h2>
+<p><strong>Free, self-service, and no per-health-system activation</strong> for qualifying apps, via Epic's
+Automatic Client ID Distribution. Registration at <code>fhir.epic.com</code> issues production and
+non-production client IDs immediately; there is no Epic approval gate.</p>
+<p>Qualifying conditions (all required):</p>
+<ul>
+<li>Uses <strong>only USCDI v3</strong> FHIR APIs</li>
+<li><strong>Read-only</strong> — any write API disqualifies</li>
+<li><strong>Patient-facing</strong></li>
+<li>Does not use refresh tokens, <strong>or</strong> uploads a client credential per organization</li>
+<li>"Enable Auto-download" + USCDI version selected at app creation</li>
+<li>Marked Ready for Production</li>
+</ul>
+<p>Epic: <em>"All US provider organizations currently receive client IDs that meet the automatic
+distribution criteria."</em> Since 2026-01-01 this is regulator-backed — 45 CFR 170.215 mandates
+SMART App Launch 2.0.0, requiring <code>client-public</code>, <code>permission-offline</code>, and PKCE S256.</p>
+<p><strong>Cost: $0.</strong> Registration, production, and distribution are free. The $500/yr Connection Hub
+listing and Vendor Services fees are optional marketplace products, not access fees.</p>
+<p><strong>What it uniquely provides:</strong> clinical note <em>content</em> (<code>Binary</code> and <code>DocumentReference</code>
+under USCDI v1), plus the USCDI v3 <strong>Outside Record</strong> family — externally-sourced records
+surfaced through the Epic org, valuable for an aggregator.</p>
+<div class="admonition danger">
+<p class="admonition-title">Production marking is a one-way door</p>
+<p>Epic, verbatim: <em>"Neither you nor Epic can make updates to an app once it has been marked
+Ready for Production… all technical changes will require you to build a new app."</em></p>
+<p>Only redirect URIs and JWK Set URLs stay editable. Adding one FHIR resource later means a
+new client ID and re-distribution from scratch. <strong>Finalize the USCDI v3 resource list
+before marking production-ready.</strong></p>
+</div>
+<h3 id="the-refresh-token-fork-unresolved">The refresh-token fork (unresolved)<a class="headerlink" href="#the-refresh-token-fork-unresolved" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Consequence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>No refresh tokens</strong></td>
+<td>Zero-touch distribution to all ~800 orgs; user re-authenticates via MyChart each sync. Likely fine for an occasional "what changed in 90 days?" run.</td>
+</tr>
+<tr>
+<td><strong>Device-local dynamic client registration</strong></td>
+<td>RFC 7591 at <code>POST {base}/oauth2/register</code> — keypair generated on the user's device, no shared secret ever leaves the machine. Ideal for zero-egress, but may require per-org credential upload across ~500 orgs.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Epic's docs do not say whether dynamic registration trips the refresh-token condition.</strong>
+This must be settled empirically against the sandbox. See
+<a href="../../adr/0001-ehr-ingestion/#the-unresolved-fork-refresh-tokens">ADR-0001</a>.</p>
+<h3 id="endpoint-discovery">Endpoint discovery<a class="headerlink" href="#endpoint-discovery" title="Permanent link">&para;</a></h3>
+<p>Download <code>https://open.epic.com/Endpoints/Brands</code> (~92 MB, 813 endpoints, 94k organizations)
+on a weekly cron and re-host locally for the health-system picker. Epic explicitly instructs:
+<em>"Applications SHOULD NOT perform runtime queries for endpoint data hosted on open.epic.com."</em></p>
+<h3 id="not-available-to-patient-apps">Not available to patient apps<a class="headerlink" href="#not-available-to-patient-apps" title="Permanent link">&para;</a></h3>
+<p><code>$export</code> is <strong>Group-level only</strong> and requires per-org coordination. There is no
+<code>Patient/$export</code>. Patient-facing apps do per-resource read/search. <code>Binary.Read (Generated
+CCDA)</code> returns a whole C-CDA in one call — often the cheapest way to bootstrap a longitudinal
+record before fanning out.</p>
+<h2 id="tier-3-ios-companion-app-p1">Tier 3: iOS companion app (P1)<a class="headerlink" href="#tier-3-ios-companion-app-p1" title="Permanent link">&para;</a></h2>
+<p>See <a href="../apple-health/">Apple Health ingestion</a>. Adds incremental sync over the local network.
+<code>HKFHIRResource.data</code> exposes the <strong>raw provider JSON</strong> — Apple's words: <em>"the underlying
+JSON, which contains the complete clinical data."</em> Requires the HealthKit clinical-records
+entitlement, evaluated at App Review rather than in a separate queue.</p>
+<h2 id="tier-4-fasten-connect-premium-paid">Tier 4: Fasten Connect (premium, paid)<a class="headerlink" href="#tier-4-fasten-connect-premium-paid" title="Permanent link">&para;</a></h2>
+<p>The paid add-on for <strong>wide record access</strong> — the providers Epic direct and Apple Health
+cannot reach: Cerner, Meditech, athenahealth, eClinicalWorks, NextGen, plus payers (Aetna,
+Anthem, Cigna, Humana, Kaiser, Medicare Blue Button, VA).</p>
+<p><strong>How it works:</strong></p>
+<ol>
+<li>User enables Fasten Connect and authorizes their health system through Fasten's widget</li>
+<li>Fasten pulls via SMART-on-FHIR patient access on the user's behalf</li>
+<li>ayuOS <strong>polls</strong> <code>GET /bridge/fhir/ehi-export/{org_connection_id}</code> — no webhook, no tunnel,
+   no inbound ports</li>
+<li>Data downloads as <strong>FHIR R4 NDJSON</strong> to the local store</li>
+</ol>
+<p><strong>What the user accepts:</strong> records for Fasten-bridged providers transit Fasten's cloud.
+Requires <strong>explicit per-provider consent</strong>, surfaced before enabling.</p>
+<p><strong>Fasten's terms</strong> (unusually good for a hosted intermediary):</p>
+<ul>
+<li><strong>24-hour retention, then automatic deletion</strong> — <em>"the system deletes the cached copy automatically"</em></li>
+<li><em>"We don't sell your personal information, ever"</em></li>
+<li><em>"We do not currently anonymize or de-identify your Personal Information"</em> — with a change-notification commitment</li>
+<li>No AI/ML training clause; CARIN Alliance Code of Conduct signatory</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">CARIN obligations flow down to us</p>
+<p>As a Fasten customer, ayuOS must honor consent-only use, easy revocation, and — notably —
+<strong>clear disclosure of AI/ML use of the data</strong>. Local LLM reasoning over records arguably
+qualifies. This belongs in the consent copy.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Commercial fit is unverified</p>
+<p>Fasten publishes <strong>no pricing</strong> and has <strong>no known individual tier</strong>. Community questions
+about consumer pricing in the shutdown thread went unanswered, and the sales motion is
+enterprise-shaped. This may make the premium tier unviable for individual users — an open
+action in <a href="../../adr/0001-ehr-ingestion/#follow-up-actions">ADR-0001</a>.</p>
+</div>
+<p><strong>Architectural rule:</strong> Fasten Connect is one adapter behind the EHR ingestion interface,
+never the interface itself. They sunset the free path once already, in 2026.</p>
+<h2 id="what-is-deliberately-not-built">What is deliberately not built<a class="headerlink" href="#what-is-deliberately-not-built" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Rejected</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Forking Fasten Onprem</td>
+<td>Upstream archived; we would own the connectors — the burden the project exists to avoid</td>
+</tr>
+<tr>
+<td>Our own SMART-on-FHIR connector catalog</td>
+<td>What Fasten just abandoned as unsustainable, with more resources than we have</td>
+</tr>
+<tr>
+<td>Oracle Health / Cerner as a P1 peer to Epic</td>
+<td>No auto-distribution equivalent; per-tenant service requests, 10-minute tokens, no dynamic registration. Reachable via Tier 4.</td>
+</tr>
+<tr>
+<td>Android clinical-records path</td>
+<td>Health Connect's Medical Records API is still experimental, Google operates no provider connections into it, and health records are excluded from its export</td>
+</tr>
+</tbody>
+</table>
+<h2 id="deduplication-with-other-sources">Deduplication with other sources<a class="headerlink" href="#deduplication-with-other-sources" title="Permanent link">&para;</a></h2>
+<p>The same record may arrive through several tiers. Deduplication key:
+<code>(patient, LOINC code, effective date/time)</code>. Precedence: <strong>structured EHR resource &gt;
+Apple export resource &gt; OCR-extracted</strong> from a <a href="../labs/">lab PDF</a>.</p>
+<h2 id="data-available">Data available<a class="headerlink" href="#data-available" title="Permanent link">&para;</a></h2>
+<p>Across Epic USCDI v1 + v3: AllergyIntolerance, Binary (notes, CCDA, labs), CarePlan,
+CareTeam, Condition, Coverage, Device, DiagnosticReport, DocumentReference, Encounter, Goal,
+Immunization, Location, Medication, MedicationDispense, MedicationRequest, Observation (labs,
+vitals, social history, assessments, study findings), Organization, Patient, Practitioner,
+Procedure, Provenance, RelatedPerson, ServiceRequest, Specimen, and the Outside Record family.</p>
+<h2 id="open-questions">Open questions<a class="headerlink" href="#open-questions" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] Does Epic dynamic client registration trip the refresh-token auto-distribution condition?</li>
+<li>[ ] Which US Core version does Epic assert? (3.1.1 expired 2026-01-01; 6.1.0 is operative.)</li>
+<li>[ ] Can a solo developer obtain Fasten Connect live-mode credentials, and at what price?</li>
+<li>[ ] How is DSTU2 → R4 conversion handled for older Apple export records?</li>
+<li>[ ] Does the HealthKit entitlement provision on a free personal team for sideloaded builds?</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

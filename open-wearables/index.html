@@ -1,0 +1,2447 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Open-source personal health agent — specification and architecture">
+      
+      
+      
+        <link rel="canonical" href="https://xanaduCo.github.io/AyuSpec/open-wearables/">
+      
+      
+        <link rel="prev" href="../architecture/">
+      
+      
+        <link rel="next" href="../data-capture/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Open Wearables - ayuOS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#open-wearables" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="ayuOS" class="md-header__button md-logo" aria-label="ayuOS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ayuOS
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Open Wearables
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="ayuOS" class="md-nav__button md-logo" aria-label="ayuOS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ayuOS
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vision/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vision & Problem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisions (ADRs)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Decisions (ADRs)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0001-ehr-ingestion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0001: EHR ingestion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0002-clinical-data-store/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0002: Clinical data store
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Service Evaluations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Service Evaluations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/medplum/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Medplum
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/roll-your-own/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roll your own (FHIR on Postgres)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/blaze/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Blaze
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/hapi-fhir/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HAPI FHIR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/aidbox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Aidbox
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/rejected-fhir-servers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rejected FHIR servers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/fhir-libraries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FHIR libraries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/apple-health/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Apple Health
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/epic-direct/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Epic direct
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/fasten/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fasten (Onprem + Connect)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/oracle-cerner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Oracle Health / Cerner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/open-wearables-vs-terra/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Open Wearables vs Terra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Open Wearables
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Open Wearables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#open-wearables-vs-terra" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open Wearables vs Terra
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#terra-bridge-optional-paid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Terra Bridge (optional, paid)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supported-data-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported data variables
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gaps-vs-terra" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gaps vs Terra
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#terra-bridge-ingestion-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Terra Bridge ingestion contract
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Terra Bridge ingestion contract">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-mapping-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The mapping model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#terra-payload-ow-coverage-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Terra payload → OW coverage matrix
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unmapped-field-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unmapped-field policy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nested-session-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Nested / session data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#open-questions-terra-ingestion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open questions — Terra ingestion
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-real-differentiator-developer-agreements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The real differentiator: developer agreements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#does-terra-have-a-permanent-advantage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Does Terra have a permanent advantage?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#renpho-direct-integration-is-possible" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Renpho: direct integration is possible
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-support-for-ayuos-users" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device support for ayuOS users
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-capture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Capture Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ingestion
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Ingestion
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/wearables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Wearables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/apple-health/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Apple Health
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/ehr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    EHR (Fasten fork)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/labs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lab PDFs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/imaging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Imaging (DICOM)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/genomics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Genomics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ai-ml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI & ML Layer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model-providers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Providers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent-loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evidence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence & Hypotheses
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../healthspan-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Healthspan Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../epistemics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Health Literacy & Epistemics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../experimentation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experimentation & Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pii-gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PII Gateway & Cloud Escalation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../frontend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontend & UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sharing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Sharing & Consent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security & Privacy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment & Infrastructure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../federation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Federated Analytics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Governance & Stewardship
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../external-deps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    External Dependencies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#open-wearables-vs-terra" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open Wearables vs Terra
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#terra-bridge-optional-paid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Terra Bridge (optional, paid)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supported-data-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported data variables
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gaps-vs-terra" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gaps vs Terra
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#terra-bridge-ingestion-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Terra Bridge ingestion contract
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Terra Bridge ingestion contract">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-mapping-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The mapping model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#terra-payload-ow-coverage-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Terra payload → OW coverage matrix
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unmapped-field-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unmapped-field policy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nested-session-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Nested / session data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#open-questions-terra-ingestion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open questions — Terra ingestion
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-real-differentiator-developer-agreements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The real differentiator: developer agreements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#does-terra-have-a-permanent-advantage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Does Terra have a permanent advantage?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#renpho-direct-integration-is-possible" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Renpho: direct integration is possible
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-support-for-ayuos-users" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device support for ayuOS users
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="open-wearables">Open Wearables<a class="headerlink" href="#open-wearables" title="Permanent link">&para;</a></h1>
+<p>Open Wearables is the wearable ingestion layer for ayuOS. It is a self-hosted, open-source platform that aggregates health data from multiple wearable devices into a single unified REST API — rather than integrating separately with each device manufacturer, one server normalizes everything.</p>
+<ul>
+<li><strong>Stack:</strong> FastAPI (Python), React 19 + TypeScript, PostgreSQL + Redis + Celery</li>
+<li><strong>Providers:</strong> 13 supported</li>
+<li><strong>Repo:</strong> <a href="https://github.com/XanaduCo/open-wearables">XanaduCo/open-wearables</a></li>
+<li><strong>Evaluation:</strong> <a href="../evaluations/open-wearables-vs-terra/">Open Wearables vs Terra</a></li>
+</ul>
+<hr />
+<h2 id="open-wearables-vs-terra">Open Wearables vs Terra<a class="headerlink" href="#open-wearables-vs-terra" title="Permanent link">&para;</a></h2>
+<p>Terra is the main commercial alternative — a managed SaaS wearable data aggregator.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Open Wearables</th>
+<th>Terra Bridge (optional)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Hosting</strong></td>
+<td>Self-hosted</td>
+<td>Managed SaaS</td>
+</tr>
+<tr>
+<td><strong>Source</strong></td>
+<td>Open source</td>
+<td>Closed source</td>
+</tr>
+<tr>
+<td><strong>Cost</strong></td>
+<td>Infrastructure only</td>
+<td>Per-user/per-connection fee</td>
+</tr>
+<tr>
+<td><strong>Data residency</strong></td>
+<td>Your server only</td>
+<td>Transits Terra's cloud → lands locally</td>
+</tr>
+<tr>
+<td><strong>Providers</strong></td>
+<td>13</td>
+<td>~50+</td>
+</tr>
+<tr>
+<td><strong>Mobile</strong></td>
+<td>SDK — you build the app</td>
+<td>Drop-in hosted widget</td>
+</tr>
+<tr>
+<td><strong>Support</strong></td>
+<td>Community</td>
+<td>Enterprise SLAs</td>
+</tr>
+<tr>
+<td><strong>Recommended use</strong></td>
+<td>Default for all users</td>
+<td>Optional add-on for gated providers (Garmin, Dexcom)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Open Wearables</strong> is the default and preferred path. Zero data transit; fully self-hosted; open source.</p>
+<p><strong>Terra Bridge</strong> is an optional paid add-on for users who need providers only Terra can access (Garmin while the developer program is suspended, Dexcom/CGM under formal agreement). Data transits Terra's cloud in transit, then lands in the user's local Open Wearables instance. Terra's ToS permits de-identified analytics on transit data — users who enable Terra Bridge accept this tradeoff explicitly.</p>
+<p>The two are not mutually exclusive. A user can run Open Wearables for Oura, Whoop, and Polar (zero transit) and add Terra Bridge only for Garmin (transit accepted).</p>
+<hr />
+<h2 id="terra-bridge-optional-paid">Terra Bridge (optional, paid)<a class="headerlink" href="#terra-bridge-optional-paid" title="Permanent link">&para;</a></h2>
+<p>Terra Bridge is a paid integration layer that routes data from Terra-connected providers into the user's local Open Wearables instance. It exists specifically to reach providers that require formal developer agreements that an open-source project cannot hold (or where the program is currently suspended).</p>
+<p><strong>How it works:</strong></p>
+<ol>
+<li>User enables Terra Bridge in ayuOS settings and pays Terra's per-connection fee</li>
+<li>Terra authenticates with the wearable vendor on the user's behalf (OAuth)</li>
+<li>Terra delivers data to the user's local Open Wearables webhook endpoint</li>
+<li>Data is stored locally; Terra does not retain it beyond delivery</li>
+</ol>
+<p><strong>Providers accessible only via Terra Bridge (in the current Open Wearables tier):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Provider</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Garmin</td>
+<td>Developer program suspended for new applicants</td>
+</tr>
+<tr>
+<td>Dexcom</td>
+<td>Formal developer agreement required</td>
+</tr>
+<tr>
+<td>Abbott Libre</td>
+<td>Formal developer agreement required</td>
+</tr>
+<tr>
+<td>Eight Sleep</td>
+<td>Closed / agreement required</td>
+</tr>
+</tbody>
+</table>
+<p><strong>What the user accepts:</strong> wearable data for these providers transits Terra's cloud. Terra's ToS permits aggregating de-identified analytics from transit data. ayuOS surfaces this clearly before the user enables Terra Bridge for any provider.</p>
+<p><strong>Fallback for Garmin:</strong> FIT file export → local parse remains available as a zero-transit alternative for historical data.</p>
+<hr />
+<h2 id="supported-data-variables">Supported data variables<a class="headerlink" href="#supported-data-variables" title="Permanent link">&para;</a></h2>
+<p>~80+ metric types across:</p>
+<ul>
+<li><strong>Heart &amp; Cardiovascular</strong> — HR, HRV (SDNN + RMSSD), walking HR, HR recovery</li>
+<li><strong>Blood &amp; Respiratory</strong> — SpO2, blood glucose, blood pressure, respiratory rate, AFib burden, breathing disturbance index, BAC, pulmonary function (FVC, FEV1, PEFR)</li>
+<li><strong>Body Composition</strong> — weight, height, BMI, body fat %, lean mass, body/skin temperature + deviation, waist circumference, skeletal muscle mass</li>
+<li><strong>Fitness</strong> — VO2 max, 6-min walk test, cardiovascular age</li>
+<li><strong>Activity</strong> — steps, calories, basal energy, stand time, flights, MET</li>
+<li><strong>Walking Biomechanics</strong> — step length, speed, asymmetry %, double support %, steadiness, stair ascent/descent speed</li>
+<li><strong>Running Biomechanics</strong> — power, vertical oscillation, ground contact time, stride length, vertical ratio, stance balance</li>
+<li><strong>Swimming</strong> — stroke count, underwater depth</li>
+<li><strong>Environmental</strong> — UV, audio exposure, daylight time, weather, elevation, GPS</li>
+<li><strong>Provider-Specific</strong> — Garmin body battery, stress score, fitness age</li>
+<li><strong>Other</strong> — electrodermal activity, insulin delivery, hydration, falls count</li>
+</ul>
+<hr />
+<h2 id="gaps-vs-terra">Gaps vs Terra<a class="headerlink" href="#gaps-vs-terra" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Gap</th>
+<th>Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Nutrition</strong></td>
+<td>Full macro/micronutrient data from food logging apps (Cronometer, MyFitnessPal, Noom). OW has only <code>hydration</code> on main — but a full implementation exists on the unmerged <code>coachboard-v2</code> branch.</td>
+</tr>
+<tr>
+<td><strong>Direct CGM</strong></td>
+<td>Dexcom and Abbott/Libre as first-party integrations, not routed through Apple Health or Ultrahuman</td>
+</tr>
+<tr>
+<td><strong>Withings</strong></td>
+<td>Direct integration with Withings smart scales, blood pressure cuffs, thermometers</td>
+</tr>
+<tr>
+<td><strong>Provider breadth</strong></td>
+<td>~50+ vs 13 — Terra covers more niche devices (Cronometer, Eight Sleep, Peloton, etc.)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="terra-bridge-ingestion-contract">Terra Bridge ingestion contract<a class="headerlink" href="#terra-bridge-ingestion-contract" title="Permanent link">&para;</a></h2>
+<p>Terra Bridge delivering data to a local webhook does <strong>not</strong> by itself guarantee that
+every field Terra sends is stored. Terra data lands in Open Wearables through the same
+path as any other provider: a provider strategy maps incoming fields onto the
+<a href="#the-real-differentiator-developer-agreements"><code>SeriesType</code> catalog</a>. A Terra field with no
+corresponding <code>SeriesType</code> has nowhere to go.</p>
+<p>So the honest answer to <em>"can Open Wearables ingest everything Terra sends?"</em> is:
+<strong>most of it, but not everything, and only what has been explicitly mapped.</strong></p>
+<h3 id="the-mapping-model">The mapping model<a class="headerlink" href="#the-mapping-model" title="Permanent link">&para;</a></h3>
+<p>The target schema is the <code>SeriesType</code> catalog — ~80+ integer-ID metric types, data stored
+as normalized time-series keyed by SeriesType (per user, per provider). Terra normalizes
+its providers into its own payload categories (Activity, Body, Daily, Sleep, Nutrition,
+Menstruation, plus nested workout/session structures). Ingesting Terra losslessly requires
+a Terra strategy that maps every Terra field to a <code>SeriesType</code> — and where no <code>SeriesType</code>
+exists, one must be added (enum entry + migration) before that field can be stored.</p>
+<h3 id="terra-payload-ow-coverage-matrix">Terra payload → OW coverage matrix<a class="headerlink" href="#terra-payload-ow-coverage-matrix" title="Permanent link">&para;</a></h3>
+<p>Cells marked <code>[U]</code> are unverified against the current OW code (<code>series_types.py</code>, the Terra
+strategy, the <code>coachboard-v2</code> branch) and must be confirmed before this table is treated as
+authoritative — see <a href="#open-questions-terra-ingestion">Open questions</a> below.</p>
+<table>
+<thead>
+<tr>
+<th>Terra payload category</th>
+<th>Terra provides</th>
+<th>OW <code>SeriesType</code> exists?</th>
+<th>Status</th>
+<th>Gap-closing work</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Body</strong> (HR, HRV, SpO2, glucose, temp, body composition)</td>
+<td>Scalar biometrics + samples</td>
+<td>Yes — broad overlap</td>
+<td>Lossless <code>[U]</code></td>
+<td>Confirm field-level mapping completeness</td>
+</tr>
+<tr>
+<td><strong>Daily</strong> (steps, calories, distance, active durations, stress)</td>
+<td>Daily summaries + intraday samples</td>
+<td>Yes for most</td>
+<td>Lossless <code>[U]</code></td>
+<td>Confirm intraday-sample granularity is preserved</td>
+</tr>
+<tr>
+<td><strong>Sleep</strong> (durations, stages, HRV, respiration)</td>
+<td>Summary + hypnogram</td>
+<td>Partial</td>
+<td>Summary maps; <strong>hypnogram sequence</strong> <code>[U]</code></td>
+<td>Decide stage-sequence representation (see nested note)</td>
+</tr>
+<tr>
+<td><strong>Activity / Workout</strong> (sessions, laps, GPS, power)</td>
+<td>Nested session objects</td>
+<td>Partial</td>
+<td>Scalar streams map; <strong>laps/GPS/session structure</strong> likely dropped</td>
+<td>Structured session modeling (see nested note)</td>
+</tr>
+<tr>
+<td><strong>Nutrition</strong> (meals, macros, micros, calorie budgets)</td>
+<td>Full food-log data</td>
+<td><strong>No on <code>main</code></strong> (only <code>hydration</code>)</td>
+<td><strong>Dropped</strong></td>
+<td>Merge <code>coachboard-v2</code> (adds nutrition SeriesTypes) + Terra-nutrition mapping</td>
+</tr>
+<tr>
+<td><strong>Menstruation</strong> (cycle, flow, symptoms)</td>
+<td>Cycle data</td>
+<td><code>[U]</code></td>
+<td><code>[U]</code></td>
+<td>Confirm SeriesTypes exist; add if not</td>
+</tr>
+<tr>
+<td><strong>Provider-specific scores</strong> (readiness, recovery, body battery)</td>
+<td>Vendor scores</td>
+<td>Mostly yes</td>
+<td>Lossless <code>[U]</code></td>
+<td>Per-score confirmation</td>
+</tr>
+</tbody>
+</table>
+<h3 id="unmapped-field-policy">Unmapped-field policy<a class="headerlink" href="#unmapped-field-policy" title="Permanent link">&para;</a></h3>
+<p>Open Wearables' governing rule is "if a provider exposes a field, someone has to map it" —
+there is no generic catch-all bucket, so an <strong>unmapped Terra field is dropped, not stored as
+unknown.</strong> Whether dropped fields should instead be <em>logged</em> (for observability) or
+<em>persisted raw</em> (so historical data isn't lost before a mapping exists) is an open design
+decision, not current behavior. Until decided, assume silent drop for anything not in the
+matrix above.</p>
+<h3 id="nested-session-data">Nested / session data<a class="headerlink" href="#nested-session-data" title="Permanent link">&para;</a></h3>
+<p>The <code>SeriesType</code> model is oriented to <strong>scalar metric streams</strong>. Terra's nested payloads —
+workout sessions with laps and GPS sample arrays, sleep with a full hypnogram — do not map
+cleanly to scalar time-series and risk lossy flattening. Capturing them faithfully likely
+needs dedicated structured storage rather than more <code>SeriesType</code> entries; see
+<a href="../storage/">Storage</a>.</p>
+<h3 id="open-questions-terra-ingestion">Open questions — Terra ingestion<a class="headerlink" href="#open-questions-terra-ingestion" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Does a Terra ingestion strategy already exist in the OW repo, and how complete is its field mapping?</li>
+<li>[ ] Unmapped-field policy: drop silently, log, or raw-store-for-later-mapping?</li>
+<li>[ ] Is merging <code>coachboard-v2</code> sufficient for Terra nutrition, or is a separate Terra-nutrition mapping also required on top?</li>
+<li>[ ] How are Terra's nested session structures (laps, GPS, sleep stages) represented — flattened to SeriesTypes, or modeled as structured resources in the <a href="../storage/">storage layer</a>?</li>
+</ul>
+<hr />
+<h2 id="the-real-differentiator-developer-agreements">The real differentiator: developer agreements<a class="headerlink" href="#the-real-differentiator-developer-agreements" title="Permanent link">&para;</a></h2>
+<p>The most durable Terra advantage isn't data types — it's <strong>access</strong>. Some providers require a formal developer agreement (or have closed their programs), which a commercial entity is better positioned to hold.</p>
+<table>
+<thead>
+<tr>
+<th>Provider</th>
+<th>Status</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Garmin</strong></td>
+<td>⚠️ Suspended</td>
+<td>Garmin's developer program is currently closed to new applicants. The OW integration is complete and works for existing developer accounts, but new deployments cannot get API credentials.</td>
+</tr>
+<tr>
+<td><strong>Dexcom / Abbott (CGM)</strong></td>
+<td>❌ Agreement required</td>
+<td>Medical-grade CGM APIs require formal developer agreements. Terra likely holds these; manufacturers are more selective with open-source projects.</td>
+</tr>
+<tr>
+<td><strong>Renpho</strong></td>
+<td>⚠️ Unofficial only</td>
+<td>No official developer API. The community has reverse-engineered the backend (<code>renpho.qnclouds.com</code>, email/password auth). Terra's Renpho support almost certainly uses this same approach. Fragile — Renpho can break it at any time.</td>
+</tr>
+</tbody>
+</table>
+<p>For providers <strong>without</strong> such restrictions (Whoop, Oura, Polar, Suunto, Fitbit, Strava, Google), OW is on equal footing with Terra.</p>
+<div class="admonition note">
+<p class="admonition-title">Adding a new metric</p>
+<p>Open Wearables is purely engineering-driven. Adding a new metric:</p>
+<ol>
+<li>Add an entry to the <code>SeriesType</code> enum in <code>series_types.py</code> with a stable integer DB ID</li>
+<li>A database migration for the new ID</li>
+<li>Map it in whichever provider strategy emits that data</li>
+</ol>
+<p>No commercial partnership layer — if a provider exposes a field, any contributor can map it.</p>
+</div>
+<hr />
+<h2 id="does-terra-have-a-permanent-advantage">Does Terra have a permanent advantage?<a class="headerlink" href="#does-terra-have-a-permanent-advantage" title="Permanent link">&para;</a></h2>
+<p><strong>For developer-agreement-gated providers, yes in practice:</strong></p>
+<ul>
+<li><strong>Garmin</strong> — integration is complete, but new API credentials are unavailable while the developer program is suspended. Closes immediately if Garmin reopens.</li>
+<li><strong>Direct CGM</strong> (Dexcom, Abbott/Libre) — formal agreements required; Terra is better positioned to hold them.</li>
+<li><strong>Nutrition data</strong> — not a structural gap; <code>coachboard-v2</code> branch has a full implementation pending merge.</li>
+</ul>
+<p><strong>Where OW can catch up or lead:</strong></p>
+<ul>
+<li>Any provider with an open developer program can be added by contributors</li>
+<li>Self-hosted means unofficial APIs (like Renpho's reverse-engineered endpoint) can be integrated without Terra's liability concerns</li>
+<li>OW has niche metrics Terra doesn't normalize (detailed pulmonary function, environmental audio, granular walking biomechanics)</li>
+</ul>
+<p><strong>Bottom line:</strong> The real divide is developer-agreement-gated providers — Garmin (suspended), Dexcom, Abbott. For everything else, OW is functionally equivalent and the gaps are closeable.</p>
+<hr />
+<h2 id="renpho-direct-integration-is-possible">Renpho: direct integration is possible<a class="headerlink" href="#renpho-direct-integration-is-possible" title="Permanent link">&para;</a></h2>
+<p>Renpho has no official developer API, but the community has reverse-engineered it:</p>
+<ul>
+<li>REST endpoint at <code>renpho.qnclouds.com</code>, email + password auth (no OAuth)</li>
+<li><a href="https://pypi.org/project/renpho-api/"><code>renpho-api</code></a> Python client on PyPI</li>
+<li><a href="https://github.com/neilzilla/hass-renpho"><code>hass-renpho</code></a> Home Assistant integration using the same approach</li>
+</ul>
+<p>A native OW provider for Renpho is feasible. Risk: Renpho can change their backend at any time.</p>
+<hr />
+<h2 id="device-support-for-ayuos-users">Device support for ayuOS users<a class="headerlink" href="#device-support-for-ayuos-users" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Device</th>
+<th>Status</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Whoop</strong></td>
+<td>✅ Fully supported</td>
+<td>OAuth 2.0, recovery/sleep/HRV, real-time webhooks</td>
+</tr>
+<tr>
+<td><strong>Garmin</strong></td>
+<td>⚠️ Supported but gated</td>
+<td>Integration complete; developer program suspended for new applicants</td>
+</tr>
+<tr>
+<td><strong>FreeStyle Libre (CGM)</strong></td>
+<td>⚠️ Indirect</td>
+<td>Via Apple Health (iOS) or Ultrahuman Ring Air; direct Abbott integration requires developer agreement</td>
+</tr>
+<tr>
+<td><strong>Renpho Scale</strong></td>
+<td>⚠️ Indirect or unofficial</td>
+<td>Via Apple Health / Google Health Connect, or a custom integration using the reverse-engineered API</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

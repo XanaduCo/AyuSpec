@@ -1,0 +1,2394 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Open-source personal health agent — specification and architecture">
+      
+      
+      
+        <link rel="canonical" href="https://xanaduCo.github.io/AyuSpec/epistemics/">
+      
+      
+        <link rel="prev" href="../healthspan-model/">
+      
+      
+        <link rel="next" href="../experimentation/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Health Literacy & Epistemics - ayuOS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#health-literacy-epistemics" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="ayuOS" class="md-header__button md-logo" aria-label="ayuOS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ayuOS
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Health Literacy & Epistemics
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="ayuOS" class="md-nav__button md-logo" aria-label="ayuOS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ayuOS
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vision/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vision & Problem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisions (ADRs)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Decisions (ADRs)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0001-ehr-ingestion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0001: EHR ingestion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0002-clinical-data-store/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0002: Clinical data store
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Service Evaluations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Service Evaluations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/medplum/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Medplum
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/roll-your-own/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roll your own (FHIR on Postgres)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/blaze/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Blaze
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/hapi-fhir/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HAPI FHIR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/aidbox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Aidbox
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/rejected-fhir-servers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rejected FHIR servers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/fhir-libraries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FHIR libraries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/apple-health/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Apple Health
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/epic-direct/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Epic direct
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/fasten/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fasten (Onprem + Connect)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/oracle-cerner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Oracle Health / Cerner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluations/open-wearables-vs-terra/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Open Wearables vs Terra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../open-wearables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Open Wearables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-capture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Capture Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ingestion
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Ingestion
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/wearables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Wearables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/apple-health/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Apple Health
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/ehr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    EHR (Fasten fork)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/labs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lab PDFs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/imaging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Imaging (DICOM)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/genomics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Genomics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ai-ml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI & ML Layer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model-providers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Providers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent-loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evidence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence & Hypotheses
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../healthspan-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Healthspan Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Health Literacy & Epistemics
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Health Literacy & Epistemics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#design-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design principles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-concept-library" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The concept library
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The concept library">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#concept-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concept object
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#starter-concept-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Starter concept list
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-injection-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The injection policy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-literacy-profile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The literacy profile
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-comparison-frame" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The comparison frame
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-preference-model-simplify-this-for-me" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The preference model ("simplify this for me")
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quizzes-as-calibration-games" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quizzes as calibration games
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-entry-write-up" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The entry write-up
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#regulatory-posture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulatory posture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relationship-to-other-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relationship to other components
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../experimentation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experimentation & Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pii-gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PII Gateway & Cloud Escalation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../frontend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontend & UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sharing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Sharing & Consent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security & Privacy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment & Infrastructure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../federation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Federated Analytics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Governance & Stewardship
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../external-deps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    External Dependencies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#design-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design principles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-concept-library" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The concept library
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The concept library">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#concept-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concept object
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#starter-concept-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Starter concept list
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-injection-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The injection policy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-literacy-profile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The literacy profile
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-comparison-frame" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The comparison frame
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-preference-model-simplify-this-for-me" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The preference model ("simplify this for me")
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quizzes-as-calibration-games" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quizzes as calibration games
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-entry-write-up" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The entry write-up
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#regulatory-posture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulatory posture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relationship-to-other-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relationship to other components
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="health-literacy-epistemics">Health Literacy &amp; Epistemics<a class="headerlink" href="#health-literacy-epistemics" title="Permanent link">&para;</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Status: draft</p>
+<p>Approach is decided (no onboarding module; inject at decision points). Concept list, authorship model, and the preference-elicitation flow are open. See <a href="#open-questions">Open questions</a>.</p>
+</div>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>A core product thesis: <strong>users don't know what to ask, or how to weigh the answers.</strong> People come to ayuOS precisely because they don't have a clear picture of their health and no clinician has taken the time to build one with them. If the system just answers questions, it serves the users who already know how to interrogate evidence — and quietly fails everyone else.</p>
+<p>This component teaches the <em>epistemic skills</em> needed to use ayuOS well — the hierarchy of evidence, how to reason with imperfect data, why "it worked for me" is hard to interpret, how to compare interventions honestly — <strong>without an explicit onboarding module</strong>. There is no course, no gate, no tutorial to complete. Education is injected at decision points, indexed by the user's actual situation, and it retires itself as the user demonstrates fluency.</p>
+<p>Two hard constraints:</p>
+<ol>
+<li><strong>Never prescriptive.</strong> ayuOS does not say "heart disease is your most important lever." It shows the difference in likelihood-of-working between, say, NMN supplementation and a walk after every meal — same axes, honest labels — and leaves the choice with the user.</li>
+<li><strong>Simplification is opt-in.</strong> If the user asks ayuOS to simplify the choice, it collapses the trade-offs through an explicit <a href="#the-preference-model-simplify-this-for-me">preference model</a> — and always shows how their stated preferences produced the ranking.</li>
+</ol>
+<h2 id="design-principles">Design principles<a class="headerlink" href="#design-principles" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Labels are the curriculum.</strong> The <a href="../evidence/#strength-of-evidence-labeling">evidence labels</a> the agent already emits are the entry points. Every <code>EVIDENCE: LOW</code> is a teachable moment with the user's live decision as the worked example.</li>
+<li><strong>Just-in-time, not up-front.</strong> A concept is surfaced the first time it's <em>load-bearing</em> for a decision the user is making — never as an abstract lesson.</li>
+<li><strong>Self-retiring.</strong> A <a href="#the-literacy-profile">literacy profile</a> tracks what the user has engaged with. Once fluency is demonstrated, the system stops explaining and just uses the labels. Injection must never become nagging.</li>
+<li><strong>Structure teaches.</strong> The <a href="#the-comparison-frame">comparison frame</a> does most of the pedagogy implicitly — fixed axes, side by side — without the system editorializing.</li>
+<li><strong>Sympathetic, not superior.</strong> The tone is "here's how to think about this," never "you fell for a fallacy." Alternative medicine is engaged with on the evidence, not dismissed by category.</li>
+</ul>
+<h2 id="the-concept-library">The concept library<a class="headerlink" href="#the-concept-library" title="Permanent link">&para;</a></h2>
+<p>A small library (~20–30 entries) of <strong>epistemic concepts</strong>, each a first-class stored object the agent can cite, link inline, and track engagement with. Ships with the install, versioned with releases, fully offline.</p>
+<h3 id="concept-object">Concept object<a class="headerlink" href="#concept-object" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>Stable slug, e.g. <code>hierarchy-of-evidence</code></td>
+</tr>
+<tr>
+<td><code>title</code></td>
+<td>Display title</td>
+</tr>
+<tr>
+<td><code>summary</code></td>
+<td>One-liner the agent can drop inline</td>
+</tr>
+<tr>
+<td><code>body</code></td>
+<td>The ~2-minute write-up (markdown)</td>
+</tr>
+<tr>
+<td><code>deep_links</code></td>
+<td>Curated external content for going deeper</td>
+</tr>
+<tr>
+<td><code>quiz</code></td>
+<td>Optional <a href="#quizzes-as-calibration-games">calibration game</a> items</td>
+</tr>
+<tr>
+<td><code>triggers</code></td>
+<td>Declarative conditions for proactive injection (see <a href="#the-injection-policy">injection policy</a>)</td>
+</tr>
+<tr>
+<td><code>related</code></td>
+<td>Other concepts</td>
+</tr>
+</tbody>
+</table>
+<h3 id="starter-concept-list">Starter concept list<a class="headerlink" href="#starter-concept-list" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Cluster</th>
+<th>Concepts</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Evidence</strong></td>
+<td>Hierarchy of evidence (anecdote → mechanistic → observational → RCT → meta-analysis); what a mechanistic study can and can't tell you; surrogate endpoints vs. outcomes that matter; conflicts of interest and who funded the study</td>
+</tr>
+<tr>
+<td><strong>Risk &amp; probability</strong></td>
+<td>Absolute vs. relative risk; base rates; effect size vs. certainty (small-certain vs. large-speculative); reasoning with imperfect data — deciding under uncertainty rather than waiting for proof</td>
+</tr>
+<tr>
+<td><strong>Why you can fool yourself</strong></td>
+<td>The placebo effect as a real, quantified force; regression to the mean (you sought help when you felt worst); confounding ("I started three things at once"); post-hoc rationalization</td>
+</tr>
+<tr>
+<td><strong>Personal validation</strong></td>
+<td>What an n-of-1 experiment can and can't establish; natural variability vs. signal; why pre-registering success criteria matters; how to determine if something actually worked <em>for you</em></td>
+</tr>
+<tr>
+<td><strong>Alternative medicine</strong></td>
+<td>How different traditions generate evidence; comparing their evidence process to trials; absence of evidence vs. evidence of absence vs. evidence of harm; why "natural" ≠ safe and "ancient" ≠ tested</td>
+</tr>
+<tr>
+<td><strong>Cautionary cases</strong></td>
+<td>Seemingly effective, proven dangerous: hormone replacement therapy (pre-WHI), Vioxx, antioxidant megadose trials, fen-phen. Each told as a short story with the mechanism of the mistake — what evidence existed, what was missed, what would have caught it</td>
+</tr>
+</tbody>
+</table>
+<h2 id="the-injection-policy">The injection policy<a class="headerlink" href="#the-injection-policy" title="Permanent link">&para;</a></h2>
+<p>Rules the <a href="../agent-loop/">agent loop</a> applies to decide when a concept is surfaced <em>proactively</em> (vs. sitting behind a tappable label):</p>
+<table>
+<thead>
+<tr>
+<th>Trigger</th>
+<th>Example</th>
+<th>Concept surfaced</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>First encounter with a label type</td>
+<td>First time the user sees <code>EVIDENCE: NONE</code></td>
+<td>Hierarchy of evidence</td>
+</tr>
+<tr>
+<td>Decision with a known trap</td>
+<td>User attributes improvement to an intervention started during a symptom peak</td>
+<td>Regression to the mean</td>
+</tr>
+<tr>
+<td>Intervention with strong placebo literature</td>
+<td>User asks about an intervention where trials show large placebo arms</td>
+<td>Placebo effect</td>
+</tr>
+<tr>
+<td>Cross-tier comparison</td>
+<td>User weighs a <code>LOW</code>-evidence supplement against a <code>HIGH</code>-evidence behavior</td>
+<td>Effect size vs. certainty, via the <a href="#the-comparison-frame">comparison frame</a></td>
+</tr>
+<tr>
+<td>First experiment design</td>
+<td>User starts their first <a href="../experimentation/">n-of-1</a></td>
+<td>What n-of-1 can establish; pre-registration</td>
+</tr>
+<tr>
+<td>Alternative-medicine query</td>
+<td>User asks about an intervention from a non-trial evidence tradition</td>
+<td>How to compare evidence traditions</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Injection form:</strong> one short inline paragraph or card, with a link to the full concept. Never a modal, never blocking, never more than one concept per response.</p>
+<p><strong>Frequency capping:</strong> a concept is proactively injected at most once until the user engages with it, and never again after the literacy profile marks it as understood. Tappable labels remain available forever.</p>
+<h2 id="the-literacy-profile">The literacy profile<a class="headerlink" href="#the-literacy-profile" title="Permanent link">&para;</a></h2>
+<p>Per-user record of epistemic fluency — what makes the layer self-retiring.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>concept_id</code></td>
+<td>Which concept</td>
+</tr>
+<tr>
+<td><code>state</code></td>
+<td><code>unseen</code> / <code>injected</code> / <code>read</code> / <code>quiz_passed</code> / <code>dismissed</code></td>
+</tr>
+<tr>
+<td><code>last_surfaced</code></td>
+<td>For frequency capping</td>
+</tr>
+<tr>
+<td><code>dismissed_reason</code></td>
+<td>Optional: "I know this" is a valid, respected answer</td>
+</tr>
+</tbody>
+</table>
+<p>"Dismissed" is honored: a user who says they know the material is treated as fluent. The profile lives in the <code>ayuos</code> schema (<a href="../storage/">storage</a>) and is never used for anything but injection decisions — it is not a score, never shown as a grade, and never gates functionality.</p>
+<h2 id="the-comparison-frame">The comparison frame<a class="headerlink" href="#the-comparison-frame" title="Permanent link">&para;</a></h2>
+<p>When the user weighs interventions — or asks "what should I do?" — options render on the <strong>same fixed axes</strong>, whatever their provenance:</p>
+<table>
+<thead>
+<tr>
+<th>Axis</th>
+<th>NMN 500mg/day (example)</th>
+<th>Post-meal walks (example)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Evidence strength</td>
+<td><code>LOW</code> — animal + short human trials on surrogate markers</td>
+<td><code>HIGH</code> — consistent RCT + meta-analysis on glucose response</td>
+</tr>
+<tr>
+<td>Expected effect</td>
+<td>Unknown on outcomes that matter</td>
+<td>Moderate, well-quantified</td>
+</tr>
+<tr>
+<td>Certainty</td>
+<td>Low — long-term effects unstudied</td>
+<td>High</td>
+</tr>
+<tr>
+<td>Cost</td>
+<td>~$80/mo</td>
+<td>Free</td>
+</tr>
+<tr>
+<td>Risk</td>
+<td>Long-term unknowns</td>
+<td>Essentially none</td>
+</tr>
+<tr>
+<td>Reversibility</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Effort</td>
+<td>Trivial</td>
+<td>Daily habit</td>
+</tr>
+</tbody>
+</table>
+<p>The system fills in the cells and stops. It does not rank, recommend, or editorialize. A user who reads that table has learned the comparison <em>method</em> — evidence strength, effect size, cost, risk are separate questions — without being told what to choose. This is the primary vehicle for the "likelihood of working" education, and it is deliberately structural rather than verbal.</p>
+<p>Alternative-medicine options enter the same frame — same axes, no separate category. Honesty cuts both ways: <em>absence</em> of evidence is labeled distinctly from <em>negative</em> evidence, and where placebo-arm effects are large, that is stated as a real quantified effect, not a dismissal.</p>
+<h2 id="the-preference-model-simplify-this-for-me">The preference model ("simplify this for me")<a class="headerlink" href="#the-preference-model-simplify-this-for-me" title="Permanent link">&para;</a></h2>
+<p>When — and only when — the user asks ayuOS to simplify, the multi-axis frame collapses into a ranking via an explicit preference profile:</p>
+<table>
+<thead>
+<tr>
+<th>Preference</th>
+<th>Elicited as</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Risk tolerance</td>
+<td>Willingness to try things with long-term unknowns</td>
+</tr>
+<tr>
+<td>Budget sensitivity</td>
+<td>What monthly spend is trivial vs. meaningful</td>
+</tr>
+<tr>
+<td>Time horizon</td>
+<td>Optimizing for this year vs. decades</td>
+</tr>
+<tr>
+<td>Effort budget</td>
+<td>Appetite for habits vs. pills</td>
+</tr>
+<tr>
+<td>Experiment appetite</td>
+<td>Enthusiasm for self-testing vs. wanting settled answers</td>
+</tr>
+</tbody>
+</table>
+<p>Rules:</p>
+<ul>
+<li><strong>Elicited conversationally at first use</strong>, a few questions in context — not a settings form, not an onboarding survey. Refined over time from choices the user actually makes (with consent).</li>
+<li><strong>The ranking always shows its work:</strong> "Walking ranked first because you weighted certainty and cost highly; NMN ranked lower on long-term unknowns, which you said you're cautious about." The transparency is itself education.</li>
+<li><strong>Preferences are user-visible and editable</strong> — a stored object in the <code>ayuos</code> schema, not an inferred shadow profile.</li>
+</ul>
+<h2 id="quizzes-as-calibration-games">Quizzes as calibration games<a class="headerlink" href="#quizzes-as-calibration-games" title="Permanent link">&para;</a></h2>
+<p>Quizzes exist, but as <strong>prediction-and-reveal calibration games</strong>, not comprehension tests:</p>
+<ul>
+<li>"Which of these two interventions has stronger evidence?" → reveal, with the reasoning.</li>
+<li>"Estimate the effect of X on Y" → reveal the actual trial data.</li>
+<li>"This study found a big effect. What would you want to know before acting on it?" → reveal the checklist.</li>
+</ul>
+<p>Prediction-first is more fun than multiple choice, directly trains the judgment skill (not recall), and feeds the <a href="#the-literacy-profile">literacy profile</a>. Games are always optional, linked from concept cards and the entry write-up — never pushed into the chat flow.</p>
+<h2 id="the-entry-write-up">The entry write-up<a class="headerlink" href="#the-entry-write-up" title="Permanent link">&para;</a></h2>
+<p>One short document — <em>"How to think about your health with imperfect data"</em> — serves as the front door: the ~5-minute version of the whole epistemic stance, linking out to every concept and its quiz. It is linked from the first session, from concept cards, and from the docs — but it is never a gate. A user who skips it entirely still gets the full just-in-time experience; the write-up exists for the users who <em>want</em> the overview up front.</p>
+<h2 id="regulatory-posture">Regulatory posture<a class="headerlink" href="#regulatory-posture" title="Permanent link">&para;</a></h2>
+<p>This component strengthens the wellness-information positioning: a system that teaches evidence appraisal, renders neutral comparisons, and leaves every choice with the user is materially harder to construe as giving medical advice than one that recommends. The non-prescriptive constraint is load-bearing for <a href="../governance/">governance</a>, not just philosophy.</p>
+<h2 id="relationship-to-other-components">Relationship to other components<a class="headerlink" href="#relationship-to-other-components" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../evidence/">Evidence &amp; Hypotheses</a> — supplies the labels that serve as injection points; concepts explain the ladder. Directly addresses evidence.md's open question about the confident-but-wrong failure mode: an eloquent <code>EVIDENCE: NONE</code> hypothesis triggers the relevant concept.</li>
+<li><a href="../agent-loop/">Agent Loop</a> — executes the injection policy; concept summaries and comparison frames are rendered in responses.</li>
+<li><a href="../experimentation/">Experimentation &amp; Validation</a> — the n-of-1 concept cluster teaches the methodology that component enforces; its honesty guardrails and this component are two halves of the same stance.</li>
+<li><a href="../frontend/">Frontend &amp; UI</a> — tappable evidence labels, concept cards, the comparison view, quiz surface.</li>
+<li><a href="../storage/">Storage</a> — concept library, literacy profile, and preference profile live in the <code>ayuos</code> schema.</li>
+<li><a href="../governance/">Governance &amp; Stewardship</a> — editorial review of concept content; the non-prescriptive constraint.</li>
+</ul>
+<h2 id="open-questions">Open questions<a class="headerlink" href="#open-questions" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] Who authors and medically reviews concept content? This is editorial liability adjacent to medical advice — does it need clinician review, and under what process?</li>
+<li>[ ] Final concept list — is ~25 right, and which cautionary cases make the cut?</li>
+<li>[ ] Trigger conditions: how are "known trap" patterns (regression to the mean, multi-intervention confounding) detected reliably enough to inject without false positives?</li>
+<li>[ ] How does the preference elicitation stay conversational without becoming a de-facto onboarding survey on first use?</li>
+<li>[x] ~~Do comparison-frame cell values come from the curated intervention library, or can the agent synthesize them?~~ <strong>Resolved:</strong> cells come from <a href="../healthspan-model/">The Healthspan Model</a> — authored, cited, clinically reviewed. No cited edge, no cell; synthesis is not permitted.</li>
+<li>[ ] Quiz content format — hand-authored with the concepts, or partially generated and reviewed?</li>
+<li>[ ] Should the literacy profile inform the <em>voice</em> of ordinary responses (more/less explanatory), beyond injection decisions?</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
