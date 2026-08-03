@@ -28,7 +28,7 @@ It's organized into sections, shown in the left navigation:
 - **Storage & AI** — [Storage](storage.md), [AI & ML Layer](ai-ml.md), [Model Providers](model-providers.md), [Agent Loop](agent-loop.md), [Evidence & Hypotheses](evidence.md)
 - **Healthspan & Health Literacy** — [The Healthspan Model](healthspan-model.md), [Health Literacy & Epistemics](epistemics.md), [Experimentation & Validation](experimentation.md)
 - **Transparency, Privacy & Sharing** — [AI Transparency](ai-transparency.md), [PII Gateway](pii-gateway.md), [Security & Privacy](security.md), [Data Sharing & Consent](sharing.md)
-- **Product & Delivery** — [Frontend & UI](frontend.md), [Deployment](deployment.md), [Federated Analytics](federation.md)
+- **Product & Delivery** — [Frontend & UI](frontend.md), [Design System & UX](design-system.md), [Deployment](deployment.md), [Federated Analytics](federation.md)
 - **Governance** — [Governance & Stewardship](governance.md), [External Dependencies](external-deps.md)
 - **Service Evaluations** — [the per-option analysis](evaluations/index.md) behind the decisions
 

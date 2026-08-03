@@ -80,6 +80,7 @@ nav:
     - Data Sharing & Consent: sharing.md
   - Product & Delivery:
     - Frontend & UI: frontend.md
+    - Design System & UX: design-system.md
     - Deployment & Infrastructure: deployment.md
     - Federated Analytics: federation.md
   - Governance:
