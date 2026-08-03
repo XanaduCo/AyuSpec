@@ -15,6 +15,7 @@ superseded reasoning is preserved inside it, since the reasoning is the point.
 |---|---|---|
 | [0001](0001-ehr-ingestion.md) | EHR ingestion strategy | Accepted |
 | [0002](0002-clinical-data-store.md) | ayuOS owns its database; FHIR is a boundary format | Accepted |
+| [0003](0003-embedded-vs-server-database.md) | Embedded (SQLite) vs. server (Postgres) for the store | Accepted |
 
 ## Related
 

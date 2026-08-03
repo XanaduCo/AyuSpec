@@ -33,6 +33,14 @@ libraries](../evaluations/roll-your-own.md#the-finding-that-changed-the-cost-est
 Apache-2.0, zero runtime dependencies, no server — for the FHIRPath engine, the
 SearchParameter registry, write-time index extraction, and resource validation.
 
+!!! note "Engine choice examined separately — ADR-0003"
+    "One Postgres instance" was reaffirmed against an embedded SQLite alternative in
+    [ADR-0003](0003-embedded-vs-server-database.md) (Accepted). SQLite is viable for a single
+    user — per-second HR included — but is rejected to avoid a two-backend maintenance tax and
+    to keep one engine that also serves the managed tier. Consequence for schema design:
+    **keep it portable** — isolate Postgres-only features (partitioning, `pgvector`) behind the
+    data-access layer — so an embedded profile stays a cheap future option.
+
 ## The evidence that decided it
 
 The question was scoped by asking what the agent actually has to answer, rather than which
@@ -69,7 +77,7 @@ FHIR resources is wrong for most of it.
 | **High-frequency wearable samples** (continuous HR, per-second streams) | Narrow time-series table, partitioned | See volume analysis below |
 | **Daily/aggregate wearable metrics** | Same time-series table, coarser grain | Cheap to co-locate |
 | **Documents, notes, imaging, genomes** | Blob on disk + `pgvector` embeddings | Content is not relational |
-| **Application objects** (goals, hypotheses, experiments, plans) | Native relational tables | No honest FHIR representation; see [ADR-0002 §app objects](#application-objects-are-now-first-class) |
+| **Application objects** (goals, hypotheses, experiments, plans) | Native relational tables | No honest FHIR representation — these are ayuOS concepts, not clinical ones |
 
 ### The wearable volume argument
 

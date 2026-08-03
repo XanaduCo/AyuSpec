@@ -3,3 +3,12 @@ open-wearables/
 ayuOS-business.md
 prototype/app/index.html
 docs/healthspan-explorer/
+
+# Local review state (your personal comment queue). The tooling is committed;
+# the queue itself is not. Un-ignore if you want to keep a review audit trail.
+review/todos.json
+review/todos.json.tmp
+
+# Claude Code local state (personal); the skills/ dir is committed.
+.claude/settings.local.json
+.claude/scheduled_tasks.lock

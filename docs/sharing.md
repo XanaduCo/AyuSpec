@@ -60,18 +60,21 @@ Revocation is meaningful only for hosted/link-based delivery (see below). A file
 | **Structured summary** | Markdown/PDF human-readable brief | None — local file |
 | **Time-boxed share link** | Hosted endpoint serving the sliver to a recipient | **Transits ayuOS Cloud** — opt-in, cloud tier only |
 
-## Relationship to zero-egress
+## Relationship to egress posture
 
-Critical design constraint: in the **self-hosted default**, sharing is producing an artifact **locally** that the user then transmits by whatever channel they choose. ayuOS makes no network call to share a sliver — consistent with the [zero-egress guarantee](security.md).
+Critical design constraint: **the default sharing mechanism produces a file, not a network call.** In the self-hosted default, a sliver is an artifact generated locally that the user then transmits by whatever channel they choose. ayuOS makes no outbound call to share it, consistent with the [egress posture](security.md#egress-posture-is-a-configuration-not-a-fixed-property) of that configuration.
 
-Any hosted "share link" mechanism (where a recipient fetches the sliver from an ayuOS-operated endpoint) necessarily transits the cloud and is therefore **cloud-tier only, opt-in, and disclosed** — never available or implied in the self-hosted zero-egress path.
+The hosted "share link" — where a recipient fetches the sliver from an ayuOS-operated endpoint — necessarily transits the cloud and is therefore **opt-in, disclosed, and cloud-tier only**. It is never implied or silently available in the self-hosted path.
+
+Both paths produce the same sliver content. The link tier buys delivery convenience and revocability; it does not unlock a richer export. A self-hosted user gives up nothing but the hosting — which is the [general rule across tiers](tiers.md#what-every-tier-shares).
 
 ## Relationship to other components
 
 - [Agent Loop](agent-loop.md) — `generate_doctor_packet` is the first, coarsest sliver generator; slivers generalize it.
 - [Frontend & UI](frontend.md) — the sliver composer (pick scope, preview, confirm) lives here.
 - [PII Gateway](pii-gateway.md) — a sliver delivered via a cloud link is a cloud egress and must pass the gateway.
-- [Security & Privacy](security.md) — consent log and zero-egress guarantees.
+- [Security & Privacy](security.md) — consent log and per-tier egress posture.
+- [Tiers & Fallbacks](tiers.md) — why the hosted link tier exists and what it falls back to.
 
 ## Open questions
 

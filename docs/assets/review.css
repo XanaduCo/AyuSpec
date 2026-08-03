@@ -1,0 +1,103 @@
+/* ayuOS review overlay — injected only on localhost (see review.js guard). */
+
+.ayu-cbtn {
+  position: absolute;
+  z-index: 10000;
+  transform: translate(-50%, -120%);
+  background: #0f766e;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font: 600 12px/1 -apple-system, system-ui, sans-serif;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+.ayu-cbtn:hover { background: #0d5f58; }
+
+/* Composer popover */
+.ayu-pop {
+  position: absolute;
+  z-index: 10001;
+  width: 320px;
+  background: var(--md-default-bg-color, #fff);
+  color: var(--md-default-fg-color, #111);
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+  padding: 12px;
+  font: 13px/1.45 -apple-system, system-ui, sans-serif;
+}
+.ayu-pop .ayu-where { font-size: 11px; opacity: 0.65; margin-bottom: 8px; }
+.ayu-pop .ayu-quote {
+  border-left: 3px solid #0f766e;
+  padding-left: 8px; margin-bottom: 8px;
+  font-style: italic; opacity: 0.8;
+  max-height: 60px; overflow: auto;
+}
+.ayu-pop textarea {
+  width: 100%; box-sizing: border-box; min-height: 68px; resize: vertical;
+  border: 1px solid rgba(128, 128, 128, 0.4); border-radius: 8px;
+  padding: 8px; font: inherit; background: transparent; color: inherit;
+}
+.ayu-pop .ayu-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+.ayu-pop button {
+  border: none; border-radius: 8px; padding: 6px 12px;
+  font: 600 12px/1 inherit; cursor: pointer;
+}
+.ayu-pop .ayu-save { background: #0f766e; color: #fff; }
+.ayu-pop .ayu-save:disabled { opacity: 0.5; cursor: default; }
+.ayu-pop .ayu-cancel { background: rgba(128, 128, 128, 0.2); color: inherit; }
+
+/* Heading pins */
+.ayu-pin {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 20px; height: 20px; padding: 0 5px; margin-left: 8px;
+  border-radius: 10px; font: 700 11px/1 -apple-system, system-ui, sans-serif;
+  vertical-align: middle; cursor: pointer; user-select: none;
+  border: 1px solid transparent;
+}
+.ayu-pin[data-state="open"] { background: #f59e0b22; color: #b45309; border-color: #f59e0b55; }
+.ayu-pin[data-state="in_progress"] { background: #3b82f622; color: #1d4ed8; border-color: #3b82f655; }
+.ayu-pin[data-state="done"] { background: #22c55e22; color: #15803d; border-color: #22c55e55; }
+.ayu-pin[data-state="mixed"] { background: #a855f722; color: #7e22ce; border-color: #a855f755; }
+
+/* Floating panel */
+.ayu-fab {
+  position: fixed; right: 20px; bottom: 20px; z-index: 10000;
+  background: #0f766e; color: #fff; border: none;
+  border-radius: 999px; padding: 10px 16px;
+  font: 600 13px/1 -apple-system, system-ui, sans-serif;
+  cursor: pointer; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+.ayu-panel {
+  position: fixed; right: 20px; bottom: 68px; z-index: 10000;
+  width: 340px; max-height: 60vh; overflow: auto;
+  background: var(--md-default-bg-color, #fff); color: var(--md-default-fg-color, #111);
+  border: 1px solid rgba(128, 128, 128, 0.3); border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+  padding: 12px; font: 13px/1.45 -apple-system, system-ui, sans-serif;
+  display: none;
+}
+.ayu-panel.open { display: block; }
+.ayu-panel h4 { margin: 0 0 10px; font-size: 13px; }
+.ayu-panel .ayu-row { border-top: 1px solid rgba(128,128,128,0.2); padding: 8px 0; }
+.ayu-panel .ayu-row:first-of-type { border-top: none; }
+.ayu-panel .ayu-badge {
+  font: 700 10px/1 inherit; text-transform: uppercase; letter-spacing: 0.04em;
+  padding: 2px 6px; border-radius: 5px; margin-right: 6px;
+}
+.ayu-badge[data-state="open"] { background: #f59e0b22; color: #b45309; }
+.ayu-badge[data-state="in_progress"] { background: #3b82f622; color: #1d4ed8; }
+.ayu-badge[data-state="done"] { background: #22c55e22; color: #15803d; }
+.ayu-badge[data-state="wontfix"] { background: #6b728022; color: #4b5563; }
+.ayu-badge[data-state="closed"] { background: #6b728022; color: #4b5563; }
+.ayu-panel .ayu-x {
+  float: right; margin-left: 8px; border: none; background: transparent; color: inherit;
+  cursor: pointer; font-size: 13px; line-height: 1; opacity: 0.45; padding: 0 2px;
+}
+.ayu-panel .ayu-x:hover { opacity: 1; }
+.ayu-panel .ayu-sec { font-size: 11px; opacity: 0.6; }
+.ayu-panel .ayu-res { margin-top: 4px; font-size: 12px; background: #22c55e14; border-radius: 6px; padding: 5px 7px; }
+.ayu-panel .ayu-dash { display: block; margin-top: 10px; font-size: 12px; opacity: 0.75; }
+.ayu-off { opacity: 0.55; }

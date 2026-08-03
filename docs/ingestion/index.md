@@ -13,9 +13,16 @@ The ingestion layer pulls health data from every source and writes it into the s
 | [Imaging (DICOM)](imaging.md) | MRI, CT, X-ray | pydicom parse + OHIF viewer + MedGemma vision | P1 |
 | [Genomics](genomics.md) | 23andMe, VCF | Raw file parse + PRS | P1 |
 
+## Connection tiers
+
+Each source is reachable either **directly** — the data goes from the source to the user's store with no intermediary holding it — or through a **bridge**, where a paid vendor retrieves it and the install pulls it down afterward. Bridges exist only where the direct path is closed to individuals: Garmin and Dexcom require developer agreements, and non-Epic health systems require a connector catalogue we have deliberately chosen not to own.
+
+Every bridged tier is opt-in per provider, discloses that records transit the vendor, and falls back to the direct tier if it goes away — costing coverage breadth, never the system or the stored history. See [Tiers & Fallbacks](../tiers.md#axis-3-connections).
+
 ## Design principles
 
 - **Pull, don't push.** Connectors run on a user-configured schedule or on-demand. No always-on daemon required.
+- **Adapters, never interfaces.** No external service is ever the ingestion interface itself. Epic, the Apple Health parser, and Fasten Connect are three implementations behind one interface — the direct lesson of Fasten Onprem being archived mid-project ([ADR-0001](../adr/0001-ehr-ingestion.md)).
 - **Fail loudly, degrade gracefully.** A broken connector logs an error and skips; it does not block the agent from answering questions over what's already stored.
 - **Deduplication is the connector's job.** Every ingested resource carries a `content_hash` plus `(source, source_resource_id)` provenance, so re-running a connector does not create duplicates. This matters concretely: Apple Health exports are cumulative full dumps, re-imported wholesale each time. See [Storage](../storage.md#idempotency-and-provenance).
 - **FHIR first.** Everything that can be expressed as FHIR R4 is. Time-series observations (wearable metrics) land as `Observation` resources with LOINC codes where available.

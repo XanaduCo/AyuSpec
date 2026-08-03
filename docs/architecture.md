@@ -93,22 +93,37 @@ see [ADR-0001](adr/0001-ehr-ingestion.md).
 
 ### 2. PII gateway (trust boundary)
 
-All model calls — whether to a local Ollama instance or to a cloud API — pass through the PII gateway. For local providers, the gateway is a no-op passthrough. For cloud providers, stripping is applied unconditionally before the prompt leaves the machine. There is no way to send data to a cloud model without it passing through the gateway first.
+All model calls — whether to a local Ollama instance or to a cloud API — pass through the PII
+gateway. This is the system's **single egress chokepoint**: no provider client holds its own
+network transport, so there is no path around it. For local providers the gateway is a no-op
+passthrough; for cloud providers, stripping is applied unconditionally before the prompt leaves
+the machine.
+
+The gateway is also where the [call ledger](ai-transparency.md#3-call-ledger) is written, which
+is why every call is recorded and not just the cloud ones. A call that somehow reached the
+network without passing through would produce no ledger row — and a row-less connection is
+detectable by the user with a proxy, which is what makes the claim checkable rather than
+merely asserted.
 
 ### 3. Data residency boundary (Terra Bridge · Fasten Connect)
 
 Two optional paid add-ons route data through a third party before it lands locally:
 **Terra Bridge** for gated wearable providers, and **Fasten Connect** for EHR breadth beyond
 Epic. Both must be enabled **per provider with explicit user consent**, and neither is ever on
-by default. Everything else in the system is zero-egress.
+by default.
+
+Each is an *adapter* behind the ingestion interface, never the interface itself — so
+withdrawing one costs breadth of coverage, not the system. Records already ingested through a
+bridge remain in the local store regardless of what happens to the vendor. See
+[Tiers & Fallbacks](tiers.md#the-fallback-guarantee).
 
 ## Data flow
 
 1. **Ingestion** — sources push/pull into the ingestion layer on a schedule or on-demand. Adapters write FHIR resources into the `clinical` schema and device metrics into `timeseries`, each carrying a content hash and source provenance so re-runs are idempotent.
 2. **Normalization** — clinical resources are stored as received, with index columns extracted via `@medplum/core`. A crosswalk layer handles LOINC/SNOMED/RxNorm deduplication across sources.
 3. **Embedding** — Relevant FHIR resources and time-series observations are embedded and stored in pgvector for retrieval.
-4. **Query** — User asks a question. The agent loop retrieves relevant context via RAG, routes sub-tasks to the appropriate model (R1 for reasoning, Qwen for tool use, MedGemma for medical extraction), assembles a response with evidence labels, and returns it to the frontend.
-5. **Escalation (opt-in)** — For hard questions, the user can toggle cloud escalation. The PII gateway strips the payload; the user previews and confirms; the stripped context goes to a cloud LLM; the response is logged in the audit trail.
+4. **Query** — User asks a question. The agent loop retrieves relevant context via RAG, routes sub-tasks to the appropriate model role (reasoner, tool-caller, medical extractor), assembles a response with evidence labels, and returns it to the frontend.
+5. **Model dispatch** — Each role's call goes through the PII gateway to that role's configured provider. Local providers: no-op strip, direct call. Cloud providers: unconditional strip, then the role's [review gate](ai-transparency.md#2-pre-send-review), then send. Every call, either way, is appended to the local ledger with its full payload.
 
 ## Technology choices
 

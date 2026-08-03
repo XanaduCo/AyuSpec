@@ -2,11 +2,32 @@
 
 ## Purpose
 
-The PII gateway sits between the local agent and any outbound network call. Its job is to make it impossible — not just unlikely — to accidentally send identifying health data to a cloud service.
+The PII gateway sits between the agent and any outbound model call. It guarantees that no cloud-bound call escapes de-identification and review — the chokepoint is structural, with no code path around it. It does *not* promise perfect redaction: the local NER and regex stripping is best-effort and carries a measurable miss rate (see [open questions](#open-questions)). So the honest split is this — what is *impossible* is reaching a cloud service without passing through the gateway; what the gateway then makes *less likely*, not impossible, is an individual identifier surviving the strip.
 
 ## When it activates
 
-The gateway activates **only** when the user explicitly toggles cloud escalation for a specific query. In the default configuration (no escalation), the gateway is never called and no network connection is made.
+**Every model call passes through the gateway**, including local ones. It is the single egress chokepoint: no provider client holds its own network transport, so there is no path around it. This is what makes the guarantee structural rather than procedural — see [where enforcement lives](ai-transparency.md#where-enforcement-lives).
+
+What the gateway *does* depends on the destination:
+
+| Destination | Gateway behaviour |
+|---|---|
+| **Local** — Ollama, local-network endpoint | No-op passthrough. Nothing is stripped; the call is still written to the [ledger](ai-transparency.md#3-call-ledger). |
+| **Cloud** — any configured cloud provider | Stripping applied **unconditionally**, then the [review gate](#the-review-gate) for that role, then send. |
+
+Stripping for cloud destinations cannot be disabled or overridden per prompt. The user sets their risk posture by configuring which roles use a cloud provider ([Model Providers](model-providers.md)); the gateway then enforces that posture on every call without further discretion.
+
+## The review gate
+
+Stripping is unconditional; *being asked to confirm each send* is not — a standing cloud reasoner would be unusable if it prompted on every query. The review mode is configured per role:
+
+| Mode | Behaviour |
+|---|---|
+| `every_call` | Preview and explicit confirmation before every send. **Default** when a cloud provider is first configured for a role. |
+| `new_shape` | Confirm once per distinct payload shape; structurally identical sends proceed without prompting. |
+| `off` | Standing consent, no prompt. Cannot be selected until the user has seen at least one full preview for that role. |
+
+No mode suppresses the ledger entry. Full detail and rationale: [AI Transparency](ai-transparency.md#2-pre-send-review).
 
 ## What it strips
 
@@ -30,55 +51,38 @@ Absolute dates are shifted by a fixed random offset (e.g., ±180 days) applied c
 
 ## User preview
 
-Before any payload is sent to a cloud service, the user sees:
+Whenever the review gate prompts, the user sees:
 
-1. The stripped payload in full
-2. A diff view showing what was removed or masked
-3. A confirmation button
+1. The stripped payload in full, verbatim as it will be transmitted
+2. A diff view showing what was removed or masked, in place
+3. The destination — provider, model, API hostname
+4. What was withheld entirely under [hard exclusions](#hard-exclusions), so the answer's blind spots are visible rather than silent
+5. Token count and estimated cost
+6. A confirmation button
 
-The payload is sent only after explicit confirmation. There is no "remember this choice" option — every escalation requires a confirmation.
+## Cloud provider configuration
 
-## Cloud LLM configuration
-
-The user configures their preferred cloud LLM via environment variables or a local config file:
-
-```yaml
-cloud_escalation:
-  provider: anthropic   # or openai
-  model: claude-opus-4-8  # user's choice
-  api_key: $ANTHROPIC_API_KEY
-```
-
-The API key is stored in the local config (not in the database). It is never logged.
+Cloud providers are configured **per model role**, not as a single global escalation setting — see [Model Providers](model-providers.md) for the `config.toml` schema. API keys live in the macOS Keychain (or an env var for headless installs), never in the database, and are never logged.
 
 ## Audit trail
 
-Every cloud escalation is logged:
-
-```json
-{
-  "timestamp": "2025-03-14T10:23:00Z",
-  "provider": "anthropic",
-  "model": "claude-opus-4-8",
-  "payload_hash": "sha256:abc123...",
-  "payload_token_count": 2847,
-  "user_confirmed": true,
-  "response_token_count": 512
-}
-```
-
-The payload itself is not logged — only the hash. The user can re-derive whether a specific payload was sent by hashing it locally.
+Every model call is written to the local, append-only ledger — cloud and local alike, with the full request and response retained rather than hashed. Schema, retention policy, and the reasoning behind retaining payloads instead of hashes: [AI Transparency](ai-transparency.md#3-call-ledger).
 
 ## Hard exclusions
 
-Regardless of user settings, these are **never** sent to a cloud service:
+Regardless of user settings, review mode, or tier, these are **never** sent to a cloud model:
 
 - Genomic data (`MolecularSequence`, PRS scores, raw variant data)
 - Imaging pixel data (DICOM files)
 - Raw source documents (original PDFs, Apple Health export files)
 
+These are excluded rather than stripped because stripping cannot make them safe. A genome is itself an identifier — it uniquely fingerprints the person and their blood relatives, so masking a name changes nothing. Imaging pixel data and raw source documents are not the clean, extracted text the [stripper](#what-it-strips) operates on: they carry unbounded, unpredictable identifiers — burned-in DICOM tags, scanned letterheads, export metadata — that local NER and regex cannot be trusted to catch. For everything the gateway strips, masking is sufficient; for these three, only exclusion is. The value they'd add to a text prompt is also low: a cloud reasoner works from the *extracted* findings (variants of interest, a radiologist's impression, parsed lab values), which flow through the normal stripping path, not from the raw artifact.
+
+When an exclusion drops content that was relevant to the query, the user is told — in the preview if one is shown, and in the ledger entry regardless. A silently narrowed answer is worse than a disclosed one.
+
 ## Open questions
 
 - [ ] Which local NER model? Options: spaCy with en_core_sci_md, a local Ollama model prompted for NER, or a custom fine-tuned model.
+- [ ] Recall measurement: what is the acceptable miss rate for the stripper, and how is it measured against a labelled corpus before the gateway is trusted in `off` review mode?
 - [ ] Date shifting: per-session or per-user? Per-session is simpler but loses cross-session date consistency.
 - [ ] Should the gateway support an "export mode" for users who want to share data with a doctor? (i.e., strip for a human recipient, not a cloud LLM)

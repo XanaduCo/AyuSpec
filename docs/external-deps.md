@@ -2,6 +2,13 @@
 
 Start the **hard/slow** approvals at week 1, even if you won't use them for months. They have lead time; they are not on the MVP critical path, but they gate later milestones.
 
+!!! abstract "Every external dependency has a fallback"
+    No item on this page is load-bearing for the system as a whole. Each one unlocks a
+    [tier](tiers.md) — breadth, capability, or convenience — and each degrades to a free path
+    that works without it. Losing one costs coverage, not the product. This is enforced
+    architecturally: external services are adapters behind our interfaces, never the interfaces
+    themselves. See [the fallback guarantee](tiers.md#the-fallback-guarantee).
+
 ## By difficulty
 
 ### Instant (do at start)
@@ -10,7 +17,7 @@ Start the **hard/slow** approvals at week 1, even if you won't use them for mont
 |---|---|---|
 | Hugging Face account + MedGemma license | MedGemma weights | Accept Health AI Dev Foundations license at hf.co |
 | Oura Personal Access Token | Oura wearable data | Generate in Oura developer settings |
-| Cloud LLM API key (Anthropic or OpenAI) | Cloud escalation | Sign up + add billing |
+| Cloud LLM API key (Anthropic or OpenAI) | Optional cloud inference tier; local models need none | Sign up + add billing |
 | PubMed E-utilities API key | Optional; works keyless at lower rate limit | Sign up at NCBI |
 
 ### Self-serve (days)
@@ -55,7 +62,7 @@ Week 1 (start immediately, even if not needed yet)
   ├── Register Epic app for SANDBOX only (free, instant — do NOT mark production yet)
   └── Enroll Apple Developer Program (if live HealthKit is wanted at P1)
 
-Milestone 3 (cloud escalation)
+Milestone 3 (cloud inference tier — optional)
   └── Obtain cloud LLM API key (instant)
 
 Milestone 7 (EHR direct sync — Tier 2)

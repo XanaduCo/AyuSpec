@@ -1,7 +1,7 @@
 # The Healthspan Model
 
 !!! note "Status: draft"
-    Structure is decided (typed graph, tree-shaped navigation, modifier resolution). Content authoring, coverage targets, and clinical review process are open. See [Open questions](#open-questions).
+    Structure is decided (typed graph, hierarchical navigation, modifier resolution). Content authoring, coverage targets, and clinical review process are open. See [Open questions](#open-questions).
 
 ## Overview
 
@@ -9,13 +9,13 @@ The healthspan model is ayuOS's **bundled knowledge graph of the body**: every s
 
 It is the substrate that makes the rest of the system concrete. [Evidence & Hypotheses](evidence.md) needs a curated intervention library to form hypotheses from; [Health Literacy & Epistemics](epistemics.md) needs real cells to fill its comparison frames with; [Experimentation](experimentation.md) needs to know which marker is worth measuring and how noisy it is. All three currently hand-wave that content. This is it.
 
-**Framing: healthspan, not lifespan.** The organizing question for every node is *what preserves function*, not *what extends survival*. A recommendation earns its place by protecting the capacity to do things — walk up stairs at 80, think clearly, sleep, see, digest, recover.
+**Framing: long-term optimization, not acute treatment.** Healthspan and lifespan aren't opposed — preserving function usually extends survival too; the distinction that matters is *time horizon*. Every node is organized around what compounds function over decades, not what resolves an acute complaint today. A recommendation earns its place by protecting the capacity to do things — walk up stairs at 80, think clearly, sleep, see, digest, recover.
 
-### Not a tree — a graph with tree-shaped navigation
+### A typed graph, navigated hierarchically
 
-The instinct is a large tree. The content isn't shaped like one: walking serves cardiovascular *and* metabolic *and* musculoskeletal *and* neurocognitive function; chronic back pain modifies running, rucking, rowing, and deadlifts across three different branches. Modelled as a tree, every shared node gets duplicated into each branch and the copies drift apart — the classic failure of health-content taxonomies.
+Interventions, markers, and modifiers are shared across systems: walking serves cardiovascular *and* metabolic *and* musculoskeletal *and* neurocognitive function; chronic back pain reshapes running, rucking, rowing, and deadlifts all at once. So each of these is **one canonical node with typed edges to every system it touches** — a shared node has a single definition, reached from many places, rather than a separate copy wherever it appears.
 
-So: **the body-systems hierarchy is the browsing spine** (it is what the user sees and navigates), but the underlying structure is a typed graph. One canonical node per intervention, per marker, per modifier — reached from every system it serves.
+**The body-systems hierarchy is the browsing spine** — what the user sees and navigates — but it is a view over the graph, not the structure itself. One canonical node per intervention, per marker, per modifier, reached from every system it serves.
 
 ## Node types
 

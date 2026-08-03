@@ -35,7 +35,7 @@ There is an explicit governance firewall between ayuOS and any commercial use by
 
 - Federated gradients are published to an open research commons, not to any private entity
 - Any linkage between ayuOS participation and commercial projects requires a separate, explicit, prominently-disclosed opt-in — never bundled with general ayuOS consent
-- The ayuOS core is **AGPL-3.0**, so any derivative that offers federated aggregation as a network service must publish its source. Note this is a copyleft obligation on *code*, not a restriction on commercial use — the protection against private capture comes from the licence plus the consent and governance rules above, not from a commercial-use ban.
+- The ayuOS core is **MIT**, which places no obligation on a derivative that offers federated aggregation as a network service. The protection against private capture therefore comes entirely from the consent and governance rules above — **the licence contributes nothing here.** This is a deliberate trade ([why MIT](governance.md#why-mit)), and it makes the consent model the only real control: a fork could run its own aggregation under its own rules, so what protects users is that *their* node never contributes without explicit opt-in, not that a forker is forbidden from asking.
 
 ## Why this is weaker than it sounds
 

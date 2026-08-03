@@ -4,7 +4,7 @@
 
 ayuOS is an open-source personal health agent built on an open-core commercial model. The goal is to aggregate every signal about a person's health — wearables, EHR records, labs, genomics, imaging — into a single unified store and run AI-powered reasoning over it.
 
-**Self-hosted (free, AGPL-3.0):** Full local operation. Data never leaves the machine by default. Zero-egress is architectural: there is no network call to make. This is the sovereignty tier — the code is auditable, the user controls everything.
+**Self-hosted (free, MIT):** Full local operation. Data never leaves the machine by default. Zero-egress is architectural: there is no network call to make. This is the sovereignty tier — the code is auditable, the user controls everything.
 
 **ayuOS Cloud (managed service):** For users who want the full capability without managing infrastructure. Subscription-funded; data is never sold or used for model training. The managed service is what funds ongoing development of the open-source core.
 
@@ -27,10 +27,32 @@ A person who takes their health seriously — labs every quarter, two or three w
 
 The anchor workflow: ask ayuOS "what changed in my last 90 days?" and get a grounded, evidence-labeled answer, fully offline.
 
+## How to Talk About This Project
+
+**Do not describe ayuOS as "a self-hosted project."** Self-hosting is the default and the
+strongest privacy posture, but it is a *choice*, not the product's definition. Tiering exists
+on three independent axes — deployment (self-hosted / ayuOS Cloud), inference (local /
+local-network / cloud API), and connections (direct / bridged). See `docs/tiers.md`.
+
+Three copy rules follow from that:
+
+1. **Scope every egress claim to a configuration.** "Zero-egress" is a property of the default
+   self-hosted-plus-local-inference setup, not of ayuOS generally. Say which configuration.
+2. **Always pair a tier with its fallback.** Every paid or hosted tier degrades to a free,
+   zero-transit path. Losing a tier costs breadth or convenience, never the system or the
+   stored history. This is the load-bearing promise — Fasten Onprem's archival proved it isn't
+   hypothetical.
+3. **Where the architecture can't guarantee privacy, transparency is the guarantee.** Every
+   model call — local and cloud — is disclosed before it leaves the device and permanently
+   recorded with its full payload in a locally queryable ledger. See `docs/ai-transparency.md`.
+
 ## Key Decisions Already Made
 
-- **License:** AGPL-3.0 for the core (strong copyleft, prevents commercial forks taking it private). No GPL isolation boundary — ayuOS no longer forks Fasten.
-- **Business model:** Open-core — AGPL-3.0 self-hosted tier is free forever; ayuOS Cloud managed service is subscription-funded. Data never sold in either tier.
+- **License: MIT** (changed from AGPL-3.0, 2026-08). Deliberately permissive: anyone may host, fork, customise, or commercialise ayuOS, **including in competition with us — that is the intent, not a leak.** Three bets underpin it: (1) the goal is to increase how many people control their own health data, so proliferation beats capture protection; (2) the cost of generating code trends to zero, so a codebase is a depreciating asset to defend; (3) the durable value is downstream — taking the analysis and driving low-friction healthcare. The trust claim never rested on the licence; it rests on local inference, the egress chokepoint, the call ledger, and readable source. See `docs/governance.md#why-mit`.
+  - **Consequences to hold onto:** MIT no longer *compels* the managed tier to run the unmodified core, so "same core, no feature gating" is now a governance promise needing active demonstration. And the trademark is the project's only exclusive right — register it before launch.
+  - No GPL/AGPL code in the process map (ayuOS no longer forks Fasten), which is what makes an MIT core clean. Deps are Apache-2.0 / MIT / BSD-derived. No CLA needed — inbound = outbound, DCO suffices.
+- **Business model:** Open-core — MIT self-hosted tier is free forever; ayuOS Cloud managed service is subscription-funded. Data never sold in either tier. No feature is withheld from the self-hosted tier to drive subscriptions.
+- **AI transparency (unified):** The PII gateway is the *single egress chokepoint* — every model call passes through it (no-op for local, unconditional stripping for cloud), and it writes the call ledger. Stripping is never optional; what *is* configurable is the review mode (`every_call` / `new_shape` / `off`) controlling how often the user is asked to confirm. Payloads are retained in full locally, not hashed.
 - **Storage (ADR-0002):** ayuOS owns its database — one Postgres, schemas we design (`clinical` FHIR-shaped JSONB + index columns · `timeseries` for wearables · `ayuos` app objects · `vectors`). **No FHIR server.** FHIR is an interchange format at the boundaries only. `@medplum/core` is used as a library (FHIRPath, SearchParameter registry, validation). Decided because 8 of the agent's 10 core queries are aggregations/joins/vector search that FHIR search cannot express, and high-frequency wearable data as FHIR Observations costs 20–40× the storage.
 - **Model providers:** Configurable per role (reasoner / tool-caller / medical extractor). Default: Ollama with DeepSeek-R1 distill + Qwen + MedGemma. Cloud APIs (Anthropic, OpenAI, Google) are opt-in; PII gateway always enforces before any cloud call. Local OpenAI-compatible endpoints (LM Studio, vLLM) also supported.
 - **Vector store:** Postgres 16 + pgvector
@@ -52,6 +74,8 @@ Maintainer burnout from keeping EHR/device connectors alive (vendor APIs break c
 ## Components to Spec (Working List)
 
 - Vision and user problem
+- Tiers and fallbacks (why tiering exists, per-tier cost, fallback guarantee)
+- AI transparency (status indicator, pre-send review, call ledger)
 - Architecture overview (process map, data flow)
 - Ingestion layer: wearables, Apple Health export, EHR (four tiers — see ADR-0001), lab PDFs (OCR), DICOM/imaging, genomics
 - Storage layer: Postgres schemas (clinical/timeseries/ayuos/vectors), index extraction, time-series design

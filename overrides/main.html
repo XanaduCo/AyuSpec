@@ -1,0 +1,21 @@
+{#
+  ayuOS theme override. Its only job is to expose the current page's source
+  markdown path to the review overlay (docs/assets/review.js), so a comment
+  captured in the browser knows which .md file `/loop` should edit.
+  Harmless in production — review.js self-gates to localhost + a live sidecar.
+#}
+{% extends "base.html" %}
+
+{% block content %}
+  {{ super() }}
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    window.AYU_REVIEW = {
+      src: {{ (page.file.src_path if page else "") | tojson }},
+      title: {{ (page.title | string if page else "") | tojson }}
+    };
+  </script>
+  {{ super() }}
+{% endblock %}

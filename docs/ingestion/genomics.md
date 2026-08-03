@@ -71,4 +71,4 @@ For MVP, a local static snapshot of relevant ClinVar/dbSNP entries is bundled. T
 
 ## Privacy note
 
-Genomic data is among the most sensitive data ayuOS stores. It never leaves the machine. If cloud escalation is toggled, genomic data is explicitly excluded from the payload — the PII gateway filters it regardless of the user's strip settings.
+Genomic data is among the most sensitive data ayuOS stores, and it is never sent to a cloud model — in any tier, under any configuration. This is a [hard exclusion](../pii-gateway.md#hard-exclusions) in the PII gateway, not a user setting: even with all three model roles on cloud providers and review mode `off`, genomic content is dropped from the payload rather than masked. When that exclusion narrows an answer, the user is told.

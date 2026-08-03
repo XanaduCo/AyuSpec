@@ -101,14 +101,34 @@ references servers SHALL resolve. So idempotent ingest and transaction processin
 
 ## The honest counterweight
 
+Raw size is not the same as relevant work, so the scary numbers need reading before they count against us:
+
 - Medplum's search implementation is **~5,650 lines** (`search.ts` 1,916 · `sql.ts` 1,457 ·
   `token-column.ts` 524 · `range-column.ts` 390 · lookups ~1,084) plus `repo.ts` at 2,649 for
-  CRUD/history — and they are on **schema migration v110**.
+  CRUD/history. Before treating that as the cost *we* would pay, it is worth knowing what the
+  code buys: the bulk of it implements the full general-purpose FHIR-server surface — chaining,
+  `_has`, `_include`/`_revinclude`, composite parameters, the complete modifier matrix, and
+  multi-tenant access control — **none of which ayuOS needs**, because it does not run a FHIR
+  server ([ADR-0002](../adr/0002-clinical-data-store.md)). The **schema-migration count (v110)**
+  is the same story: it measures years of full-fidelity, multi-tenant evolution, not the work to
+  index token/reference/date for one user. The number itself is not the argument — what those
+  migrations *changed* is, and until that is examined, v110 is an upper bound on the wrong scope.
 - **`wso2/fhir-server`** is a funded team building this exact design. Its own README, after
-  ~1 month, documents: `_sort` **silently ignored**, `quantity`/`uri` indexed but not
-  queryable, `sa`/`eb` "parse but fall back to `eq`", no chaining or `_has` at all.
+  ~1 month, documents where a fresh, honest effort lands: `_sort` **silently ignored**,
+  `quantity`/`uri` indexed but not queryable, `sa`/`eb` "parse but fall back to `eq`", no
+  chaining or `_has` at all — i.e. precisely the 15% itemized below, punted.
 
-The 85% version is achievable. Full fidelity is a multi-year artifact.
+**Which 85% is achievable — and which 15% is forgone.** The achievable subset is concrete:
+**token** search (all three forms), **reference** search, and a correct **date-range**
+implementation (low/high range columns + a separate sort column) — enough for the **~28 standard
+SearchParameters the anchor workflow needs**. The **15% deliberately forgone** is the
+general-server surface the counterweight code above pays for: chaining, `_has`,
+`_include`/`_revinclude`, composite parameters, full `_sort`, `quantity`/`uri` queryability, and
+the complete modifier matrix. ayuOS reaches those cases, on the rare occasion it needs them, via
+the SQL it owns — not FHIR search.
+
+The 85% version is achievable. Full fidelity is a multi-year artifact — and it is fidelity to a
+FHIR-server spec ayuOS deliberately does not implement.
 
 ## Language constraint (unexpected)
 

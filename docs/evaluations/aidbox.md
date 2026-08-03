@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Verdict** | ❌ **Disqualified** — on architecture and licence, not on capability |
+| **Verdict** | ❌ **Disqualified** — on architecture and distribution, not on capability |
 | **Role considered** | Clinical FHIR store |
 | **License** | **Proprietary**, closed source (Health Samurai) |
 | **Version at evaluation** | 2606, released 2026-07-14 |
@@ -45,10 +45,18 @@ Activation also requires an online account: the local Docker quickstart instruct
 *"Click 'Continue with Aidbox account' and create a free Aidbox account"* before the instance
 will run.
 
-### 3. Licence incompatibility, independently
+### 3. Undistributable, independently
 
-You cannot ship a proprietary, account-gated server as the storage layer of an AGPL-3.0
-self-hosted product that users are meant to run themselves.
+You cannot ship a proprietary, account-gated server as the storage layer of a product users
+are meant to run themselves. Every self-hoster would need their own Aidbox account and licence
+before ayuOS would start, and we could not bundle it in an installer.
+
+!!! note "This is no longer a *licence* argument"
+    An earlier revision framed this as incompatibility with an AGPL-3.0 core. ayuOS is now
+    [MIT-licensed](../governance.md#license), which imposes no conditions on what it is combined
+    with — so the licence objection dissolves. The substantive one does not: an account gate and
+    a phone-home heartbeat are incompatible with a store the user is supposed to own and audit,
+    whatever our own licence says. Blockers #1 and #2 were always the decisive ones.
 
 ## For the record — it is otherwise very good
 

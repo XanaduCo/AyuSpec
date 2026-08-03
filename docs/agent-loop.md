@@ -82,12 +82,11 @@ Every agent invocation creates an audit log entry:
 | `timestamp` | |
 | `query` | User's original question |
 | `tools_called` | List of tools and their arguments |
-| `model_used` | Which models were invoked |
-| `escalated_to_cloud` | Boolean |
-| `cloud_payload_hash` | SHA-256 of the stripped payload (if escalated) |
+| `model_calls` | Foreign keys into the [call ledger](ai-transparency.md#3-call-ledger) — one row per model invocation |
+| `any_left_device` | Boolean; true if any call in this query went off-device |
 | `response_length` | Token count |
 
-The audit log is append-only and stored locally.
+The audit log is append-only and stored locally. It records *what the agent did*; the call ledger records *what each model call contained* — including the full payload of every call, local or cloud. One query fans out into several ledger rows, which is why the payload detail lives there rather than being flattened into a single per-query field.
 
 ## Open questions
 

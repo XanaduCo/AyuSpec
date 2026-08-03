@@ -5,7 +5,7 @@
 | **Verdict** | ❌ **Server not adopted** · ✅ **`@medplum/core` adopted as a library** ([ADR-0002](../adr/0002-clinical-data-store.md)) |
 | **Role considered** | Canonical FHIR R4 clinical store |
 | **Role actually taken** | FHIRPath engine, SearchParameter registry, index extraction, validation — no server |
-| **License** | Apache-2.0 (one-way compatible into AGPL-3.0; runs as a separate process anyway) |
+| **License** | Apache-2.0 (permissive; compatible with our MIT core, and runs as a separate process anyway) |
 | **Version at evaluation** | v5.1.27, published 2026-07-24 |
 
 ## What it is

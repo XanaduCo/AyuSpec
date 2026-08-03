@@ -6,6 +6,18 @@ ayuOS exists to help people **take control of their health and actively optimize
 
 ayuOS turns a pile of passive, siloed health data into an agentic loop the user drives: **understand → hypothesize → act → measure → learn.** Awareness is the entry point, not the destination. The destination is agency — a person who is measurably steering their own long-term health, with an AI partner that keeps every claim honest about how well the evidence supports it.
 
+## The loop
+
+The loop is the anchor the whole product is built around — each step is a job ayuOS does, and each one feeds the next:
+
+1. **Understand** — Aggregate every source into one record and see what is happening, and why. The flagship question *"what changed in my last 90 days?"* is answered here — the entry point to the loop, not the whole of it.
+2. **Hypothesize** — Form a testable idea about what could move the user toward their goal, grounded in both their own data and the surrounding evidence base, and labeled by how strong that evidence is — not vibes.
+3. **Act** — Decide what to change and do it: an intervention, a habit, a protocol. This is the step every dashboard stops short of.
+4. **Measure** — Track the right markers over the right window with an n-of-1 design — what to measure, for how long, and what counts as signal versus noise.
+5. **Learn** — See whether it worked, update the belief, and compound the decision into the next turn of the loop.
+
+The rest of this page is why that loop is hard today, and who needs it most.
+
 ## The problem
 
 A person who takes their health seriously accumulates data from many disconnected sources:
@@ -22,19 +34,19 @@ Every existing tool either:
 
 1. **Silos the data** — Oura shows Oura data; MyChart shows records; 23andMe shows SNPs. No cross-source reasoning.
 2. **Requires cloud custody** — Function Health, Superpower, ChatGPT Health all require your data to live on someone else's servers. The AI answers questions, but the company now holds your health history.
-3. **Can't be trusted not to monetize** — PicnicHealth's business model is selling de-identified cohort data to pharma. Function Health is a $2.5B business. Every commercial player has an incentive structure that eventually points at the data.
+3. **The choice to use your data is theirs, not yours.** PicnicHealth sells *de-identified* cohort data to pharma; Function Health is a $2.5B business. The problem isn't that aggregate data gets used — de-identification is a real, if imperfect, protection, and ayuOS itself offers [opt-in federated analytics](federation.md). It's that their incentive structure makes that use the default, decided by the company, rather than an explicit choice you made and can revoke.
 
 ## The user
 
 **Primary (MVP):** Biohacker with access to their own records — wearables, labs, maybe a genome file, possibly MRIs. Comfortable running software on a Mac Mini or similar local machine. Values data sovereignty. Wants AI-powered synthesis, not just dashboards.
 
-**Secondary:** Anyone who wants a second opinion on their health, a longevity-optimized brief to bring to a doctor, or a way to understand what their genome file actually means.
+**Secondary:** Anyone who wants a second opinion on their health, a longevity-optimized brief to bring to a doctor, or a way to understand what their genome file actually means — including people who will never run a server. The [managed tier](tiers.md#ayuos-cloud-managed-subscription) exists so that self-hosting is a choice about risk posture, not a prerequisite for using the product at all.
 
 **Not targeting (yet):** People who need EHR live-sync as the primary data source. The Apple Health export path covers many institutions without requiring Epic app registration.
 
 ## What users want to do
 
-The anchor question — *"what changed in my last 90 days?"* — is the flagship, but it's one instance of a broader set of jobs users are hiring ayuOS for. The product exists to serve these:
+That flagship question — *"what changed in my last 90 days?"* — is one instance of a broader set of jobs users are hiring ayuOS for, each mapping onto a step of [the loop](#the-loop). The product exists to serve these:
 
 1. **Reason over everything at once, across both time horizons.** Talk to their health data as a single holistic record and get answers aimed at *long-term optimization* (trajectory, trends, longevity) and *short-term issues* (a symptom, an out-of-range lab, a rough week of sleep) — in the same conversation, not two different tools.
 
@@ -46,31 +58,69 @@ The anchor question — *"what changed in my last 90 days?"* — is the flagship
 
 5. **Validate and iterate.** Understand which metrics and what methodology would let them actually test a hypothesis — n-of-1 design, what to measure, over what window, what counts as signal versus noise — and iterate toward better health.
 
-The through-line: ayuOS is not a dashboard that shows numbers. It is a reasoning partner for a continuous loop — *understand → hypothesize → measure → learn* — with every claim labeled by how well the evidence supports it.
+The through-line: ayuOS is not a dashboard that shows numbers. It is a reasoning partner for a continuous loop — *understand → hypothesize → act → measure → learn* — with every claim labeled by how well the evidence supports it.
 
 ## What ayuOS does
 
-ayuOS runs locally on your hardware. It:
+ayuOS runs on hardware you choose — your own machine by default, or a managed instance. It:
 
 1. Pulls data from all your sources (wearables via API, records via export or EHR sync, labs via PDF, images via DICOM, genome via raw file)
 2. Normalizes everything to FHIR R4 + a time-series store
-3. Runs local AI over the unified record to answer questions, detect changes, flag correlations
+3. Runs AI over the unified record to answer questions, detect changes, flag correlations
 4. Labels every claim as source-backed, inferred, or speculative — no hallucination laundering
 5. Generates scoped, consent-controlled slivers of the record on request — from a full doctor-ready brief down to a single-purpose slice for one provider
-6. Runs AI locally by default; model providers are configurable — cloud APIs are available and always PII-gated, never on by default
-7. Never sells data or uses it for model training regardless of deployment mode
+6. Runs models locally by default; providers are configurable per role — cloud APIs are available, always PII-gated, never on by default
+7. Discloses and records every model call, local or cloud, in a ledger you can query
+8. Never sells data or uses it for model training, in any tier
 
-## Why the trust claim is architectural, not policy
+## The trust claim
 
-Every commercial health-AI product offers a privacy policy. ayuOS offers a different guarantee: in the default self-hosted configuration, the data physically cannot leave the machine. There is no network call to make, no server to subpoena.
+Every commercial health-AI product offers a privacy policy — a promise about what a company
+will choose to do with data it holds. ayuOS's claim is different in kind, but it is worth
+stating precisely rather than sweepingly, because the strength of it depends on how the user
+configures the system.
 
-**Self-hosted (default):** Zero-egress by default. Cloud providers and Terra Bridge are opt-in, explicitly scoped, and always PII-gated. The code is open and auditable. The user decides exactly what transits their network.
+**The strongest form is architectural.** Self-hosted, with local inference and direct
+connectors, the data physically cannot leave the machine. There is no network call to make and
+no server to subpoena. This is not a setting that could be flipped by a bad release; the code
+path does not exist.
 
-**ayuOS Cloud (managed service):** For users who want the full capability without managing infrastructure, a managed cloud tier is available. Data lives on ayuOS-operated infrastructure. The business model is subscription — data is never sold, never used for model training, never shared with third parties. This is the same trust claim Medplum makes: you can self-host for full sovereignty, or pay for managed hosting and trust the operator's published commitments.
+**Users who trade away part of that get something else in exchange: complete visibility.**
+A cloud reasoner, a managed instance, or a bridged connector each moves some data off the
+device. For those, the guarantee is that you always know exactly what moved, where it went,
+and what was stripped first — before the call for anything leaving the device, and in a
+permanent local record after. See [AI Transparency](ai-transparency.md).
 
-The commercial managed service is what funds development of the open-source core. The core codebase is AGPL-3.0 and remains free forever. The managed tier is the sustainability mechanism — not the product.
+**And no choice is one-way.** Every paid or hosted tier degrades to a free, zero-transit path
+that works on its own — if ayuOS Cloud shuts down, your API key expires, or a data bridge
+changes its pricing, you lose breadth or convenience, never the system or the history. The
+[Tiers & Fallbacks](tiers.md) page specifies this per tier.
 
-Function Health and Superpower cannot make either of these claims. They are commercial businesses whose incentive structures ultimately point at the data. ayuOS's incentives point at the software.
+!!! note "Why tiers instead of one uncompromising configuration"
+    A single all-local build would be the purest claim and would fail real users: it requires
+    hardware they may not have, caps reasoning at what an 8B model can do, and cannot reach
+    providers that require a commercial agreement. Tiering lets each user place each of those
+    trades themselves — and makes the cost of each one legible before they choose. See
+    [Why tiers exist](tiers.md#why-tiers-exist).
+
+Across every tier, paid and free, three things do not vary: **data is never sold, never used
+for model training, and never shared with third parties**; every model call is disclosed and
+recorded; and the user can export everything at any time.
+
+The commercial managed service is what funds development of the open-source core. The core
+codebase is **MIT-licensed** and free forever, with no feature withheld from it to drive
+subscriptions. The managed tier is the sustainability mechanism — not the product.
+
+Function Health and Superpower cannot make these claims. They are commercial businesses whose
+incentive structures ultimately point at the data. ayuOS's point at the software.
+
+!!! note "Why the licence is maximally permissive"
+    The goal is to increase the number of people who control their own health data — so anyone
+    should be able to host ayuOS, fork it, customise it, or build a business on it, including
+    in competition with us. We are betting that the cost of producing code trends to zero, and
+    that the durable value is downstream: turning the analysis into low-friction healthcare.
+    Neither of those is protected by a licence, so the licence is set to maximize adoption
+    instead. See [Why MIT](governance.md#why-mit).
 
 ## Success criteria
 

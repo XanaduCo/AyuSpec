@@ -94,7 +94,7 @@ fhirpath.js gets all of these right via `@lhncbc/ucum-lhc`.
 gives you this) + `fhir.resources[R4B]` + `fhirpathpy` for indexing only.
 
 ⚠️ Do not confuse PyPI `fhirpath` (nazrulworld, **GPL-3.0**, abandoned 2020) with
-`fhirpathpy` (MIT). GPL would be a licensing problem next to an AGPL core.
+`fhirpathpy` (MIT). GPL would be a licensing problem next to an MIT core.
 
 ## Rust — not viable
 

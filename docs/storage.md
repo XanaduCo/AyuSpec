@@ -2,8 +2,11 @@
 
 !!! info "Decision record"
     Storage architecture is set by [ADR-0002: ayuOS owns its database](adr/0002-clinical-data-store.md).
-    ayuOS does not run a FHIR server. Schema details below are deliberately provisional and
-    will be settled during implementation.
+    ayuOS does not run a FHIR server. The engine is Postgres, reaffirmed against an embedded
+    SQLite alternative in [ADR-0003](adr/0003-embedded-vs-server-database.md) — with a standing
+    constraint to **keep the schema portable** (Postgres-only features behind the data-access
+    layer) so an embedded profile stays a cheap future option. Schema details below are
+    deliberately provisional and will be settled during implementation.
 
 ## Design principle
 
