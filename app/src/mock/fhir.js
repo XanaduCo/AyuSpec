@@ -6,7 +6,7 @@
 
 import {
   labs, wearables, conditions, medications, imaging, persona,
-  activeHypothesis, priorLabDate,
+  activeHypothesis, priorLabDate, genomics,
 } from './persona.js'
 import { experiments } from './experiments.js'
 
@@ -141,6 +141,31 @@ export function resolveRecord(id) {
     return wrap('Prior lipid + metabolic panel', 'Bundle · drawn 2025-05-02 · LabCorp',
       panelBundle(id, 'panel-prior', priorLabDate, labs.map(priorLabObservation)))
   }
+  if (id === 'gen-apoe') {
+    const v = genomics.variants[0]
+    return wrap('APOE genotype', `MolecularSequence · ${genomics.source}`, {
+      resourceType: 'MolecularSequence',
+      id: 'gen-apoe',
+      subject,
+      type: 'dna',
+      // ayuOS withholds genomic data from every cloud model at the gateway; this
+      // resource is stored and shareable in a local file, never sent for inference.
+      variant: [{ gene: v.gene, genotype: v.genotype, rsid: v.rsid }],
+      note: [{ text: `${v.note} Genomic data is never sent to a cloud model in any tier.` }],
+    })
+  }
+  if (id === 'gen-prs') {
+    const p = genomics.prs[0]
+    return wrap('CVD polygenic risk score', `MolecularSequence · derived · ${genomics.source}`, {
+      resourceType: 'MolecularSequence',
+      id: 'gen-prs',
+      subject,
+      type: 'dna',
+      polygenicScore: { trait: p.trait, percentile: p.percentile, ancestry: p.ancestry },
+      note: [{ text: p.caveat }],
+    })
+  }
+
   const exp = experiments.find(e => e.id === id)
   if (exp) {
     return wrap(exp.hypothesis.statement.replace(/\.$/, ''), `ayuos.experiment · ${exp.status}`,

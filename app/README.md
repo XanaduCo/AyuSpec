@@ -39,12 +39,15 @@ in CI.
 - **`src/explore/`** — the healthspan model, folded in from the original single-file
   explorer. Imports the compiled graph from `../prototype/seed/graph.json` (regenerated
   by `prototype/build.mjs`), so a graph rebuild flows straight into the app.
-- **`src/views/`** — one file per rail destination. `Ask`, `Timeline`, `Explore`, and
-  `Transparency` are functional; `Experiments`, `Data sources`, `Share`, and `Settings`
-  are planned-fidelity stubs being filled in over phases 2–3.
+  - `experiments.js` — three n-of-1 experiments (running / supported / inconclusive) with the
+    honesty guardrails baked into the data.
+  - `connectors.js` — every data source's tier, transit story, and fallback path.
+  - `shares.js` — the shareable inventory, scope filter, doctor-packet builder, and consent log.
+- **`src/views/`** — one file per rail destination. All eight are now functional: `Ask`, `Timeline`,
+  `Explore`, `Transparency`, `Settings`, `Experiments`, `Data sources`, and `Share`.
 - **`src/components/`** — shared atoms and cross-cutting systems: `EvidenceLabel` (+ `Citation`),
   `PosturePill`, `StubView`, `Drawer` (the shared source/concept slide-over + `DrawerProvider`),
-  `ComparisonFrame` (with the simplify ranking), `PreSendPanel`, `VoiceInput`.
+  `ComparisonFrame` (with the simplify ranking), `PreSendPanel`, `VoiceInput`, `Modal`, `Switch`.
 
 ## Design invariants
 

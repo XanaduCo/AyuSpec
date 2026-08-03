@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { streamGroups, files, TIERS, STATUS } from '../mock/connectors.js'
+import { streams, streamGroups, files, TIERS, STATUS } from '../mock/connectors.js'
 
 // Data sources — connector status for every source, with its tier made explicit.
 // The load-bearing rule (tiers.md law 6): a bridged source is never shown without
@@ -9,7 +9,8 @@ import { streamGroups, files, TIERS, STATUS } from '../mock/connectors.js'
 
 export default function DataSources() {
   const groups = streamGroups()
-  const directCount = [...streamGroups().flatMap(g => g.items), ...files].filter(s => s.tier !== 'bridged').length
+  const all = [...streams, ...files]
+  const directCount = all.filter(s => s.tier !== 'bridged').length
 
   return (
     <div className="page ds-page">
@@ -19,7 +20,7 @@ export default function DataSources() {
         <span className="tier-badge local" style={{ verticalAlign: 'middle' }}><span className="led" />direct</span> means
         the data went source → your store with nothing in between. <span className="tier-badge egress" style={{ verticalAlign: 'middle' }}><span className="led" />bridged</span> means
         a paid vendor retrieved it first — always disclosed, always with the free direct path it falls
-        back to. {directCount} of {directCount + 1} sources are zero-transit.
+        back to. {directCount} of {all.length} sources are zero-transit.
       </p>
 
       {groups.map(g => (

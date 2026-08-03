@@ -57,7 +57,7 @@ cd .. && python3 -m mkdocs build --strict   # confirm the site still builds
 | **0 · Foundation** | shell, tokens, mocks, Explore | ✅ done |
 | **1 · Anchor loop** | Ask (deepen), Timeline (real) | ✅ done |
 | **2 · Trust surfaces** | Settings (+ live posture), Transparency (polish) | ✅ done |
-| **3 · The rest** | Experiments, Data sources, Share | ⬜ next |
+| **3 · The rest** | Experiments, Data sources, Share | ✅ done |
 | **X · Cross-cutting** | concept cards, source drawer, simplify, voice, a11y | 🟡 a11y ongoing |
 
 Legend: ✅ done · 🟡 partial · ⬜ not started.
@@ -197,18 +197,20 @@ Current: real view (`src/views/DataSources.jsx`).
   shows the direct path it degrades to. ✅
 
 ### Share  · spec: [sharing](../docs/sharing.md), [frontend#doctor-packet](../docs/frontend.md)
-Current: `StubView`.
-- [ ] **Sliver composer** — scope pickers (domain / source / resource type / time window), format
-      (doctor packet PDF · FHIR bundle · structured summary · hosted link=amber), **preview of
-      exactly what's included**, generate.
-- [ ] **Doctor packet** — sections: summary + notable changes, labs with ranges/flagged abnormals,
-      meds & conditions, questions to raise. Rendered from persona data.
-- [ ] **Consent log** — append-only record of shares (purpose, recipient, scope, expiry); honest
-      revocation limits ("file-based shares can't be un-shared").
-- [ ] Optional: agent-proposed sliver ("what my new PCP needs" → suggested scope → approve/edit).
-- Mock data: `shares.js` — one past share (cardiology consult), plus the composer state.
+Current: real view (`src/views/Share.jsx`).
+- [x] **Sliver composer** — scope pickers (domain / source / resource type / time window), format
+      (doctor packet PDF · FHIR bundle · structured summary · hosted link=amber), **live preview of
+      exactly what's included** (each item opens its record), generate.
+- [x] **Doctor packet** — sections: summary + notable changes, labs with ranges/flagged abnormals,
+      conditions & meds (+ family history), imaging, questions to raise. Rendered from persona data in
+      a wide modal; "no network call" stated on the render.
+- [x] **Consent log** — append-only record of shares (purpose, recipient, scope, expiry); honest
+      revocation limits — a file share shows "can't un-share a file", only the hosted link revokes.
+- [x] Optional: agent-proposed sliver ("✧ what my new PCP needs" → sets a suggested scope to approve/edit).
+- [x] Mock data: `shares.js` — a persona-derived shareable inventory + one seed share (cardiology
+      consult), scope filter, and the doctor-packet builder.
 - **Done when:** a user can scope, preview, and "generate" a doctor packet, and every share lands
-  in the consent log.
+  in the consent log. ✅
 
 ---
 
