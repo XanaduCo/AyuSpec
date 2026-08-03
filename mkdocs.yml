@@ -48,6 +48,26 @@ nav:
     - Tiers & Fallbacks: tiers.md
     - Architecture Overview: architecture.md
   - Demo: demo/index.html
+  - User Journeys:
+    - Overview: journeys/index.md
+    - "Getting in":
+      - "01 · Acquire & first run (self-hosted)": journeys/01-install-self-hosted.md
+      - "02 · The no-server path (ayuOS Cloud)": journeys/02-managed-cloud.md
+    - "Data & connectors":
+      - "03 · Bootstrap with Apple Health": journeys/03-apple-health-bootstrap.md
+      - "04 · Connect wearables (Oura & Whoop)": journeys/04-connect-wearables.md
+      - "05 · Connect an EHR (Epic)": journeys/05-connect-ehr-epic.md
+      - "06 · Upload files (labs, MRI, genome)": journeys/06-upload-files.md
+      - "07 · Add a bridged connector": journeys/07-add-bridged-connector.md
+      - "08 · Switch, swap & lose a connector": journeys/08-switch-connectors.md
+    - "The value loop":
+      - "09 · The anchor query (last 90 days)": journeys/09-anchor-query.md
+      - "10 · First egress (hybrid reasoning)": journeys/10-enable-cloud-reasoning.md
+      - "11 · Run an n-of-1 experiment": journeys/11-run-experiment.md
+      - "12 · Low-friction capture": journeys/12-low-friction-capture.md
+      - "13 · Share a doctor packet": journeys/13-share-doctor-packet.md
+    - "Living with it":
+      - "14 · Verify & maintain": journeys/14-verify-and-maintain.md
   - Decisions (ADRs):
     - Overview: adr/index.md
     - "ADR-0001: EHR ingestion": adr/0001-ehr-ingestion.md
