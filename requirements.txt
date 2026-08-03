@@ -1,0 +1,3 @@
+# Spec-site build dependencies. Pinned: mkdocs-material 9.x does not survive
+# the MkDocs 2.0 release, which removes the plugin and theming systems.
+mkdocs-material==9.7.7

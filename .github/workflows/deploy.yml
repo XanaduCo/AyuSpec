@@ -32,23 +32,19 @@ jobs:
         with:
           node-version: '22'
 
-      # Pinned: mkdocs-material 9.x breaks on the MkDocs 2.0 release.
-      - run: pip install mkdocs-material==9.7.7
+      - run: pip install -r requirements.txt
 
-      # Regenerates seed/graph.json, seed.sql and app/index.html from the
-      # authored seed slices. Exits non-zero on a graph-validation error, so a
-      # bad edge fails the build instead of shipping a broken explorer.
+      # Regenerates seed/graph.json, seed.sql and the explorer at
+      # docs/healthspan-explorer/index.html, which MkDocs then picks up as a
+      # static page. Must run before mkdocs: the nav entry points at that file,
+      # and --strict fails if it is missing. Exits non-zero on a graph-validation
+      # error, so a bad edge fails the build instead of shipping a broken explorer.
       - name: Build healthspan graph and explorer
         working-directory: prototype
         run: node build.mjs
 
       - name: Build spec site
         run: mkdocs build --strict
-
-      - name: Add explorer to the site
-        run: |
-          mkdir -p site/healthspan-explorer
-          cp prototype/app/index.html site/healthspan-explorer/index.html
 
       - uses: actions/upload-pages-artifact@v3
         with:

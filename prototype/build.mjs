@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Merge authored seed slices -> validated graph.json -> seed.sql + inlined UI.
 // Run: node build.mjs
-import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, readdirSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -232,8 +232,13 @@ sql.push('COMMIT;');
 writeFileSync(join(here, 'seed.sql'), sql.join('\n'));
 
 // --- inline the graph into the UI -----------------------------------------
+// Output lands in docs/ so MkDocs picks it up as a static page: it is served at
+// /healthspan-explorer/ by both `mkdocs serve` and the deployed site, with no
+// copy step in between.
 const shell = readFileSync(join(here, 'app', 'index.template.html'), 'utf8');
-writeFileSync(join(here, 'app', 'index.html'),
+const appOut = join(here, '..', 'docs', 'healthspan-explorer');
+mkdirSync(appOut, { recursive: true });
+writeFileSync(join(appOut, 'index.html'),
   shell.replace('/*__GRAPH__*/null', JSON.stringify(graph)));
 
 // --- report ----------------------------------------------------------------
@@ -249,4 +254,4 @@ if (problems.length) {
   problems.slice(0, 40).forEach(p => console.error('  ! ' + p));
   process.exit(1);
 }
-console.log('\nOK -> seed/graph.json, seed.sql, app/index.html');
+console.log('\nOK -> seed/graph.json, seed.sql, ../docs/healthspan-explorer/index.html');
