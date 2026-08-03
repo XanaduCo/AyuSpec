@@ -180,18 +180,21 @@ Current: real view (`src/views/Experiments.jsx`).
   baseline noise reads "inconclusive", not "it worked". ✅
 
 ### Data sources  · spec: [ingestion](../docs/ingestion/index.md), [data-capture](../docs/data-capture.md)
-Current: `StubView`.
-- [ ] **Connector cards** — Wearables (Oura, Whoop), Apple Health, EHR (Epic direct / Fasten
-      bridged), Labs, Imaging, Genomics. Each: status, last sync, next run, record count, errors.
-- [ ] **Tier badge per source** — direct = green, bridged = amber **with disclosure text** and its
-      free fallback named (Terra → Open Wearables; Fasten → Apple/Epic).
-- [ ] **Manual "sync now"** (mock) and **file-upload zones** (Apple Health export, lab PDF, DICOM,
-      genome) with a fake parse/confidence result.
-- [ ] Optional: crosswalk/dedup transparency; screening due-dates with nudge/snooze.
-- Mock data: `connectors.js` — status per source consistent with the persona (Oura+Whoop active,
-  Epic connected, no Garmin).
+Current: real view (`src/views/DataSources.jsx`).
+- [x] **Connector cards** — Wearables (Oura, Whoop, Dexcom-CGM), EHR (Epic direct / Fasten bridged),
+      and file sources (Apple Health, Labs, Imaging, Genomics). Each: status, last sync, next run,
+      record count.
+- [x] **Tier badge per source** — direct = green (zero-transit), bridged = amber **with disclosure
+      text** and its free fallback named (Dexcom→Terra falls back to Open Wearables; Fasten falls back
+      to Apple Health + Epic direct).
+- [x] **Manual "sync now"** (mock, transient syncing state) and **file-upload zones** (Apple Health
+      export, lab PDF, DICOM, genome) with a fake local parse + hue-free confidence ramp.
+- [ ] Optional: crosswalk/dedup transparency; screening due-dates with nudge/snooze. *(dedup-by-hash
+      surfaced in the parse result; the due-date engine is left for a later pass.)*
+- [x] Mock data: `connectors.js` — status per source consistent with the persona (Oura+Whoop active,
+      Dexcom bridged for the running experiment, Epic connected, Fasten offered-not-enrolled, no Garmin).
 - **Done when:** every source's tier and transit story is explicit, and a bridged source always
-  shows the direct path it degrades to.
+  shows the direct path it degrades to. ✅
 
 ### Share  · spec: [sharing](../docs/sharing.md), [frontend#doctor-packet](../docs/frontend.md)
 Current: `StubView`.
