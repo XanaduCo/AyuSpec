@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ayuOS — healthspan model explorer</title>
+<style>
+:root {
+  --bg:#fbfaf8; --panel:#fff; --ink:#1a1a1a; --mute:#6b6b6b; --line:#e5e2dd;
+  --accent:#0d7c73; --accent-soft:#e6f2f0;
+  --block:#b3261e; --block-soft:#fdeceb;
+  --caution:#a06000; --caution-soft:#fdf3e2;
+  --seq:#5b3fa8; --seq-soft:#f0ebfa;
+  --adj:#1f5fa8; --adj-soft:#e9f1fa;
+  --ok:#1a7a4c; --ok-soft:#e7f5ee;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg:#16181a; --panel:#1e2124; --ink:#eceae6; --mute:#9a9a95; --line:#2f3336;
+    --accent:#4ec9bd; --accent-soft:#12312e;
+    --block:#f2857c; --block-soft:#3a1d1b; --caution:#e0ae5a; --caution-soft:#3a2c14;
+    --seq:#b49bee; --seq-soft:#271e3d; --adj:#7fb0e8; --adj-soft:#16283c;
+    --ok:#63c894; --ok-soft:#14301f; }
+}
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif; }
+h1,h2,h3 { margin:0; font-weight:600; letter-spacing:-.01em; }
+header { padding:14px 22px; border-bottom:1px solid var(--line); background:var(--panel);
+  display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; position:sticky; top:0; z-index:20; }
+header h1 { font-size:16px; }
+header .sub { color:var(--mute); font-size:13px; }
+.layout { display:grid; grid-template-columns:310px 1fr; gap:0; align-items:start; }
+@media (max-width:900px){ .layout{ grid-template-columns:1fr; } }
+aside { border-right:1px solid var(--line); padding:18px; position:sticky; top:57px;
+  max-height:calc(100vh - 57px); overflow:auto; background:var(--panel); }
+main { padding:22px 26px 90px; min-width:0; }
+.lbl { font-size:11px; text-transform:uppercase; letter-spacing:.09em; color:var(--mute);
+  font-weight:600; margin:0 0 8px; }
+input[type=search] { width:100%; padding:9px 11px; border:1px solid var(--line); border-radius:8px;
+  background:var(--bg); color:var(--ink); font-size:14px; }
+.chips { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 4px; }
+.chip { display:inline-flex; align-items:center; gap:6px; padding:4px 9px; border-radius:99px;
+  background:var(--accent-soft); color:var(--accent); border:1px solid transparent;
+  font-size:12.5px; font-weight:500; cursor:pointer; }
+.chip.redflag { background:var(--block-soft); color:var(--block); }
+.chip button { all:unset; font-size:14px; line-height:1; opacity:.6; }
+.chip button:hover { opacity:1; }
+.suggest { max-height:290px; overflow:auto; margin-top:8px; border-top:1px solid var(--line); }
+.sug { padding:7px 4px; border-bottom:1px solid var(--line); cursor:pointer; font-size:13.5px; }
+.sug:hover { background:var(--accent-soft); }
+.sug .cat { font-size:11px; color:var(--mute); text-transform:uppercase; letter-spacing:.06em; }
+.preset { display:block; width:100%; text-align:left; margin:5px 0; padding:8px 10px; font-size:13px;
+  border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--ink); cursor:pointer; }
+.preset:hover { border-color:var(--accent); color:var(--accent); }
+nav.systems { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:14px; }
+nav.systems button, .fn-tab { padding:6px 12px; border-radius:99px; border:1px solid var(--line);
+  background:var(--panel); color:var(--ink); font-size:13px; cursor:pointer; }
+nav.systems button[aria-pressed=true], .fn-tab[aria-pressed=true] {
+  background:var(--accent); border-color:var(--accent); color:#fff; }
+.fns { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:20px; }
+.banner { border:1px solid var(--block); background:var(--block-soft); color:var(--block);
+  padding:14px 16px; border-radius:10px; margin-bottom:20px; }
+.banner h3 { font-size:14px; margin-bottom:5px; }
+.banner p { margin:4px 0 0; font-size:13.5px; color:var(--ink); }
+.tier { margin:22px 0 10px; display:flex; align-items:baseline; gap:9px; }
+.tier h3 { font-size:13px; }
+.tier span { font-size:12.5px; color:var(--mute); }
+.card { border:1px solid var(--line); border-left-width:3px; border-radius:10px; background:var(--panel);
+  padding:14px 16px; margin-bottom:10px; }
+.card.available { border-left-color:var(--ok); }
+.card.adjusted { border-left-color:var(--adj); }
+.card.cautioned { border-left-color:var(--caution); }
+.card.sequenced { border-left-color:var(--seq); }
+.card.blocked { border-left-color:var(--block); opacity:.94; }
+.card h4 { margin:0; font-size:15px; font-weight:600; display:flex; align-items:center;
+  gap:9px; flex-wrap:wrap; }
+.state { font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.07em;
+  padding:2px 7px; border-radius:5px; }
+.state.available{background:var(--ok-soft);color:var(--ok)} .state.adjusted{background:var(--adj-soft);color:var(--adj)}
+.state.cautioned{background:var(--caution-soft);color:var(--caution)} .state.sequenced{background:var(--seq-soft);color:var(--seq)}
+.state.blocked{background:var(--block-soft);color:var(--block)}
+.moved { font-size:11.5px; color:var(--accent); font-weight:500; }
+.summary { color:var(--mute); font-size:13.5px; margin:7px 0 0; }
+.axes { display:flex; flex-wrap:wrap; gap:5px; margin-top:11px; }
+.ax { font-size:11.5px; border:1px solid var(--line); border-radius:6px; padding:2px 7px; color:var(--mute); }
+.ax b { color:var(--ink); font-weight:600; }
+.ax.hole { border-style:dashed; color:var(--block); }
+details { margin-top:11px; }
+summary { cursor:pointer; font-size:12.5px; color:var(--accent); font-weight:500; }
+.trail { margin:10px 0 0; padding:0; list-style:none; border-left:2px solid var(--line); }
+.trail li { padding:8px 0 8px 13px; margin-left:1px; font-size:13.5px; }
+.trail .who { font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.05em; }
+.trail .who.BLOCKS{color:var(--block)} .trail .who.REQUIRES{color:var(--seq)}
+.trail .who.ADJUSTS{color:var(--adj)} .trail .who.CAUTIONS{color:var(--caution)} .trail .who.ELEVATES{color:var(--accent)}
+.cite { font-size:11.5px; color:var(--mute); margin-top:5px; }
+.subs { margin-top:10px; font-size:13px; }
+.subs b { font-weight:600; }
+.markers { margin-top:34px; border-top:1px solid var(--line); padding-top:18px; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+th { text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.07em;
+  color:var(--mute); padding:6px 8px; border-bottom:1px solid var(--line); }
+td { padding:7px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+.tierbadge { display:inline-block; width:19px; height:19px; line-height:19px; text-align:center;
+  border-radius:5px; font-weight:700; font-size:11.5px; }
+.tierbadge.A{background:var(--ok-soft);color:var(--ok)} .tierbadge.B{background:var(--adj-soft);color:var(--adj)}
+.tierbadge.C{background:var(--caution-soft);color:var(--caution)} .tierbadge.D{background:var(--block-soft);color:var(--block)}
+.empty { color:var(--mute); font-size:13.5px; padding:18px 0; }
+.note { font-size:12.5px; color:var(--mute); margin-top:6px; }
+.attia { font-size:12.5px; background:var(--caution-soft); color:var(--ink); border-radius:7px;
+  padding:8px 10px; margin-top:10px; border:1px solid var(--caution); }
+.attia b { color:var(--caution); }
+</style>
+</head>
+<body>
+<header>
+  <h1>ayuOS · healthspan model</h1>
+  <span class="sub" id="hdr"></span>
+</header>
+
+<div class="layout">
+<aside>
+  <p class="lbl">Facts about me</p>
+  <div class="chips" id="facts"></div>
+  <input type="search" id="q" placeholder="Say something about yourself…" autocomplete="off">
+  <div class="suggest" id="suggest" hidden></div>
+
+  <p class="lbl" style="margin-top:20px">Try a scenario</p>
+  <div id="presets"></div>
+
+  <p class="lbl" style="margin-top:20px">Legend</p>
+  <div class="note">
+    <b>Tiers</b> are Pareto layers over effect&nbsp;×&nbsp;evidence. Items within a tier are
+    <i>incomparable</i>, not equal — every axis stays visible. Nothing here is scored,
+    ranked for you, or recommended.
+  </div>
+</aside>
+
+<main>
+  <div id="redflag"></div>
+  <nav class="systems" id="systems"></nav>
+  <div class="fns" id="fns"></div>
+  <div id="out"></div>
+  <div class="markers" id="markers"></div>
+</main>
+</div>
+
+<script>
+const GRAPH = /*__GRAPH__*/null;
+const N = new Map(GRAPH.nodes.map(n => [n.id, n]));
+const E = GRAPH.edges;
+const byType = t => E.filter(e => e.type === t);
+const nodesOf = t => GRAPH.nodes.filter(n => n.type === t);
+const title = id => N.get(id)?.title ?? id;
+
+/* ---------- ordinal scales: declaration order IS the ordering ------------- */
+const ORD = {
+  effect_size:['none','small','moderate','large'],
+  evidence_strength:['none','low','moderate','high'],
+  certainty:['low','moderate','high'],
+  adherence_realism:['low','moderate','high'],
+  effort:['trivial','low','moderate','high'],
+  priority_delta:['none','small','moderate','large'],
+};
+const rank = (scale, v) => { const i = ORD[scale].indexOf(v); return i < 0 ? -1 : i; };
+const PRECEDENCE = { BLOCKS:1, REQUIRES:2, ADJUSTS:3, CAUTIONS:4, ELEVATES:5 };
+
+const factNodes = [...nodesOf('Modifier'), ...nodesOf('RiskFactor')];
+const facts = new Set();
+
+const PRESETS = [
+  ['I want to swim, and my heel hurts', ['md-prefers-swimming','md-plantar-fasciitis']],
+  ['Chronic back pain, want to get fitter', ['md-chronic-low-back-pain']],
+  ['Pre-diabetic, deskbound, no gym', ['rf-prediabetes','md-no-gym-access','md-time-poor']],
+  ['Knee osteoarthritis in a hot climate', ['md-knee-osteoarthritis','md-hot-humid-climate']],
+  ['Low bone density, older adult', ['md-osteoporosis','md-older-adult']],
+  ['Chest pain when I exert myself', ['md-exertional-chest-pain']],
+];
+
+/* ---------- resolver — see prototype/ARCHITECTURE.md §Modifier resolution -- */
+function resolve(functionId) {
+  const supports = byType('SUPPORTS').filter(e => e.to === functionId);
+  const active = [...facts];
+
+  // Phase 1 — collect every modifier edge from an active fact onto a candidate.
+  const collect = ivId => E.filter(e =>
+    PRECEDENCE[e.type] && active.includes(e.from) &&
+    (e.to === ivId || (e.to === '*' && e.type === 'BLOCKS')));
+
+  // Phase 4 — fold in precedence order. Only BLOCKS is terminal; REQUIRES /
+  // ADJUSTS / CAUTIONS accumulate. ELEVATES takes max, never a sum.
+  function fold(ivId) {
+    const applied = collect(ivId).sort((a, b) =>
+      PRECEDENCE[a.type] - PRECEDENCE[b.type] || a.from.localeCompare(b.from));
+    const trail = [], prereqs = new Map(), adjustments = new Map();
+    let state = 'available', promotion = null, redFlag = null, suppress = false;
+
+    for (const e of applied) {
+      const a = e.attrs ?? {};
+      const text = a.resolution_text ?? a.caveat ?? a.adjustment ?? a.reason ?? '';
+      trail.push({ type:e.type, modifier:e.from, text, citations:e.citations ?? [],
+                   dimension:a.dimension, escalates:a.escalates_to, when:a.escalation_when });
+      if (e.type === 'BLOCKS') {
+        state = 'blocked';
+        if (a.routing === 'clinician') redFlag = e;
+        if (a.suppress_substitutes) suppress = true;
+      } else if (e.type === 'REQUIRES') {
+        if (state === 'available') state = 'sequenced';
+        if (a.prerequisite_node_id) prereqs.set(a.prerequisite_node_id, e.from);
+      } else if (e.type === 'ADJUSTS') {
+        if (state === 'available') state = 'adjusted';
+        const d = a.dimension ?? 'other';
+        if (!adjustments.has(d)) adjustments.set(d, []);
+        adjustments.get(d).push({ text:a.adjustment ?? text, by:e.from });
+      } else if (e.type === 'CAUTIONS') {
+        if (state === 'available') state = 'cautioned';
+      } else if (e.type === 'ELEVATES') {
+        const d = rank('priority_delta', a.priority_delta ?? 'moderate');
+        if (!promotion || d > promotion.delta)
+          promotion = { delta:d, by:e.from, reason:a.reason ?? '' };
+      }
+    }
+    return { state, trail, prereqs, adjustments, promotion, redFlag, suppress };
+  }
+
+  const rows = supports.map(s => ({ id:s.from, node:N.get(s.from), support:s, ...fold(s.from) }))
+                       .filter(r => r.node);
+
+  // Phase 5 — substitutes for blocked candidates, resolved once. A
+  // substitute-of-a-substitute is a content smell, not a feature.
+  for (const r of rows.filter(r => r.state === 'blocked' && !r.suppress)) {
+    r.substitutes = byType('SUBSTITUTES')
+      .filter(e => e.from === r.id &&
+        (!e.attrs?.serves_function_id || e.attrs.serves_function_id === functionId))
+      .map(e => ({ to:e.to, delta:e.attrs?.effect_delta, reason:e.attrs?.reason }))
+      .filter(s => N.has(s.to) && fold(s.to).state !== 'blocked');
+  }
+
+  // Phase 6 — Pareto tiers over (effect_size, evidence_strength).
+  const live = rows.filter(r => r.state !== 'blocked');
+  const pair = r => [rank('effect_size', r.support.attrs?.effect_size),
+                     rank('evidence_strength', r.support.attrs?.evidence_strength)];
+  const dominates = (a, b) => {
+    const [ae, av] = pair(a), [be, bv] = pair(b);
+    return ae >= be && av >= bv && (ae > be || av > bv);
+  };
+  let pool = [...live], depth = 0;
+  while (pool.length) {
+    const front = pool.filter(a => !pool.some(b => b !== a && dominates(b, a)));
+    if (!front.length) { pool.forEach(r => r.tier = depth); break; }
+    front.forEach(r => r.tier = depth);
+    pool = pool.filter(r => !front.includes(r));
+    depth++;
+  }
+  // Promotion: at most one tier, never past the top, always labelled.
+  for (const r of live) if (r.promotion && r.tier > 0) { r.tier -= 1; r.promoted = true; }
+
+  const maxTier = live.reduce((m, r) => Math.max(m, r.tier ?? 0), 0);
+  const grouped = [];
+  for (let i = 0; i <= maxTier; i++) {
+    const members = live.filter(r => r.tier === i).sort((a, b) =>
+      rank('certainty', b.support.attrs?.certainty) - rank('certainty', a.support.attrs?.certainty) ||
+      rank('adherence_realism', b.support.attrs?.adherence_realism) - rank('adherence_realism', a.support.attrs?.adherence_realism) ||
+      rank('effort', a.support.attrs?.effort) - rank('effort', b.support.attrs?.effort) ||
+      a.id.localeCompare(b.id));
+    if (members.length) grouped.push(members);
+  }
+  return { grouped, blocked: rows.filter(r => r.state === 'blocked') };
+}
+
+/* ---------- rendering ----------------------------------------------------- */
+const AXES = ['effect_size','evidence_strength','certainty','time_to_effect','cost','risk','effort','reversibility','adherence_realism'];
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let sysId = 'sys-cardiovascular', fnId = null;
+
+function functionsOf(system) {
+  return byType('PART_OF').filter(e => e.to === system)
+    .map(e => N.get(e.from)).filter(n => n && n.type === 'Function');
+}
+function systems() {
+  const el = document.getElementById('systems');
+  el.innerHTML = nodesOf('System').map(s =>
+    `<button data-sys="${s.id}" aria-pressed="${s.id===sysId}">${esc(s.title)}</button>`).join('');
+  el.onclick = ev => { const b = ev.target.closest('button'); if (!b) return;
+    sysId = b.dataset.sys; fnId = null; render(); };
+}
+function fnTabs() {
+  const fns = functionsOf(sysId);
+  if (!fnId || !fns.some(f => f.id === fnId)) fnId = fns[0]?.id ?? null;
+  const el = document.getElementById('fns');
+  el.innerHTML = fns.map(f =>
+    `<button class="fn-tab" data-fn="${f.id}" aria-pressed="${f.id===fnId}">${esc(f.title)}</button>`).join('');
+  el.onclick = ev => { const b = ev.target.closest('button'); if (!b) return;
+    fnId = b.dataset.fn; render(); };
+}
+function axesHtml(s) {
+  return `<div class="axes">` + AXES.map(k => {
+    const v = s.attrs?.[k];
+    return v == null
+      ? `<span class="ax hole" title="Missing cell — a hole in the content, shown rather than hidden">${k.replace(/_/g,' ')}: —</span>`
+      : `<span class="ax">${k.replace(/_/g,' ')} <b>${esc(v)}</b></span>`;
+  }).join('') + `</div>`;
+}
+function trailHtml(r) {
+  if (!r.trail.length) return '';
+  const items = r.trail.map(t => `
+    <li><span class="who ${t.type}">${t.type}</span>
+      &nbsp;·&nbsp;<b>${esc(title(t.modifier))}</b>${t.dimension ? ` <i>(${esc(t.dimension)})</i>` : ''}
+      <div>${esc(t.text)}</div>
+      ${t.escalates ? `<div class="note">Escalates to ${esc(t.escalates)} when ${esc(JSON.stringify(t.when))}</div>` : ''}
+      ${t.citations.length ? `<div class="cite">${t.citations.map(esc).join(' · ')}</div>` : ''}
+    </li>`).join('');
+  return `<details><summary>Why this changed — ${r.trail.length} modification${r.trail.length>1?'s':''}, with sources</summary><ul class="trail">${items}</ul></details>`;
+}
+function attiaHtml(s) {
+  const a = s.attrs ?? {};
+  if (!a.attia_position && !a.consensus_note) return '';
+  return `<div class="attia">${a.attia_position ? `<b>Attia's position:</b> ${esc(a.attia_position)}<br>` : ''}
+    ${a.consensus_note ? `<b>Where the evidence sits:</b> ${esc(a.consensus_note)}` : ''}</div>`;
+}
+function cardHtml(r) {
+  const prereq = [...r.prereqs.entries()].map(([p, by]) =>
+    `<li>First: <b>${esc(title(p))}</b> — required by ${esc(title(by))}</li>`).join('');
+  const adj = [...r.adjustments.entries()].map(([dim, list]) =>
+    `<li><b>${esc(dim)}</b>${list.length > 1 ? ' <i>(two modifiers — both shown, prose is never merged)</i>' : ''}
+      <ul>${list.map(x => `<li>${esc(x.text)} <span class="cite">— ${esc(title(x.by))}</span></li>`).join('')}</ul></li>`).join('');
+  return `<div class="card ${r.state}">
+    <h4>${esc(r.node.title)}
+      <span class="state ${r.state}">${r.state}</span>
+      ${r.promoted ? `<span class="moved">↑ moved up because of ${esc(title(r.promotion.by))}</span>` : ''}
+    </h4>
+    <p class="summary">${esc(r.node.summary)}</p>
+    ${axesHtml(r.support)}
+    ${r.support.attrs?.dose ? `<div class="note"><b>Dose:</b> ${esc(r.support.attrs.dose)}</div>` : ''}
+    ${prereq ? `<div class="subs"><b>Sequence before starting:</b><ul>${prereq}</ul></div>` : ''}
+    ${adj ? `<div class="subs"><b>Adjustments:</b><ul>${adj}</ul></div>` : ''}
+    ${attiaHtml(r.support)}
+    ${trailHtml(r)}
+  </div>`;
+}
+function blockedHtml(r) {
+  const subs = (r.substitutes ?? []).map(s =>
+    `<li><b>${esc(title(s.to))}</b> — ${esc(s.delta ?? 'comparable')} effect. ${esc(s.reason ?? '')}</li>`).join('');
+  return `<div class="card blocked">
+    <h4>${esc(r.node.title)}<span class="state blocked">blocked</span></h4>
+    <p class="summary">${esc(r.node.summary)}</p>
+    ${trailHtml(r)}
+    ${subs ? `<div class="subs"><b>Serves the same function:</b><ul>${subs}</ul></div>`
+           : r.suppress ? `<div class="subs">No alternatives offered — this needs clinical evaluation first.</div>` : ''}
+  </div>`;
+}
+function markersHtml() {
+  const ms = byType('MEASURED_BY').filter(e => e.from === fnId);
+  if (!ms.length) return '';
+  const elevated = new Set(E.filter(e => e.type === 'ELEVATES' && facts.has(e.from)).map(e => e.to));
+  const rows = ms.map(e => ({ e, m:N.get(e.to) })).filter(x => x.m)
+    // Reference methods first: 'A' < 'B' < 'C' < 'D' ascending.
+    .sort((a, b) => String(a.e.attrs?.quality_tier ?? 'D').localeCompare(String(b.e.attrs?.quality_tier ?? 'D')));
+  return `<h3>How you'd measure this</h3>
+    <p class="note">Tier A is a reference method. Tier C is a consumer estimate — useful for your
+    own trend, unreliable in absolute terms. Tier D is self-report. Noise is what decides how long
+    an n-of-1 experiment has to run before it can detect anything at all.</p>
+    <table><thead><tr><th>Tier</th><th>Marker</th><th>Noise</th><th>Cost</th><th>Get it via</th></tr></thead><tbody>
+    ${rows.map(({e, m}) => {
+      const a = m.attrs ?? {};
+      return `<tr><td><span class="tierbadge ${esc(e.attrs?.quality_tier ?? 'D')}">${esc(e.attrs?.quality_tier ?? '?')}</span></td>
+        <td><b>${esc(m.title)}</b>${elevated.has(m.id) ? ` <span class="moved">↑ prioritised by your facts</span>` : ''}
+          <div class="note">${esc(a.what_it_estimates ?? m.summary ?? '')}</div></td>
+        <td>${esc(e.attrs?.noise ?? a.noise ?? '—')}</td><td>${esc(a.cost ?? '—')}</td>
+        <td>${esc([].concat(a.ingestible_via ?? []).join(', ') || '—')}</td></tr>`;
+    }).join('')}</tbody></table>`;
+}
+function renderFacts() {
+  const el = document.getElementById('facts');
+  if (!facts.size) {
+    el.innerHTML = '<span class="note">Nothing stated yet — showing the unmodified baseline.</span>';
+    return;
+  }
+  el.innerHTML = [...facts].map(id => {
+    const n = N.get(id);
+    return `<span class="chip ${n?.attrs?.category === 'red_flag' ? 'redflag' : ''}" data-id="${esc(id)}">${esc(n?.title ?? id)}<button title="remove">×</button></span>`;
+  }).join('');
+  el.onclick = ev => { const c = ev.target.closest('.chip'); if (!c) return;
+    facts.delete(c.dataset.id); render(); };
+}
+
+function render() {
+  document.getElementById('hdr').textContent =
+    `${GRAPH.nodes.length} nodes · ${GRAPH.edges.length} edges · v0.1.0-prototype · ${facts.size} fact${facts.size===1?'':'s'} active`;
+  renderFacts(); systems(); fnTabs();
+
+  const flags = [...facts].map(f => N.get(f)).filter(n => n?.attrs?.category === 'red_flag');
+  const rf = document.getElementById('redflag');
+  rf.innerHTML = flags.length ? `<div class="banner">
+      <h3>Stop — this needs a clinician, not a plan</h3>
+      ${flags.map(f => {
+        const b = E.find(e => e.type === 'BLOCKS' && e.from === f.id);
+        return `<p><b>${esc(f.title)}</b>: ${esc(b?.attrs?.reason ?? b?.attrs?.resolution_text ?? f.summary)}</p>`;
+      }).join('')}
+      <p class="note">Plan generation is halted across every intervention and no alternatives are
+      offered. This is the one place the system is deliberately directive — and the direction is
+      toward a doctor.</p></div>` : '';
+
+  const out = document.getElementById('out'), mk = document.getElementById('markers');
+  if (flags.length) { out.innerHTML = ''; mk.innerHTML = ''; return; }
+  if (!fnId) { out.innerHTML = '<p class="empty">No function selected.</p>'; mk.innerHTML = ''; return; }
+
+  const { grouped, blocked } = resolve(fnId);
+  const fn = N.get(fnId);
+  const protects = byType('PROTECTS').filter(e => e.from === fnId).map(e => title(e.to));
+  out.innerHTML = `<h2>${esc(fn.title)}</h2><p class="summary">${esc(fn.summary)}</p>
+    ${protects.length ? `<p class="note"><b>Protects:</b> ${protects.map(esc).join(' · ')}</p>` : ''}
+    ${grouped.map((t, i) => `<div class="tier"><h3>Tier ${i+1}</h3>
+       <span>${t.length} option${t.length>1?'s':''} — incomparable to one another, not ranked within</span></div>
+       ${t.map(cardHtml).join('')}`).join('')}
+    ${blocked.length ? `<div class="tier"><h3>Ruled out by your facts</h3>
+       <span>shown, never silently removed</span></div>${blocked.map(blockedHtml).join('')}` : ''}`;
+  mk.innerHTML = markersHtml();
+}
+
+const qEl = document.getElementById('q'), sEl = document.getElementById('suggest');
+qEl.oninput = () => {
+  const v = qEl.value.trim().toLowerCase();
+  if (!v) { sEl.hidden = true; return; }
+  const words = v.split(/\s+/).filter(w => w.length > 2);
+  const hits = factNodes.filter(n => {
+    if (facts.has(n.id)) return false;
+    const hay = `${n.title} ${n.summary ?? ''} ${n.attrs?.category ?? ''} ${n.id}`.toLowerCase();
+    return hay.includes(v) || (words.length > 0 && words.some(w => hay.includes(w)));
+  }).slice(0, 24);
+  sEl.hidden = false;
+  sEl.innerHTML = hits.length
+    ? hits.map(n => `<div class="sug" data-id="${esc(n.id)}"><div class="cat">${esc(n.attrs?.category ?? n.type)}</div>${esc(n.title)}</div>`).join('')
+    : '<div class="sug">Nothing in the graph matches that yet.</div>';
+};
+sEl.onclick = ev => { const s = ev.target.closest('.sug'); if (!s?.dataset.id) return;
+  facts.add(s.dataset.id); qEl.value = ''; sEl.hidden = true; render(); };
+
+document.getElementById('presets').innerHTML = PRESETS.map((p, i) =>
+  `<button class="preset" data-i="${i}">${esc(p[0])}</button>`).join('');
+document.getElementById('presets').onclick = ev => {
+  const b = ev.target.closest('.preset'); if (!b) return;
+  facts.clear(); PRESETS[+b.dataset.i][1].forEach(f => { if (N.has(f)) facts.add(f); }); render();
+};
+
+render();
+</script>
+</body>
+</html>

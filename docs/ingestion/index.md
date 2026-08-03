@@ -9,7 +9,7 @@ The ingestion layer pulls health data from every source and writes it into the s
 | [Wearables](wearables.md) | Oura, Whoop, Apple Health | API (Oura/Whoop) + export parse (Apple) | P0 |
 | [Apple Health](apple-health.md) | iPhone Health app | Manual `export.zip` parse | P0 |
 | [EHR](ehr.md) | Apple Health export (MVP) · Epic direct · Fasten Connect (paid) | Four tiers — see [ADR-0001](../adr/0001-ehr-ingestion.md) | MVP → P2 |
-| [Lab PDFs](labs.md) | Any lab (LabCorp, Quest, concierge) | OCR + MedGemma extraction | P0.5 |
+| [Lab PDFs](labs.md) | Any lab (LabCorp, Quest, concierge) | Text-layer parse + local doc-VLM extraction | P0.5 |
 | [Imaging (DICOM)](imaging.md) | MRI, CT, X-ray | pydicom parse + OHIF viewer + MedGemma vision | P1 |
 | [Genomics](genomics.md) | 23andMe, VCF | Raw file parse + PRS | P1 |
 

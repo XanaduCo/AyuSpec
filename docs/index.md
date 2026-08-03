@@ -26,6 +26,8 @@ Use the left navigation to explore:
 - **[Storage](storage.md)** — FHIR backbone, Postgres/pgvector schema, time-series design
 - **[AI & ML Layer](ai-ml.md)** — model roles, routing logic, RAG design
 - **[Agent Loop](agent-loop.md)** — tool definitions, reasoning chain, evidence labeling
+- **[The Healthspan Model](healthspan-model.md)** — the bundled knowledge graph of body systems, interventions, markers, and modifiers
+- **[Health Literacy & Epistemics](epistemics.md)** — just-in-time evidence education at decision points, comparison frames, preference model
 - **[PII Gateway](pii-gateway.md)** — local PII stripping, cloud escalation, audit log
 - **[Frontend & UI](frontend.md)** — chat interface, timeline, doctor-packet generator
 - **[Security & Privacy](security.md)** — encryption at rest, zero-egress guarantees

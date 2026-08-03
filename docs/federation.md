@@ -31,7 +31,7 @@ These pieces are cheap to add now and expensive to retrofit:
 
 ## Governance firewall
 
-There is an explicit governance firewall between ayuOS and any commercial use by related projects (Elyx, Chiranjiv or others). Specifically:
+There is an explicit governance firewall between ayuOS and any commercial use by affiliated entities. Specifically:
 
 - Federated gradients are published to an open research commons, not to any private entity
 - Any linkage between ayuOS participation and commercial projects requires a separate, explicit, prominently-disclosed opt-in — never bundled with general ayuOS consent

@@ -20,7 +20,7 @@ It serves user jobs #4 in the [vision](vision.md#what-users-want-to-do), and pro
 |---|---|---|
 | **Bundled guideline corpus** | Clinical practice guidelines (AHA, ADA, USPSTF, etc.) | Already referenced by `search_guidelines` in the [agent loop](agent-loop.md); ships with the install for offline use |
 | **Literature index** | Abstracts / systematic reviews / meta-analyses | Sourcing and licensing TBD; may require a cloud fetch → PII-gated |
-| **Curated intervention library** | Structured entries for common biohacker interventions (supplements, protocols) with linked evidence | New; the highest-signal source for hypothesis formation |
+| **Curated intervention library** | Structured entries for interventions with linked evidence | Specced as [The Healthspan Model](healthspan-model.md) — a typed graph of systems, functions, interventions, markers, and modifiers. The highest-signal source for hypothesis formation |
 
 ## Strength-of-evidence labeling
 
@@ -53,6 +53,8 @@ A hypothesis is a first-class, stored object:
 ## Relationship to other components
 
 - [Agent Loop](agent-loop.md) — invokes this component when a query needs external grounding; hypotheses can be surfaced proactively.
+- [Health Literacy & Epistemics](epistemics.md) — the evidence-strength labels double as education entry points; the concept library explains the ladder to the user at the moment it matters.
+- [The Healthspan Model](healthspan-model.md) — supplies the intervention library; hypotheses are formed by walking its `SUPPORTS` edges against the user's goals and measured gaps.
 - [Experimentation & Validation](experimentation.md) — consumes hypotheses and turns them into n-of-1 experiments.
 - [PII Gateway](pii-gateway.md) — any literature fetch that isn't in the local corpus is a cloud call and must be gated.
 - [AI & ML Layer](ai-ml.md) — the medical extractor role (MedGemma) is relevant to parsing literature.

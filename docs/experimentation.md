@@ -65,6 +65,8 @@ Experiments depend on getting the outcome metric with minimal friction (user job
 ## Relationship to other components
 
 - [Evidence & Hypotheses](evidence.md) — supplies the hypothesis; receives the validated (or refuted) result back.
+- [The Healthspan Model](healthspan-model.md) — marker quality tiers and per-marker noise feed metric selection and the power/duration heuristics.
+- [Health Literacy & Epistemics](epistemics.md) — teaches the n-of-1 concepts (natural variability, pre-registration, what a single-subject result can establish) that this component's guardrails enforce.
 - [Ingestion](ingestion/index.md) & [Frontend](frontend.md) — supply the outcome metrics (automatic and manual capture).
 - [Agent Loop](agent-loop.md) — results feed back into the user's record and future reasoning ("your last magnesium trial was inconclusive").
 - [Storage](storage.md) — experiments and their time-boxed metric windows need a home in the schema.

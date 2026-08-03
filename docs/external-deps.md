@@ -72,7 +72,7 @@ The following require **nothing external** for 2 users who already hold their da
 - The store (Postgres + pgvector, schemas we own — no FHIR server to operate)
 - Vector store (Postgres + pgvector)
 - Apple Health **export** parse (no Apple Developer account needed)
-- Lab PDF ingestion (Tesseract + MedGemma — all local)
+- Lab PDF ingestion (text-layer parse + local doc-VLM — all local)
 - DICOM ingestion of files you already possess
 - Genome parsing of your 23andMe download
 - ClinicalTrials.gov, DailyMed, RxNorm, ClinVar, dbSNP (all free/keyless)

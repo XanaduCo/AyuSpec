@@ -17,6 +17,10 @@ The agent loop is the core reasoning engine. It takes a user query, orchestrates
 | `get_genomic_variants` | Query notable genomic variants and PRS scores |
 | `generate_doctor_packet` | Trigger doctor-packet generation for a specified scope |
 | `search_guidelines` | Search the bundled guideline corpus |
+| `query_health_model` | Traverse the [healthspan model](healthspan-model.md) — systems → functions → interventions/markers |
+| `resolve_modifiers` | Apply the user's conditions, anatomy, and environment to a candidate intervention set |
+| `rank_interventions` | Ordered candidates with all comparison axes, optionally via the preference model |
+| `suggest_markers` | What to measure for a function, by quality tier and ingestibility |
 
 ## Execution flow
 
@@ -67,7 +71,7 @@ The R1 prompt instructs it to structure the response as:
 [claim text] [GUIDELINE-BACKED: AHA Lipid Guidelines 2023]
 ```
 
-The frontend parses these annotations and renders them inline as tooltips.
+The frontend parses these annotations and renders them inline as tooltips. Labels are also the entry points for [Health Literacy & Epistemics](epistemics.md): the loop applies its injection policy to decide when a response should carry a just-in-time concept card (e.g. first `EVIDENCE: NONE`, a cross-tier comparison, a known self-deception trap).
 
 ## Audit log
 

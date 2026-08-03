@@ -41,7 +41,7 @@ The anchor workflow: ask ayuOS "what changed in my last 90 days?" and get a grou
 - **Apple Health live sync:** Pre-built ayuOS Companion iOS app (P1); or build-your-own against the OpenWearables API
 - **Target users (MVP):** 2 biohackers; scale target 100→1,000 users
 - **Federated analytics:** Phase 2, opt-in, citizen-science framing (not a capability multiplier)
-- **Governance firewall:** Commercial managed service is a separate entity from the open-source foundation; any Elyx/Chiranjiv integration is opt-in, separate-codepath, and disclosed
+- **Governance firewall:** Commercial managed service is a separate entity from the open-source foundation; any integration with an affiliated commercial entity is opt-in, separate-codepath, and disclosed
 
 ## What Kills Projects Like This
 
@@ -57,6 +57,8 @@ Maintainer burnout from keeping EHR/device connectors alive (vendor APIs break c
 - Storage layer: Postgres schemas (clinical/timeseries/ayuos/vectors), index extraction, time-series design
 - AI/ML layer: model roles (R1 vs. Qwen vs. MedGemma), routing logic, RAG design
 - Agent loop: tool definitions, reasoning chain, evidence-assertion labeling
+- Healthspan model: bundled knowledge graph (systems → functions → interventions/markers, modifier resolution, measurement quality tiers)
+- Health literacy & epistemics: concept library, decision-point injection, comparison frames, preference model (no explicit onboarding module)
 - PII gateway: local NER/regex, cloud escalation flow, audit log
 - Frontend/UI: local-only web app, chat interface, timeline view, doctor-packet generator
 - Federated analytics substrate: consent model, Flower/FLARE integration (Phase 2)

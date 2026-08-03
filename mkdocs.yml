@@ -76,6 +76,8 @@ nav:
   - Model Providers: model-providers.md
   - Agent Loop: agent-loop.md
   - Evidence & Hypotheses: evidence.md
+  - The Healthspan Model: healthspan-model.md
+  - Health Literacy & Epistemics: epistemics.md
   - Experimentation & Validation: experimentation.md
   - PII Gateway & Cloud Escalation: pii-gateway.md
   - Frontend & UI: frontend.md

@@ -13,7 +13,8 @@
 The primary interface. A conversation-style chat with the agent.
 
 - Markdown rendering for responses
-- Inline evidence labels (tooltips on `[SOURCE-BACKED]`, `[INFERRED]`, etc.)
+- Inline evidence labels (tooltips on `[SOURCE-BACKED]`, `[INFERRED]`, etc.); tapping a label expands the relevant [epistemics concept](epistemics.md) with the current claim as the worked example
+- Comparison frame: intervention-vs-intervention view on fixed axes (evidence, effect, cost, risk) per [Health Literacy & Epistemics](epistemics.md#the-comparison-frame)
 - Source cards: clicking a citation opens the underlying FHIR resource or document
 - Cloud escalation toggle per-query (off by default; shows the PII gateway preview flow)
 - Query history in the sidebar

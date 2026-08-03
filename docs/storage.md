@@ -110,6 +110,10 @@ and a wearable metric the next, with referential integrity either way.
 | `audit_log` | Append-only agent invocation log per [Agent Loop](agent-loop.md#audit-log) |
 | `agent_memory` | Conversation history / prior-query recall |
 
+Bundled knowledge content is deliberately **not** here either — [The Healthspan Model](healthspan-model.md)
+gets its own `knowledge` schema so shipped, versioned content stays separable from user-owned data and a
+content update never touches personal records.
+
 Provider credentials are deliberately **not** here — OAuth tokens and PATs belong in a secrets
 store (OS keychain or an encrypted file), not a queryable schema.
 

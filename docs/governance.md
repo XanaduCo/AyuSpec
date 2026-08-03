@@ -61,10 +61,10 @@ The sustainability model must be compatible with the trust claim. Any revenue th
 
 ## Governance firewall with commercial entities
 
-Ashish's other projects (Elyx, Chiranjiv) operate commercially. The governance firewall:
+Some entities affiliated with the project's maintainers operate commercially. The governance firewall:
 
 1. ayuOS captures no data centrally
-2. Any opt-in data contribution (federated analytics) is published openly, not fed to Elyx/Chiranjiv
+2. Any opt-in data contribution (federated analytics) is published openly, not fed to an affiliated commercial entity
 3. Any linkage between ayuOS and commercial projects requires a separate, prominently-disclosed opt-in
 4. Maintainers from commercial entities may contribute code but may not set the project's direction unilaterally
 
