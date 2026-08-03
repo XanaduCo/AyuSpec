@@ -136,22 +136,38 @@ or ML must be clearly disclosed**, which our local LLM reasoning arguably consti
       `DocumentReference` files, zero with inline data, 462 pointing at `Binary/<id>` — and
       zero `Binary` files present. Treat them as a coverage manifest, not content.
 
-## The unresolved fork: refresh tokens
+## Refresh tokens: an upgrade, not a critical-path dependency
 
 Epic's auto-distribution requires the app *"does not use refresh tokens **OR** uses refresh
 tokens and has a client credential uploaded by the vendor for that community member."*
 
-| Option | Consequence |
-|---|---|
-| **No refresh tokens** | True zero-touch distribution to all ~800 orgs. User re-authenticates through MyChart on every sync. For an occasional *"what changed in my last 90 days?"* workflow this is likely acceptable. |
-| **Refresh via device-local dynamic client registration** | Architecturally ideal for zero-egress — RFC 7591 at `POST {base}/oauth2/register`, keypair generated **on the user's device**, no shared secret ever leaves the machine. But may land in the per-org credential lane: ~500 orgs × a 7-click modal each, [documented first-hand](https://github.com/jmandel/health-skillz/blob/main/blog/epic/2026-02-11-epic-activation-journal.md). |
+| Option | What it gives | What it costs |
+|---|---|---|
+| **No refresh tokens** | True zero-touch distribution to all ~800 orgs | User re-authenticates through MyChart on every sync |
+| **Refresh via device-local dynamic client registration** | Persistent background sync, no re-login. Architecturally ideal for zero-egress — RFC 7591 at `POST {base}/oauth2/register`, keypair generated **on the user's device**, no shared secret ever leaves the machine. | *May* land in the per-org credential lane: ~500 orgs × a 7-click modal each, [documented first-hand](https://github.com/jmandel/health-skillz/blob/main/blog/epic/2026-02-11-epic-activation-journal.md) |
 
-**Epic's documentation does not say whether dynamic client registration trips the
-"uses refresh tokens" condition.** This is the highest-value unknown in the whole EHR path
-and must be settled empirically against the sandbox — not by further reading.
+**Epic's documentation does not say whether device-local dynamic client registration trips the
+"uses refresh tokens" condition.** Nobody has tested it. But this uncertainty **does not sit on
+the critical path**, and the design must not let it: no vendor's distribution policy can gate
+whether a user gets their records.
+
+**Decision — ship "no refresh tokens" as the floor; treat persistent refresh as a per-org
+upgrade.**
+
+- The **floor** is zero-touch to all ~800 orgs with re-authentication per sync. For the anchor
+  *"what changed in my last 90 days?"* cadence this is entirely acceptable — EHR data is not
+  polled hourly.
+- Persistent refresh is enabled **only for orgs where the sandbox proves** dynamic client
+  registration does *not* trip the manual-registration lane. Where it does — or where the test
+  is inconclusive — the org silently falls back to per-sync re-auth. Worst case below that is
+  the Tier 1 Apple export, which has no Epic dependency at all.
+
+So the empirical sandbox test (below) is no longer a blocker on building Tier 2. It only
+unlocks an optional enhancement, per-org, after the floor already works.
 
 Note also that refresh-token lifetime is **not under our control**: patients choose the
-persistent-access period in MyChart from options the org configures.
+persistent-access period in MyChart from options the org configures — another reason to treat
+refresh as an opportunistic upgrade rather than a guarantee to design around.
 
 ## Alternatives considered
 
@@ -165,7 +181,7 @@ persistent-access period in MyChart from options the org configures.
 
 ## Follow-up actions
 
-- [ ] **Empirically test** whether Epic dynamic client registration trips the refresh-token auto-distribution condition (sandbox).
+- [ ] **Empirically test** whether Epic dynamic client registration trips the refresh-token auto-distribution condition (sandbox). *Not a build blocker* — Tier 2 ships on the "no refresh tokens" floor; this test only unlocks the persistent-refresh upgrade per-org.
 - [ ] Email `support@fastenhealth.com`: (a) can a solo developer obtain **live-mode** credentials, (b) what is the billing unit and minimum for non-TEFCA portal connections, (c) is there an individual/hobbyist tier. **No pricing is published and community questions about an individual tier went unanswered** — this could make the premium tier unviable for our target users.
 - [ ] Pull Fasten's [public catalog](https://www.fastenhealth.com/directory) and confirm the two MVP users' actual health systems are covered.
 - [ ] Finalize the USCDI v3 resource list **before** marking any Epic app production-ready.

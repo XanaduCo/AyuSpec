@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The PII gateway sits between the agent and any outbound model call. It guarantees that no cloud-bound call escapes de-identification and review — the chokepoint is structural, with no code path around it. It does *not* promise perfect redaction: the local NER and regex stripping is best-effort and carries a measurable miss rate (see [open questions](#open-questions)). So the honest split is this — what is *impossible* is reaching a cloud service without passing through the gateway; what the gateway then makes *less likely*, not impossible, is an individual identifier surviving the strip.
+The PII gateway sits between the agent and any outbound model call. It guarantees that no cloud-bound call escapes de-identification and review — the chokepoint is structural, with no code path around it. It does *not* promise perfect redaction: the local NER and regex stripping is best-effort and carries a measurable miss rate (see [Measurement & the trust contract](#measurement-the-trust-contract)). So the honest split is this — what is *impossible* is reaching a cloud service without passing through the gateway; what the gateway then makes *less likely*, not impossible, is an individual identifier surviving the strip.
 
 ## When it activates
 
@@ -80,9 +80,75 @@ These are excluded rather than stripped because stripping cannot make them safe.
 
 When an exclusion drops content that was relevant to the query, the user is told — in the preview if one is shown, and in the ledger entry regardless. A silently narrowed answer is worse than a disclosed one.
 
+## Measurement & the trust contract
+
+"What is the acceptable miss rate?" is close to unanswerable as a single number, because PII is
+not fungible — a missed phone number is not the same risk as a missed name + DOB + MRN triple
+that re-identifies. The question is decomposed into a **contract** that CI enforces and the docs
+publish, rather than a magic threshold.
+
+### Split the surface by method
+
+Most of what the gateway strips is not the NER model's job. The [strip table](#what-it-strips)
+already routes the high-risk **direct identifiers** — SSN, MRN, phone/fax, DOB, structured
+dates, account numbers — to **deterministic regex**. These have formats, so near-100% recall is
+achievable and a miss is a *bug caught by a test suite*, not a statistic to be tolerated. That
+leaves NER responsible only for the genuinely unstructured entities — **names, addresses,
+facility names** — which is the far smaller surface the "acceptable miss rate" question actually
+applies to.
+
+| Surface | Method | Standard |
+|---|---|---|
+| Direct identifiers (SSN, MRN, phone/fax, DOB, structured dates, account #) | Deterministic regex | **100% on a versioned regex test suite.** Any miss is a release-blocking bug. |
+| Unstructured entities (names, addresses, facility names) | NER | **Published per-class recall** on a labelled corpus, re-run in CI, gating `off`-mode availability. |
+
+### Per-class recall, not one aggregate
+
+Recall (miss rate = 1 − recall) is reported **broken out by identifier class**, not as a single
+figure. Recall is the safety metric; precision (over-stripping, which destroys answer utility)
+is tracked as the utility metric. The strictest recall bar sits on the highest
+re-identification-risk classes. Note that [date-shifting](#date-shifting) already neutralises
+absolute dates, so a *missed* date is a lower-risk event than a missed name — the thresholds
+reflect that weighting.
+
+### The eval corpus
+
+A threshold cannot be set or measured without a labelled corpus, built from two sources:
+
+- **Synthetic backbone** — realistic *extracted* clinical text (lab panels, note snippets, med
+  lists — the shapes that actually flow through the gateway, not arbitrary prose) with injected
+  PII whose ground-truth spans we control. Thousands of examples, exact labels.
+- **External benchmark** — the **i2b2/n2c2 2014 de-identification corpus**, the standard
+  PHI-annotated dataset (HIPAA identifiers labelled), used as the objective yardstick recall is
+  published against. Access requires a data-use agreement.
+
+### Model: compose, don't fine-tune
+
+Start from **Microsoft Presidio** (MIT-licensed, open source) — it is already this architecture:
+regex recognizers + spaCy NER + context enhancement + per-entity confidence scores to gate on,
+all offline and extensible. Back the NER with **scispaCy `en_core_sci_md`**. A local-Ollama LLM
+pass is an *optional second belt* for the `off` tier, never the primary detector — a
+nondeterministic model cannot be regression-tested. A custom fine-tuned model is deferred; it
+carries the same content-rot maintenance liability the project avoids elsewhere.
+
+### The `off`-mode trust contract
+
+`off` review mode (standing consent, no per-send prompt) is unlocked only when **all** hold:
+
+1. The user has seen at least one full [preview](#user-preview) for that role (already required).
+2. The shipped model version has cleared the **per-class recall bars** on the eval corpus in CI.
+   A version that has not cleared them **cannot expose `off` in the UI**.
+3. A **runtime deterministic backstop runs even in `off`**: a cheap second-pass scan for
+   direct-identifier-shaped strings (SSN, MRN patterns) the first pass missed forces a prompt
+   regardless of mode. `off` means "don't ask me about routine sends," never "disable the safety
+   net."
+
+This turns an unanswerable question into a measurable, versioned, CI-enforced contract —
+consistent with the project's stance that where the architecture cannot *guarantee* privacy,
+transparency is the guarantee.
+
 ## Open questions
 
-- [ ] Which local NER model? Options: spaCy with en_core_sci_md, a local Ollama model prompted for NER, or a custom fine-tuned model.
-- [ ] Recall measurement: what is the acceptable miss rate for the stripper, and how is it measured against a labelled corpus before the gateway is trusted in `off` review mode?
+- [ ] Exact per-class recall targets for the NER-owned entities (names / addresses / facilities) — fix the numbers once the corpus is built and a first Presidio baseline is measured.
 - [ ] Date shifting: per-session or per-user? Per-session is simpler but loses cross-session date consistency.
-- [ ] Should the gateway support an "export mode" for users who want to share data with a doctor? (i.e., strip for a human recipient, not a cloud LLM)
+- [ ] Should the gateway support an "export mode" for users who want to share data with a doctor? (i.e., strip for a human recipient, not a cloud LLM — a different threat model from cloud-LLM egress.)

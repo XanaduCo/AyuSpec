@@ -1,7 +1,7 @@
 # The Healthspan Model
 
 !!! note "Status: draft"
-    Structure is decided (typed graph, hierarchical navigation, modifier resolution). Content authoring, coverage targets, and clinical review process are open. See [Open questions](#open-questions).
+    Structure is decided (typed graph, hierarchical navigation, modifier resolution, [layered provenance and user editability](#editability-provenance)). Content authoring, coverage targets, and clinical review process for the *default layer* are open. See [Open questions](#open-questions).
 
 ## Overview
 
@@ -143,16 +143,96 @@ both wrong and unmaintainable. Exertional chest pain, syncope, unexplained weigh
 
 ## Storage & shipping
 
-The graph is **bundled content, not user data** — so it gets its own schema (`knowledge`), separate from the user's `clinical` / `timeseries` / `ayuos` schemas in [storage](storage.md). That separation means it can be versioned, replaced, and reviewed independently of anything the user owns, and a model update never touches personal data.
+The **base layer** is **bundled content, not user data** — so it gets its own schema (`knowledge`), separate from the user's `clinical` / `timeseries` / `ayuos` schemas in [storage](storage.md). That separation means it can be versioned, replaced, and reviewed independently of anything the user owns, and **a model update never touches personal data** — a guarantee that the [overlay design](#editability-provenance) strengthens rather than weakens, because user edits never live in these tables.
 
 | Table | Contents |
 |---|---|
-| `knowledge.nodes` | Typed nodes with content, citations, `last_reviewed` |
-| `knowledge.edges` | Typed edges with their payloads |
+| `knowledge.nodes` | Typed nodes with content, citations, `last_reviewed`, `source` |
+| `knowledge.edges` | Typed edges with their payloads and `source` |
 | `knowledge.citations` | Source records, linked to the [evidence corpus](evidence.md#evidence-sources) |
 | `knowledge.model_version` | Shipped version; user-visible, so a changed recommendation can be traced to a content update |
 
-Authored as reviewable flat files (YAML per node/edge) in the repo, compiled into Postgres at install/update time, and embedded into `vectors` for semantic retrieval. Ships offline with the install, like the guideline corpus.
+The base layer is read-only at runtime: authored as reviewable flat files (YAML per node/edge) in the repo, compiled into Postgres at install/update time, and embedded into `vectors` for semantic retrieval. Ships offline with the install, like the guideline corpus. User and expert edits live in a separate overlay — see [Editability & provenance](#editability-provenance).
+
+## Editability & provenance
+
+The model ships as a **default**, not a verdict. It is transparent and editable: a user can
+override any recommendation, and — later — subscribe to a layer authored by a named expert.
+Every cell the system renders is **attributed to its source**, so the user always sees *whose*
+recommendation they are looking at.
+
+This is not only a sovereignty feature. It is what makes the model's authoring burden and
+editorial liability tractable (see [Authoring & maintenance](#authoring-maintenance)): instead
+of ayuOS bearing sole liability for one authoritative graph, responsibility attaches along
+**attribution lines** — the default layer to ayuOS's clinical reviewer, a `self` edit to the
+user, an expert layer to that named expert.
+
+### Layered, not edited in place
+
+The base graph is never mutated. Edits are an **overlay**, composed with the base at query time —
+the same way [modifier resolution](#modifier-resolution) already composes edges.
+
+| Layer | Lives in | Source | Mutability |
+|---|---|---|---|
+| **Base** | `knowledge` schema (bundled, versioned) | `ayuos_default` | Read-only; replaced wholesale on model update |
+| **Self** | User's `ayuos` schema (**personal data**) | `self` | User-authored and editable |
+| **Expert / community** | Installable content pack, layered like the base | `expert:<id>` / `community:<id>` | Read-only once installed; the user chooses to subscribe |
+
+Because self edits are personal data in the user's own schema, a base model update **cannot
+clobber them** and never touches them — this is why the overlay *strengthens* the "a model
+update never touches personal data" guarantee in [Storage & shipping](#storage-shipping).
+
+### Provenance on every edge
+
+Every node and edge carries a `source`, extending the existing `citations` / `last_reviewed` /
+`review_status` fields:
+
+- `source_type`: `ayuos_default` | `self` | `expert` | `community`
+- `source_id`: e.g. `expert:some-named-clinician`
+- `overrides`: an overlay edge names the base edge it supersedes, so the UI can show *"you
+  changed this from the default."*
+
+**Citations stay mandatory for every non-`self` source** — the CI gate in
+[Authoring & maintenance](#authoring-maintenance) is unchanged for the base and for expert
+packs. A `self` edge may be uncited, but it is then rendered through the existing
+[epistemics](epistemics.md) labelling as `EVIDENCE: NONE — user-authored`, so a user never
+mistakes their own assertion for evidence.
+
+### The no-synthesis invariant survives, reframed
+
+The [effectiveness-ordering](#effectiveness-ordering) rule — *"No cited edge, no cell; synthesis
+is not permitted"* — becomes: **every cell traces to an edge with a declared source.** A
+`self`-sourced cell is a legitimate, honestly-labelled case; what remains forbidden is the
+*model* inventing a cell at query time. The [retrieve-don't-invent](#agent-integration) guard is
+untouched — user editing adds a permitted non-default source, it does not open a synthesis path.
+
+### The safety floor is not editable
+
+[Red-flag routing](#red-flag-routing) edges — the `BLOCK`-with-no-target halts (exertional chest
+pain, syncope, neurological deficits → clinician) — are **locked system edges**. No overlay,
+`self` or expert, can override or remove them. This is the one place editability stops: a user
+must not be able to edit away a safety halt.
+
+### Resolution gains an authorship axis
+
+When layers disagree, precedence composes with the existing
+`BLOCK > REQUIRES > ADJUST > CAUTION > ELEVATE` ordering along an authorship axis:
+
+```
+locked safety edge  >  self edit  >  subscribed expert layer  >  ayuos_default
+```
+
+A user's own override wins for ranking and preference; a locked safety `BLOCK` always wins over
+everything. Every override is shown with its reason and its source, never applied silently —
+consistent with the rest of [modifier resolution](#modifier-resolution).
+
+### Scope
+
+- **Now:** build the provenance + overlay data model (cheap, and it future-proofs the rest).
+- **Early:** expose `self` editing — the sovereignty story.
+- **Deferred to [governance](governance.md):** the expert-publishing ecosystem — signing,
+  vetting, and distribution of expert/community packs is a trust-and-distribution decision, not
+  an MVP one.
 
 ## Agent integration
 
@@ -170,6 +250,8 @@ The agent **retrieves, it does not invent**. Any intervention claim in a respons
 ## Authoring & maintenance
 
 The honest risk: **this is the largest content-maintenance burden in the project**, and content rot here is worse than code rot — a stale recommendation looks exactly like a current one.
+
+This section governs the **default (`ayuos_default`) layer** and any **expert/community packs**. User `self` edits are personal data, uncited-but-labelled, and outside this gate — see [Editability & provenance](#editability-provenance). Distributing authorship across those layers is also what keeps editorial liability tractable: ayuOS owns review of the default it ships, not of every recommendation a user or expert authors on top.
 
 Mitigations:
 
@@ -216,4 +298,4 @@ records what building it forced this spec to change.
 - [ ] Interaction edges: worth the combinatorics in v1, or defer entirely to v2?
 - [ ] Supplement coverage — the biohacker audience expects it, but it is the weakest-evidence, highest-noise region of the graph. Ship it labelled honestly, or scope it out of v0?
 - [ ] Localisation and context: food, climate, and access assumptions are culturally specific. Does the graph carry regional variants, or ship one variant and accept the limitation?
-- [ ] How do we version *user-visible* recommendations — if a v2 content update reverses advice the user acted on, do we surface that proactively?
+- [ ] How do we version *user-visible* recommendations — if a v2 content update reverses advice the user acted on, do we surface that proactively? *(The [overlay's](#editability-provenance) `overrides` link and `model_version` make the diff computable — open question is the surfacing UX, especially when the reversed edge is one the user had overridden or subscribed to via an expert layer.)*

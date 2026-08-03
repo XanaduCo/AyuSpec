@@ -92,16 +92,18 @@ surfaced through the Epic org, valuable for an aggregator.
     new client ID and re-distribution from scratch. **Finalize the USCDI v3 resource list
     before marking production-ready.**
 
-### The refresh-token fork (unresolved)
+### Refresh tokens: the floor, plus a per-org upgrade
 
-| Option | Consequence |
-|---|---|
-| **No refresh tokens** | Zero-touch distribution to all ~800 orgs; user re-authenticates via MyChart each sync. Likely fine for an occasional "what changed in 90 days?" run. |
-| **Device-local dynamic client registration** | RFC 7591 at `POST {base}/oauth2/register` — keypair generated on the user's device, no shared secret ever leaves the machine. Ideal for zero-egress, but may require per-org credential upload across ~500 orgs. |
+| Option | What it gives | What it costs |
+|---|---|---|
+| **No refresh tokens** *(the floor)* | Zero-touch distribution to all ~800 orgs | User re-authenticates via MyChart each sync — fine for a "what changed in 90 days?" cadence |
+| **Device-local dynamic client registration** *(per-org upgrade)* | Persistent background sync, no re-login. RFC 7591 at `POST {base}/oauth2/register` — keypair generated on the user's device, no shared secret ever leaves the machine. | *May* require per-org credential upload across ~500 orgs |
 
-**Epic's docs do not say whether dynamic registration trips the refresh-token condition.**
-This must be settled empirically against the sandbox. See
-[ADR-0001](../adr/0001-ehr-ingestion.md#the-unresolved-fork-refresh-tokens).
+**Epic's docs do not say whether dynamic registration trips the refresh-token condition, and
+that uncertainty is deliberately kept off the critical path.** Tier 2 ships on the "no refresh
+tokens" floor; persistent refresh is enabled only for orgs the sandbox proves it works for, and
+falls back to per-sync re-auth (or, below that, the Tier 1 Apple export) otherwise. See
+[ADR-0001](../adr/0001-ehr-ingestion.md#refresh-tokens-an-upgrade-not-a-critical-path-dependency).
 
 ### Endpoint discovery
 
@@ -186,7 +188,7 @@ Procedure, Provenance, RelatedPerson, ServiceRequest, Specimen, and the Outside 
 
 ## Open questions
 
-- [ ] Does Epic dynamic client registration trip the refresh-token auto-distribution condition?
+- [ ] Does Epic dynamic client registration trip the refresh-token auto-distribution condition? *(Not a blocker — unlocks the persistent-refresh upgrade per-org; Tier 2 ships without it.)*
 - [ ] Which US Core version does Epic assert? (3.1.1 expired 2026-01-01; 6.1.0 is operative.)
 - [ ] Can a solo developer obtain Fasten Connect live-mode credentials, and at what price?
 - [ ] How is DSTU2 → R4 conversion handled for older Apple export records?
