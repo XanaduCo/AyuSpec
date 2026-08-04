@@ -82,9 +82,11 @@ const ADDENDUM_LABEL = {
 // between local and cloud in Settings changes what this answer was built from —
 // including, on several questions, whether it has an extra paragraph at all.
 function AiAnswer({ question, answer, declined }) {
-  const { posture } = usePosture()
+  const { posture, blocked, egressMode } = usePosture()
   const [toggles, setToggles] = useState({})
-  const where = posture.reasoner.where
+  // When egress is blocked, a cloud-configured reasoner resolves to local, so the
+  // trace is assembled under a local destination too.
+  const where = blocked ? 'local' : posture.reasoner.where
 
   const ctx = useMemo(
     () => assemble(question, { where, toggles }),
@@ -92,8 +94,18 @@ function AiAnswer({ question, answer, declined }) {
 
   const onToggle = (key, value) => setToggles(t => ({ ...t, [key]: value }))
 
+  // Allow-all sends silently — so the answer says so, in the open. The prompt is
+  // gone; the record and the gateway are not.
+  const autoSent = !declined && answer.cloud && where === 'cloud' && egressMode === 'allow'
+
   return (
     <div className="bubble ai">
+      {autoSent && (
+        <div className="autosent-note">
+          <span className="pill egress" style={{ fontSize: 11 }}><span className="led" />sent · no prompt</span>
+          <span className="faint">Egress approval is “allow all”, so this left for the cloud reasoner without asking — PII-stripped at the gateway and recorded in the ledger.</span>
+        </div>
+      )}
       {!declined && <ContextStrip ctx={ctx} onToggle={onToggle} />}
       <Blocks blocks={answer.blocks} />
       {!declined && ctx.addenda.map(a => (
@@ -225,6 +237,19 @@ function PreSendBubble({ question, onSend, onCancel }) {
   )
 }
 
+// A canned "egress is blocked" answer. When the global egress mode is `block`,
+// a cloud-configured reasoner is never called — the question is answered by the
+// local fallback and nothing leaves, stated plainly (Interaction law 6).
+function localBlocked(q) {
+  return {
+    blocks: [
+      { kind: 'lead', text: 'Kept on device — egress is blocked.' },
+      { kind: 'p', text: `Egress approval is set to **block all**, so the cloud reasoner was not called. “${q}” was answered by the local fallback model instead {{ev:src}} — nothing left the device.` },
+      { kind: 'p', text: 'Switch egress to **ask every time** or **let it decide** — in the header or in **Settings** — to use the cloud reasoner again. Your configured providers are remembered.' },
+    ],
+  }
+}
+
 // A canned "you kept it local" answer when the user declines a cloud call —
 // pairs the cloud tier with its zero-transit fallback (Interaction law 6).
 function localDecline(q) {
@@ -313,15 +338,18 @@ function ConversationHistory({ list, activeId, onSelect, onNew }) {
 }
 
 export default function Ask() {
-  const { posture, markPreviewSeen } = usePosture()
+  const { posture, blocked, markPreviewSeen } = usePosture()
   const drawer = useDrawer()
   const { list, activeId, active } = useConversations()
   const { newConversation, selectConversation, pushTurn, patchTurnMessage } = useSession().actions
 
   // Does this answer need the pre-send gate? Cloud reasoner + a cloud-marked
-  // answer + a review mode that asks. `new_shape` gates only the first call.
+  // answer + a review cadence that asks. `new_shape` gates only the first call.
+  // When egress is blocked, no cloud call happens at all — the gate is moot and
+  // the answer is served from the local fallback (handled in `submit`).
   const cloudApproved = useRef(false)
   const gateNeeded = answer => {
+    if (blocked) return false
     if (!answer.cloud || posture.reasoner.where !== 'cloud') return false
     const mode = posture.reasoner.review
     if (mode === 'off') return false
@@ -356,6 +384,11 @@ export default function Ask() {
       ? { role: 'clarify', question, turn }
       : (() => {
         const answer = ask(question)
+        // Block short-circuits any cloud answer to a local-fallback reply — no
+        // gate, no send. Cloud roles are honoured everywhere they would egress.
+        if (blocked && answer.cloud) {
+          return { role: 'ai', question, answer: localBlocked(question), declined: true }
+        }
         return gateNeeded(answer)
           ? { role: 'presend', question, answer }
           : { role: 'ai', question, answer }

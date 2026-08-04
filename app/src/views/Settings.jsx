@@ -1,19 +1,21 @@
 import { useState } from 'react'
-import { usePosture, ROLES, PROVIDERS, providerMeta, egressSummary } from '../mock/posture.jsx'
+import { usePosture, ROLES, PROVIDERS, providerMeta, egressSummary, EGRESS_MODES } from '../mock/posture.jsx'
 import PosturePill from '../components/PosturePill.jsx'
 import PreSendPanel from '../components/PreSendPanel.jsx'
 import Modal from '../components/Modal.jsx'
 import Switch from '../components/Switch.jsx'
 import { presend } from '../mock/ledger.js'
 
-const REVIEW_MODES = [
-  { key: 'every_call', t: 'every call', d: 'full preview + confirm before every send' },
-  { key: 'new_shape', t: 'new shape', d: 'confirm once per new payload shape, then proceed' },
-  { key: 'off', t: 'off', d: 'standing consent — no prompt (the ledger still records every call)' },
-]
+// How each cloud role's write-through cadence reads back in plain language. The
+// global egress mode is the control; this is the per-role reflection of it.
+const CADENCE_LABEL = {
+  every_call: 'asks before every call',
+  new_shape: 'asks on a new payload shape',
+  off: 'no prompt · still logged',
+}
 
 function RoleCard({ roleDef }) {
-  const { posture, setRole, previewSeen, markPreviewSeen } = usePosture()
+  const { posture, setRole, previewSeen, markPreviewSeen, blocked } = usePosture()
   const role = posture[roleDef.key]
   const meta = providerMeta(role.provider)
   const isCloud = role.where === 'cloud'
@@ -84,21 +86,16 @@ function RoleCard({ roleDef }) {
 
       {isCloud ? (
         <div className="review">
-          <span className="fl">review mode <span className="faint">· cloud only</span></span>
-          <div className="review-modes">
-            {REVIEW_MODES.map(rm => {
-              const locked = rm.key === 'off' && !previewSeen[roleDef.key]
-              return (
-                <label key={rm.key} className={`review-opt ${role.review === rm.key ? 'on' : ''} ${locked ? 'locked' : ''}`}
-                  title={locked ? 'See one full pre-send preview first — you can’t consent to a payload shape you’ve never looked at.' : rm.d}>
-                  <input type="radio" name={`review-${roleDef.key}`} value={rm.key}
-                    checked={role.review === rm.key} disabled={locked}
-                    onChange={() => setRole(roleDef.key, { review: rm.key })} />
-                  <span className="ro-t">{rm.t}{locked && ' 🔒'}</span>
-                  <span className="ro-d">{rm.d}</span>
-                </label>
-              )
-            })}
+          <span className="fl">egress cadence <span className="faint">· follows the global mode</span></span>
+          <div className="cadence-note">
+            <span className={`pill ${blocked ? 'block' : 'egress'}`} style={{ fontSize: 11 }}>
+              <span className="led" />{blocked ? 'egress blocked' : CADENCE_LABEL[role.review]}
+            </span>
+            <span className="faint">
+              {blocked
+                ? 'Egress is blocked session-wide, so this cloud role runs on its local fallback — nothing leaves.'
+                : 'Set once for the whole session under Egress approval above. The gateway strips every call regardless of the cadence.'}
+            </span>
           </div>
           <button className="btn ghost sm" onClick={openPreview} style={{ marginTop: 8 }}>
             Preview what would leave →
@@ -117,7 +114,7 @@ function RoleCard({ roleDef }) {
           <p className="note" style={{ marginTop: 0 }}>
             This is the exact panel you’d see before this role’s first cloud call — the redaction
             diff, the destination, and what is withheld outright. Reviewing it once unlocks
-            <b> review: off</b> for this role.
+            <b> Allow all egress</b> — you can’t consent to a payload shape you’ve never looked at.
           </p>
           <PreSendPanel presend={presend} />
         </Modal>
@@ -131,11 +128,11 @@ const CONSENT = `Enabling federated analytics means: your model gradients — ne
 No commercial use, and no linkage between your ayuOS participation and any commercial project, without a separate, explicit, prominently-disclosed opt-in. You can revoke at any time.`
 
 export default function Settings() {
-  const { posture } = usePosture()
+  const { posture, egressMode, setEgressMode, blocked, canAllow } = usePosture()
   const [telemetry, setTelemetry] = useState(false)
   const [federation, setFederation] = useState(false)
   const [consenting, setConsenting] = useState(false)
-  const eg = egressSummary(posture)
+  const eg = egressSummary(posture, egressMode)
 
   const toggleFederation = next => {
     if (next) setConsenting(true) // gated by consent
@@ -146,10 +143,43 @@ export default function Settings() {
     <div className="page page-narrow settings">
       <span className="eyebrow">Settings · where the posture in the header is set</span>
 
-      {/* Egress posture summary — computed from the three roles below. */}
-      <div className={`card egress-summary ${eg.tone}`} style={{ margin: '14px 0 26px' }}>
+      {/* Global egress-approval control — a session-wide permission mode. It sets
+          how often you are asked before a cloud call, and `block` denies cloud
+          calls outright. It never changes whether the gateway strips. */}
+      <div className={`card egress-approval ${blocked ? 'blocked' : ''}`} style={{ margin: '14px 0 18px' }}>
+        <div className="ea-head">
+          <span className="eyebrow">Egress approval · one setting for the whole session</span>
+          {blocked && <span className="pill block" style={{ marginLeft: 'auto' }}><span className="led" />blocked</span>}
+        </div>
+        <p className="note" style={{ margin: '6px 0 12px' }}>
+          Like a permission mode: it changes how often you’re asked before context leaves for a cloud
+          model — not whether the PII gateway runs. Stripping is unconditional and every call is
+          recorded in the ledger; these modes only move the prompt.
+        </p>
+        <div className="emode-opts">
+          {EGRESS_MODES.map(m => {
+            const on = egressMode === m.key
+            const locked = m.needsPreview && !canAllow
+            return (
+              <button key={m.key} type="button" disabled={locked}
+                className={`emode-opt ${m.tone} ${on ? 'on' : ''} ${locked ? 'locked' : ''}`}
+                title={locked ? 'See one full pre-send preview first — open a cloud role below and preview what would leave.' : m.d}
+                onClick={() => setEgressMode(m.key)}>
+                <span className="em-radio" aria-hidden />
+                <span className="em-t">{m.t}{locked && ' 🔒'}</span>
+                <span className="em-d">{m.d}</span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Egress posture summary — computed from the three roles below + the mode. */}
+      <div className={`card egress-summary ${eg.blocked ? 'blocked' : eg.tone}`} style={{ margin: '0 0 26px' }}>
         <div className="es-head">
-          <span className={`pill ${eg.tone}`}><span className="led" />{eg.tone === 'local' ? 'nothing leaves' : 'some context leaves, PII-stripped'}</span>
+          {eg.blocked
+            ? <span className="pill block"><span className="led" />nothing leaves · blocked</span>
+            : <span className={`pill ${eg.tone}`}><span className="led" />{eg.tone === 'local' ? 'nothing leaves' : 'some context leaves, PII-stripped'}</span>}
           <span className="eyebrow">egress posture</span>
         </div>
         <p className="es-headline">{eg.headline}</p>
