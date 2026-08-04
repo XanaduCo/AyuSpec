@@ -17,6 +17,7 @@ Two hard constraints:
 ## Design principles
 
 - **Labels are the curriculum.** The [evidence labels](evidence.md#strength-of-evidence-labeling) the agent already emits are the entry points. Every `EVIDENCE: LOW` is a teachable moment with the user's live decision as the worked example.
+- **Not a people-pleaser.** The goal is that the user understands their health, not that every question is met with prose. Where a question cannot be answered well as asked, saying so — and saying *why* — is the more useful response. This is the half of the thesis the rest of this page does not cover: teaching people to **ask** better questions, not only to weigh the answers. It is executed by the agent loop's [clarifying turn](agent-loop.md#the-clarifying-turn), which must always carry what it found and why a straight answer would be worse, never a bare question back.
 - **Just-in-time, not up-front.** A concept is surfaced the first time it's *load-bearing* for a decision the user is making — never as an abstract lesson.
 - **Self-retiring.** A [literacy profile](#the-literacy-profile) tracks what the user has engaged with. Once fluency is demonstrated, the system stops explaining and just uses the labels. Injection must never become nagging.
 - **Structure teaches.** The [comparison frame](#the-comparison-frame) does most of the pedagogy implicitly — fixed axes, side by side — without the system editorializing.
@@ -43,6 +44,7 @@ A small library (~20–30 entries) of **epistemic concepts**, each a first-class
 
 | Cluster | Concepts |
 |---|---|
+| **Asking answerable questions** | What makes a question answerable (a goal, a window, a comparator); why "what changed?" is underspecified and what it costs; the noise floor — no change smaller than a marker's own variability can be read as real; why one measurement is not a trend; `min_useful_interval` — when measuring more often tells you less |
 | **Evidence** | Hierarchy of evidence (anecdote → mechanistic → observational → RCT → meta-analysis); what a mechanistic study can and can't tell you; surrogate endpoints vs. outcomes that matter; conflicts of interest and who funded the study |
 | **Risk & probability** | Absolute vs. relative risk; base rates; effect size vs. certainty (small-certain vs. large-speculative); reasoning with imperfect data — deciding under uncertainty rather than waiting for proof |
 | **Why you can fool yourself** | The placebo effect as a real, quantified force; regression to the mean (you sought help when you felt worst); confounding ("I started three things at once"); post-hoc rationalization |
@@ -56,6 +58,8 @@ Rules the [agent loop](agent-loop.md) applies to decide when a concept is surfac
 
 | Trigger | Example | Concept surfaced |
 |---|---|---|
+| Underspecified question | User asks "what changed in my last 90 days?" — a window and no goal | What makes a question answerable, via the [clarifying turn](agent-loop.md#the-clarifying-turn) |
+| Sub-noise movement treated as a finding | User asks about a marker that moved less than its own test–retest band | The noise floor; measurement quality |
 | First encounter with a label type | First time the user sees `EVIDENCE: NONE` | Hierarchy of evidence |
 | Decision with a known trap | User attributes improvement to an intervention started during a symptom peak | Regression to the mean |
 | Intervention with strong placebo literature | User asks about an intervention where trials show large placebo arms | Placebo effect |
