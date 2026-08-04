@@ -94,7 +94,48 @@ query: should I be worried about my CAC score?`,
   },
 ]
 
-// The pre-send preview shown before the one cloud call above actually leaves.
+// Per-goal pre-send payloads.
+//
+// The diff has to quote the records the *chosen* goal actually selected. When
+// the consent screen showed a fixed ApoB line for every question, a user could
+// approve a payload headed by ApoB and then read an answer about HRV — the
+// screen was illustrating the gateway rather than reporting the payload, and it
+// read as the system contradicting itself. A consent screen that does not name
+// what is in this call is decoration.
+const PRESEND_BY_QUESTION = {
+  'What changed in my cardiac markers?': {
+    tokens: 2140, cost: 0.032,
+    diff: [
+      { pre: 'reviewed by ', rm: 'Dr. Sarah Chen', add: '[PROVIDER_NAME]' },
+      { pre: 'drawn ', rm: '2025-08-01', add: '2025-04-06 (−117d)' },
+      { pre: 'ApoB 95 mg/dL · LDL-C 128 mg/dL · CAC Agatston 0', keep: '✓ retained' },
+    ],
+  },
+  'What changed in my heavy metals?': {
+    tokens: 1180, cost: 0.018,
+    diff: [
+      { pre: 'collected at ', rm: 'Quest Diagnostics, San Mateo', add: '[FACILITY]' },
+      { pre: 'drawn ', rm: '2025-08-01', add: '2025-04-06 (−117d)' },
+      { pre: 'Mercury 12 µg/L (ref < 10) · no prior draw', keep: '✓ retained' },
+    ],
+  },
+  'What changed in my sleep and recovery?': {
+    tokens: 1960, cost: 0.029,
+    diff: [
+      { pre: 'device ', rm: 'Oura ring #A41C-8823', add: '[DEVICE_ID]' },
+      { pre: 'nights ', rm: '2025-05-05 → 2025-08-01', add: '2025-01-08 → 2025-04-06 (−117d)' },
+      { pre: 'HRV 46 → 42 ms · REM −7 min · VO₂max 50.7 → 52.0', keep: '✓ retained' },
+    ],
+  },
+}
+
+// The pre-send preview shown before a cloud call actually leaves. Falls back to
+// the canonical example for the Transparency view and unauthored questions.
+export function presendFor(question) {
+  const scoped = PRESEND_BY_QUESTION[question]
+  return scoped ? { ...presend, ...scoped } : presend
+}
+
 export const presend = {
   destination: 'api.anthropic.com',
   model: 'claude-opus-4-8',

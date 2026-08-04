@@ -30,30 +30,76 @@ export const suggestedQuestions = [
 
 // block kinds: 'lead' | 'p' | 'frame' | 'sources' | 'concept'
 export const answers = {
-  'What changed in my last 90 days?': {
+  // NOTE: "What changed in my last 90 days?" deliberately has no entry here.
+  // It has no goal term, so it cannot be ranked and does not get a synthesis —
+  // it resolves to a deterministic clarifying turn instead (see
+  // `clarifyingTurns` below). The old synthesis for it led with HRV while the
+  // consent screen led with ApoB, which is the exact incoherence the two-stage
+  // split exists to remove: retrieval rank and salience rank are different
+  // orderings, and showing both without saying so reads as the system
+  // contradicting itself.
+
+  // --- the three scoped re-asks the clarifying turn hands off to ---------------
+  // Each one has a goal, so each one can be ranked — and each payload is scoped
+  // to that goal rather than to everything that moved. This is the turn where a
+  // cloud model earns its place and where the egress decision belongs.
+  'What changed in my cardiac markers?': {
     cloud: true,
-    tools: ['get_time_series', 'get_trend', 'get_correlations', 'search_records', 'search_guidelines'],
+    tools: ['get_time_series', 'get_trend', 'query_clinical', 'search_guidelines', 'query_health_model'],
     actions: [
       { kind: 'experiment', propose: 'fibre', label: 'Test the ApoB lever' },
-      { kind: 'share', domains: ['cardiac','metabolic'], label: 'Add to a doctor packet' },
+      { kind: 'share', domains: ['cardiac'], label: 'Add to a doctor packet' },
     ],
     blocks: [
-      { kind: 'lead', text: 'Three things stand out over the last 90 days.' },
-      { kind: 'p', text: 'Your **HRV is down ~8%** (46 → 42 ms) {{cite:obs-hrv}}, while **VO₂max rose 2.5%** (50.7 → 52.0) {{cite:obs-vo2max}}. Those often move together in the *opposite* direction, so the pair is worth watching rather than either alone {{ev:inf}}.' },
-      { kind: 'p', text: '**ApoB rose to 95 mg/dL** {{cite:obs-apob}}, now above the < 90 guideline threshold {{ev:guide}}. With a family history of early coronary disease, this is the number I would prioritise re-testing {{ev:inf}}.' },
-      { kind: 'p', text: 'Post-meal glucose looks **more variable** — peaks roughly 15 mg/dL higher after refined-carb meals {{ev:inf}}. This is exactly what your active experiment {{cite:exp-postmeal-walks}} is testing.' },
+      { kind: 'lead', text: 'One number moved in a way worth acting on, against one that argues the other way.' },
+      { kind: 'p', text: '**ApoB rose 88 → 95 mg/dL** {{cite:obs-apob}}, crossing the < 90 threshold the guideline corpus returns for someone with your family history {{ev:guide}}. LDL-C {{cite:obs-ldl}} moved with it, which is what you would expect — where the two disagree, ApoB counts the actual particle burden and is the one I would trust {{ev:guide}}.' },
+      { kind: 'p', text: 'Against that: your **coronary calcium score is 0** {{cite:img-cac}} — no detectable plaque as of that scan, which is the most reassuring datum in your record {{ev:src}}. A rising ApoB with a CAC of 0 is a trajectory question, not an alarm {{ev:inf}}.' },
       { kind: 'concept', concept: 'effect-vs-certainty',
-        text: 'A change being *real* and a change being *large enough to act on* are separate questions. HRV moves day to day; an 8% shift over 90 days is a trend, not a blip — but it is modest.' },
-      { kind: 'p', text: 'The highest-evidence lever available to you here is post-meal walking {{ev:high}} — compare it against the alternatives:' },
+        text: 'A 7 mg/dL rise is well past the assay noise, so the change is real. Whether it is *large enough to act on* is a separate question, and the CAC of 0 is what makes it a watch-and-retest rather than an urgent one.' },
+      { kind: 'p', text: 'The levers available, on the same axes, with no ranking applied:' },
       { kind: 'frame', caption: 'Comparison frame — the system fills the cells and stops. No score, no recommendation.',
         cols: ['Option', 'Evidence', 'Effect', 'Certainty', 'Cost', 'Risk', 'Reversible', 'Effort'],
         rows: [
-          { cells: ['Post-meal walks', { ev: 'high' }, 'Moderate', 'High', 'Free', 'None', 'Yes', 'Daily habit'] },
-          { cells: ['NMN 500 mg/day', { ev: 'low' }, 'Unknown', 'Low', '~$80/mo', 'LT unknown', 'Yes', 'Trivial'] },
+          { cells: ['Soluble fibre +10 g/day', { ev: 'moderate' }, 'Small on ApoB', 'Moderate', '~$15/mo', 'None', 'Yes', 'Daily habit'] },
+          { cells: ['Post-meal walks', { ev: 'high' }, 'Moderate (glucose)', 'High', 'Free', 'None', 'Yes', 'Daily habit'] },
           { cells: ['Statin (discuss w/ MD)', { ev: 'high' }, 'Large on ApoB', 'High', '~$10/mo', 'Low', 'Yes', 'Daily pill'] },
         ] },
-      { kind: 'sources', text: 'Sourced from your stored records — click any to open it:',
-        cites: ['panel-lipid-2025-08', 'obs-hrv', 'obs-vo2max', 'exp-postmeal-walks'] },
+      { kind: 'p', text: 'What I cannot tell you: your personal 10-year event risk, whether to start a statin, or that any one of these caused another. Those are clinician decisions {{ev:none}}.' },
+      { kind: 'sources', text: 'Records behind this answer:', cites: ['obs-apob', 'obs-ldl', 'img-cac', 'panel-lipid-2025-08'] },
+    ],
+  },
+
+  'What changed in my heavy metals?': {
+    cloud: true,
+    tools: ['query_clinical', 'search_guidelines', 'search_records'],
+    actions: [
+      { kind: 'share', domains: ['metals'], label: 'Add to a doctor packet' },
+    ],
+    blocks: [
+      { kind: 'lead', text: 'Strictly, nothing changed — because there is nothing to compare it to.' },
+      { kind: 'p', text: '**Blood mercury came back at 12 µg/L** {{cite:obs-mercury}}, above the 10 µg/L ATSDR reference ceiling {{ev:guide}}. That is a real out-of-range result and worth following up.' },
+      { kind: 'p', text: 'But this is the **first mercury measurement in your record** {{ev:src}}. There is no prior draw, so I cannot tell you whether it is rising, falling, or exactly where it has always sat. A single point is not a trend, and treating it as one is the most common way to over-read a lab {{ev:inf}}.' },
+      { kind: 'concept', concept: 'measurement-quality',
+        text: 'One measurement establishes a level, not a direction. The only thing that turns this into a trend is a second draw — which is why the useful next step is a re-test, not an intervention.' },
+      { kind: 'p', text: 'Your nutrition log does show **elevated seafood intake** across the same period {{cite:nutr-seafood-trend}}, which is a plausible and benign explanation {{ev:inf}} — but plausible is not established, and I have no pre-exposure baseline to test it against.' },
+      { kind: 'sources', text: 'Records behind this answer:', cites: ['obs-mercury', 'nutr-seafood-trend'] },
+    ],
+  },
+
+  'What changed in my sleep and recovery?': {
+    cloud: true,
+    tools: ['get_time_series', 'get_trend', 'get_correlations', 'search_records'],
+    actions: [
+      { kind: 'experiment', propose: 'caffeine', label: 'Test a sleep lever' },
+    ],
+    blocks: [
+      { kind: 'lead', text: 'Two things moved in opposite directions, which is more informative than either alone.' },
+      { kind: 'p', text: '**HRV fell ~8%** (46 → 42 ms) {{cite:obs-hrv}} while **VO₂max rose 2.5%** (50.7 → 52.0) {{cite:obs-vo2max}}. Those usually move together, so the divergence is the finding here — not the HRV number by itself {{ev:inf}}.' },
+      { kind: 'p', text: 'Underneath it, **REM fell about 7 min/night while total sleep held steady** {{cite:obs-rem}} — a change only visible in the stage split, invisible in total-hours {{ev:src}}. Resting heart rate is flat {{cite:obs-rhr}}, which argues against overtraining {{ev:inf}}.' },
+      { kind: 'concept', concept: 'confounding',
+        text: 'A training build, warmer weather, and a travel week all overlap this window. When several inputs move together, observation alone cannot credit any one of them.' },
+      { kind: 'p', text: 'A rising VO₂max during a build phase can transiently suppress HRV, which would make this expected rather than concerning {{ev:inf}}. Separating that from the alternatives needs training held roughly constant while HRV is watched — an n-of-1 question, not an observational one {{ev:none}}.' },
+      { kind: 'sources', text: 'Records behind this answer:', cites: ['obs-hrv', 'obs-vo2max', 'obs-rem', 'obs-rhr'] },
     ],
   },
 
@@ -245,6 +291,73 @@ export const defaultAnswer = {
     { kind: 'lead', text: 'This is a demo with a fixed dataset.' },
     { kind: 'p', text: 'Try one of the suggested questions — those have fully worked answers with evidence labels, comparison frames, and source cards. Everything is mocked and runs locally in your browser {{ev:none}}.' },
   ],
+}
+
+// --- clarifying turns -------------------------------------------------------
+// A question with no goal term cannot be ranked, so it does not get a synthesis.
+// It gets this instead: the Stage 1 candidate set, grouped, with the reason each
+// group earned its place — and the reason a straight answer would be worse.
+//
+// Three properties make this the *first* turn rather than a fallback:
+//
+//   · it is DETERMINISTIC. No model is called. Everything below is computed from
+//     the store by the mechanistic pass, which is why `local: true` and why no
+//     pre-send gate appears — there is no payload, because nothing is being sent.
+//   · it PAYS FOR ITSELF. Each option carries its finding, so the user learns
+//     what moved in the act of choosing what to spend an answer on.
+//   · it GROUPS, it does not rank. Counts and findings, no ordering claim.
+//
+// The egress decision moves to the *second* turn, where the user knows what they
+// are buying and the payload is scoped to a goal they picked.
+export const clarifyingTurns = {
+  'What changed in my last 90 days?': {
+    clarify: true,
+    local: true,
+    tools: ['get_time_series', 'get_trend', 'query_clinical', 'get_correlations'],
+    lead: 'Eleven markers moved more than their own measurement noise in that window.',
+    why: 'But "what changed" has no target, so I have no basis for saying which of the eleven matters to you — and a list would imply they matter equally. They don\'t. A statin decision and a seafood habit are not the same question.',
+    groups: [
+      {
+        key: 'cardiac',
+        label: 'Cardiac',
+        count: 3,
+        finding: '**ApoB rose 88 → 95 mg/dL**, crossing the < 90 threshold your family history makes relevant. LDL-C and non-HDL moved with it.',
+        reasons: ['change', 'guideline', 'outlier'],
+        cites: ['obs-apob', 'obs-ldl'],
+        question: 'What changed in my cardiac markers?',
+      },
+      {
+        key: 'metals',
+        label: 'Heavy metals',
+        count: 1,
+        finding: '**Blood mercury 12 µg/L**, above its 10 µg/L reference ceiling — but this is one draw with no prior comparator, so strictly it has not *changed*. There is nothing to compare it against.',
+        reasons: ['outlier', 'unique'],
+        cites: ['obs-mercury'],
+        question: 'What changed in my heavy metals?',
+      },
+      {
+        key: 'sleep',
+        label: 'Sleep & recovery',
+        count: 4,
+        finding: '**HRV fell ~8%** (46 → 42 ms) and **REM fell ~7 min/night** while total sleep held. VO₂max rose over the same window, which is the opposite of what usually accompanies falling HRV.',
+        reasons: ['change', 'contradiction'],
+        cites: ['obs-hrv', 'obs-rem', 'obs-vo2max'],
+        question: 'What changed in my sleep and recovery?',
+      },
+    ],
+    unremarkable: {
+      count: 3,
+      text: 'Three others cleared their noise floor but stayed inside their reference ranges — CRP fell 1.1 → 0.8, ferritin rose, and body composition was measured once. Say the word and I will list them.',
+    },
+    concept: {
+      concept: 'measurement-quality',
+      text: 'Sixty-one other analytes were checked and moved *less* than their own test–retest band. A number that wobbles inside its noise floor has not changed, however different the two printed values look.',
+    },
+  },
+}
+
+export function clarifyFor(question) {
+  return clarifyingTurns[question] || null
 }
 
 export function ask(question) {

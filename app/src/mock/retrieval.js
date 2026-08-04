@@ -417,6 +417,110 @@ export const retrieval = {
   },
 
   // ---------------------------------------------------------------------------
+  // --- the three scoped re-asks --------------------------------------------
+  // Same window and same store as the anchor question, but a goal narrows the
+  // tag set — so the candidate sweep is smaller, the payload is smaller, and
+  // the consent screen has something specific to name. This is the practical
+  // argument for establishing the goal before spending egress on it.
+  'What changed in my cardiac markers?': {
+    intent: 'Rank cardiac change against the goal the user just chose.',
+    tags: ['lipids', 'cardiac', 'labs', 'imaging', 'bp', 'meds', 'family', 'guideline'],
+    windowDays: 90,
+    plan: [
+      { tool: 'get_trend', args: 'cardiac analytes vs. prior 90-day window', yields: '3 deltas past noise floor' },
+      { tool: 'query_clinical', args: 'category=laboratory, panel=Lipids, from=2025-05-05', yields: '11 results' },
+      { tool: 'search_guidelines', args: 'ApoB / LDL-C thresholds w/ family history', yields: '3 statements' },
+      { tool: 'query_health_model', args: 'function=vascular, markers→interventions', yields: '6 cited edges' },
+    ],
+    picks: [
+      { id: 'obs-apob', reasons: ['change', 'guideline', 'outlier'], note: '+7 mg/dL, past the assay noise floor and above the guideline threshold' },
+      { id: 'obs-ldl', reasons: ['change', 'guideline'] },
+      // The CAC study itself is a hard pixel exclusion and appears under policy,
+      // not here. What reaches the model is the extracted Agatston score — which
+      // is the record's strongest *disconfirming* evidence, so it has to reach it.
+      { id: 'ev-cac', reasons: ['contradiction'], virtual: true, label: 'CAC Agatston 0 (extracted impression)',
+        note: 'retrieved because it argues against the emerging concern — the single most reassuring datum in the record' },
+      { id: 'obs-non-hdl', reasons: ['corroborate'] },
+      { id: 'fh-father-cad', reasons: ['guideline'], note: 'what moves the ApoB target from < 100 to < 90' },
+      { id: 'cond-htn', reasons: ['corroborate'] },
+      { id: 'panel-context', reasons: ['baseline'], virtual: true, label: 'Prior draw (2025-05-02)' },
+    ],
+    aggregate: [],
+    guidelines: ['AHA/ACC 2018 lipid — ApoB < 90 mg/dL for elevated risk', 'CAC 0 as a near-term negative predictor'],
+    counterfactuals: {
+      genome: { picks: ['gen-lpa', 'gen-prs'],
+        addendum: [p('Two genomic findings bear on this: **LPA rs3798220** {{cite:gen-lpa}} and a **CVD polygenic score at the 70th percentile** {{cite:gen-prs}} — both context, neither a verdict, and the score is derived from European-ancestry cohorts so it is less predictive for you {{ev:low}}.')] },
+      widen: { days: 730, label: '2 years', picks: ['draw-2024-11-16'],
+        addendum: [p('Across nine draws ApoB has risen monotonically {{cite:obs-apob}}. One delta is a change; nine draws are a trajectory, and the trajectory is what makes this worth acting on {{ev:src}}.')] },
+    },
+    caveats: {
+      coverage: 'No lipid draw between 2025-05-02 and 2025-08-01, so the "when did it start rising" question cannot be answered more precisely than a 90-day block.',
+      pixelsExcluded: 'The CAC scan\'s pixel data never left the device — it cannot, under any setting. What the reasoner saw was the extracted Agatston score of 0. Clicking the citation still opens the full study locally; that is inspection, not egress.',
+    },
+  },
+
+  'What changed in my heavy metals?': {
+    intent: 'Establish whether a single out-of-range result is a change at all.',
+    tags: ['metals', 'labs', 'nutrition', 'seafood', 'coverage'],
+    windowDays: 90,
+    plan: [
+      { tool: 'query_clinical', args: 'panel=Heavy metals, from=2025-05-05', yields: '4 results, 1 out of range' },
+      { tool: 'get_trend', args: 'mercury vs. prior draws', yields: 'no prior comparator' },
+      { tool: 'search_guidelines', args: 'blood mercury reference', yields: '1 statement' },
+      { tool: 'search_records', args: '"seafood OR fish", k=8', yields: '1 nutrition trend' },
+    ],
+    picks: [
+      { id: 'obs-mercury', reasons: ['outlier', 'unique'], note: 'above its reference ceiling, and the only measurement of its kind in the record — there is no delta to compute' },
+      { id: 'obs-lead', reasons: ['weak-signal'] },
+      { id: 'obs-cadmium', reasons: ['weak-signal'] },
+      { id: 'obs-arsenic', reasons: ['weak-signal'] },
+      { id: 'nutr-seafood-trend', reasons: ['correlation'], note: 'a plausible exposure route, retrieved so the answer can name it as untested rather than silent' },
+    ],
+    aggregate: [{ id: 'nutr-seafood-trend', method: '90 days of logged meals → one intake trend' }],
+    guidelines: ['ATSDR blood mercury reference 10 µg/L'],
+    counterfactuals: {
+      widen: { days: 730, label: '2 years', picks: [],
+        addendum: [p('Widening the window changes nothing: there is still no earlier mercury draw {{ev:none}}. A coverage gap is not fixed by asking for more of a window that never contained the measurement.')] },
+    },
+    caveats: {
+      coverage: 'One mercury measurement exists in the entire record. Every directional claim about it — rising, falling, stable — is unsupported, and the answer says so rather than picking one.',
+    },
+  },
+
+  'What changed in my sleep and recovery?': {
+    intent: 'Read a divergence between two recovery signals that usually move together.',
+    tags: ['hrv', 'sleep', 'recovery', 'training', 'fitness', 'activity'],
+    windowDays: 90,
+    plan: [
+      { tool: 'get_time_series', args: 'hrv, rem, rhr, vo2max, from=2025-05-05', yields: '4 series · 4,300 points' },
+      { tool: 'get_trend', args: 'per series vs. prior 90-day window', yields: '3 deltas past noise floor' },
+      { tool: 'get_correlations', args: 'window=90d, min|r|=0.4', yields: '2 pairs' },
+      { tool: 'search_records', args: '"travel OR illness OR training block", k=8', yields: '2 hits' },
+    ],
+    picks: [
+      { id: 'obs-hrv', reasons: ['change'], mode: 'summary', note: 'largest relative move of any daily series in the window' },
+      { id: 'obs-vo2max', reasons: ['change', 'contradiction'], note: 'moved the opposite way to HRV — the pair is the finding, not either number alone' },
+      { id: 'obs-rem', reasons: ['change'], note: '−7 min/night while total sleep held; only visible in the stage split' },
+      { id: 'obs-rhr', reasons: ['weak-signal'], note: 'flat, which is what argues against overtraining — a non-finding that changes the conclusion' },
+      { id: 'block-summary', reasons: ['aggregate', 'correlation'] },
+      { id: 'sleep-summary', reasons: ['aggregate'] },
+    ],
+    aggregate: [
+      { id: 'obs-hrv', method: 'trend + 3 change-points' },
+      { id: 'sleep-summary', method: '1,092 nights → nightly stage means' },
+    ],
+    guidelines: [],
+    counterfactuals: {
+      raw: { unitId: 'sleep-raw', label: 'Send the raw nightly series instead of the summary',
+        addendum: [p('The raw series carries per-night stage durations for every night in the window {{ev:src}}. It says nothing the trend and change-points did not already carry — it just costs an order of magnitude more to send.')] },
+      widen: { days: 365, label: '1 year', picks: ['block-aerobic-2025'],
+        addendum: [p('Over a year the HRV dip sits inside normal seasonal range {{cite:obs-hrv}}, and the training block {{cite:block-aerobic-2025}} lines up with it — which weakens the concern rather than strengthening it {{ev:inf}}.')] },
+    },
+    caveats: {
+      speciation: 'HRV here is Oura’s overnight rMSSD. Whoop reports a different HRV on the same nights; the two are not interchangeable, and this answer quotes only the Oura series.',
+    },
+  },
+
   'Explain my lipid panel': {
     intent: 'Read one panel in plain language, in context.',
     tags: ['lipids', 'cardiac', 'labs', 'guideline', 'quality'],

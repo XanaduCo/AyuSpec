@@ -7,7 +7,9 @@
 This is the query the product is judged on. Ravi has labs every quarter, an Oura ring, a Whoop, an Epic record, a brain MRI, and a 23andMe file — and until now, no single place that could answer *"what actually changed, and does my heart look okay?"* He wants a synthesis — not another dashboard — that reads across **all** his sources at once, tells him what moved, labels how sure it is, and — critically — does it without shipping his health record to anyone. He is mildly anxious (father had an MI at 62) and time-poor. The job he is hiring ayuOS for: *replace the mental work of stitching six silos together into one grounded paragraph.*
 
 !!! abstract "Why this journey is the reciprocity high-water mark"
-    The whole exchange is **one question in, a cross-source grounded answer out, zero egress.** He supplies a single sentence and a few seconds of patience; he gets back a labeled synthesis across labs, wearables, imaging, meds, genome, and family history — every claim one tap from its source, computed entirely on his own machine. No prior tool he has used can produce this answer at all, let alone offline. Everything else in this page is in service of not squandering that one ask.
+    The whole exchange is **one sentence and one tap in, a cross-source grounded answer out, zero egress.** He gets back a labeled synthesis across labs, wearables, imaging, meds, genome, and family history — every claim one tap from its source, computed entirely on his own machine. No prior tool he has used can produce this answer at all, let alone offline.
+
+    The tap is not a tax on the ask; it is where most of the value lands. His question had no goal in it, so it could not be ranked — and the turn that tells him so hands back every finding it has while asking. He spends one tap and learns what moved, why it could not be ordered for him, and what a better question looks like. Everything else on this page is in service of not squandering that.
 
 ## Preconditions
 
@@ -36,13 +38,36 @@ This is the query the product is judged on. Ravi has labs every quarter, an Oura
 ### Step 2 — Ask the question (voice *or* text)
 
 - **User intent here:** phrase it the way he'd ask a smart friend.
-- **User does:** taps the mic and **speaks**: *"What changed in my last 90 days? I care most about my heart."* (Typing the same sentence is equivalent — voice is a first-class input.)
+- **User does:** taps the mic and **speaks**: *"What changed in my last 90 days?"* (Typing the same sentence is equivalent — voice is a first-class input.)
 - **System does:** transcribes on-device, drops the text into the composer for him to eyeball, and submits. The transcription itself is a model call and is ledgered like any other.
-- **Value returned this step:** he expressed intent hands-free in ~4 seconds; the cardiac focus he voiced becomes a real constraint on retrieval, not decoration.
+- **Value returned this step:** he expressed intent hands-free in ~4 seconds, in the words he'd actually use.
 - **Modality:** **voice** input (on-device STT), with the transcript shown before send.
-- **UX constraints / laws:** reciprocity — the spoken focus ("my heart") is *used*, narrowing the answer rather than being ignored. Voice transcription is on-device in the zero-egress default (an [open question](../frontend.md) flags optional cloud STT as strictly opt-in).
+- **UX constraints / laws:** Voice transcription is on-device in the zero-egress default (an [open question](../frontend.md) flags optional cloud STT as strictly opt-in). Note what he did *not* say: any indication of what he's trying to decide. That omission is the subject of the next step.
 
-### Step 3 — The agent plans and runs tools, visibly local
+### Step 3 — The system declines to rank, and says why
+
+- **User intent here:** he asked a simple question and expects a simple answer.
+- **User does:** waits about a second.
+- **System does:** runs the [mechanistic pass](../agent-loop.md#stage-1-mechanistic-change-detection-no-model) — deterministic, no model — and finds **eleven markers that moved further than their own measurement noise**. It does not synthesise. The question named a window and no goal, so there is no basis on which to say which of the eleven matters, and a ranked list would assert an equivalence the data does not support. It returns a [clarifying turn](../agent-loop.md#the-clarifying-turn) instead: what it found, grouped by system with the reason each group earned its place, why a straight answer would be worse, and the choice.
+    > Eleven markers moved more than their own measurement noise in that window. But "what changed" has no target, so I have no basis for saying which of the eleven matters to you — and a list would imply they matter equally. They don't.
+    >
+    > **Cardiac** — ApoB rose 88 → 95 mg/dL, crossing the < 90 threshold your family history makes relevant `(3 markers · △ change-point · ▤ guideline-cited · ! out of range)`
+    > **Heavy metals** — blood mercury above its reference ceiling. One draw, no prior comparator, so strictly this hasn't *changed* `(1 marker · ! out of range · ◆ only one of its kind)`
+    > **Sleep & recovery** — HRV fell ~8% and REM fell ~7 min/night while total sleep held; VO₂max rose over the same window `(4 markers · △ change-point · ⊗ disconfirms)`
+- **Value returned this step:** he learns what moved **in the act of being asked** — the turn pays for the effort it requests, which is the reciprocity test. He also learns something durable: that his question was underspecified, and why.
+- **Modality:** grouped result cards with hue-free reason chips; each card is the button that asks its own sharpened question.
+- **UX constraints / laws:** this is **not** a gate — [Law 5](../design-system.md#interaction-laws) governs reaching the ask box, not what follows a question. It **groups rather than ranks**, so [Law 2](../design-system.md#interaction-laws) holds. And it is **deterministic**: no model ran, so there is no payload, nothing to preview, and nothing to consent to. Sixty-one other analytes were checked and moved *less* than their test–retest band; a number wobbling inside its noise floor has not changed, however different the two printed values look.
+
+### Step 4 — He picks the goal, and now the agent is worth calling
+
+- **User intent here:** *"the heart one."*
+- **User does:** taps **Cardiac**, which re-asks the question scoped: *"What changed in my cardiac markers?"*
+- **System does:** with a goal established, [salience](../agent-loop.md#stage-2-salience-model) is now defined, and the candidate sweep narrows from ~62,000 rows to a cardiac slice. This is the turn a reasoner earns — the previous one was arithmetic.
+- **Value returned this step:** one tap converts a question that could not be answered well into one that can.
+- **Modality:** tap on a result card; the sharpened question appears in the thread as if he had typed it.
+- **UX constraints / laws:** the sharpened question is **visible and editable**, never an invisible rewrite — the user must be able to see what they are now asking. Clarifications do not stack: having asked once, the loop does not ask again in this conversation.
+
+### Step 5 — The agent plans and runs tools, visibly local
 
 - **User intent here:** trust that this is really happening on his machine.
 - **User does:** waits. Watches.
@@ -57,7 +82,7 @@ This is the query the product is judged on. Ravi has labs every quarter, an Oura
 - **Modality:** live tool-trace strip; header posture indicator.
 - **UX constraints / laws:** posture always on screen (Law 1); local latency shown as it is — seconds of visible work, never dressed up as instant (see [latency expectations](../frontend.md)). Every one of these calls lands in the [call ledger](../ai-transparency.md) with `any_left_device = false`.
 
-### Step 4 — The answer streams, every claim labeled
+### Step 6 — The answer streams, every claim labeled
 
 - **User intent here:** read one grounded paragraph, not ten charts.
 - **User does:** reads as the reasoner (DeepSeek-R1, local) streams the synthesis over a few seconds.
@@ -67,7 +92,7 @@ This is the query the product is judged on. Ravi has labs every quarter, an Oura
 - **Modality:** streamed markdown; inline tappable labels.
 - **UX constraints / laws:** every claim carries a label (Law 3); strength is hue-free by construction so it can never be confused with the green/amber egress language; data over chrome (Law 8) — `95 mg/dL`, `0`, dates all in tabular monospace. Tapping any label expands a [concept card](../epistemics.md) using *this* claim as the worked example (e.g. tapping the ApoB label opens *effect size vs. certainty*; the first `○○○○` he ever sees opens *hierarchy of evidence*) — education injects, never blocks (Law 7), one card max.
 
-### Step 5 — Source cards: click through to the underlying record
+### Step 7 — Source cards: click through to the underlying record
 
 - **User intent here:** verify. "Where did the 95 come from?"
 - **User does:** clicks the ApoB source card, then the MRI citation.
@@ -76,7 +101,7 @@ This is the query the product is judged on. Ravi has labs every quarter, an Oura
 - **Modality:** tap → source panel over the underlying [FHIR resource / document](../frontend.md).
 - **UX constraints / laws:** data over chrome (Law 8); source-backed means *a real resource is behind it* — the [storage model](../storage.md) keeps these as first-class Observation / ImagingStudy / MedicationStatement resources, not prose.
 
-### Step 6 — What to consider, on fixed axes — and what it *won't* conclude
+### Step 8 — What to consider, on fixed axes — and what it *won't* conclude
 
 - **User intent here:** okay, so what are my options — and don't sell me one.
 - **User does:** reads the "things you could consider" block the synthesis appends for the ApoB.
@@ -86,7 +111,7 @@ This is the query the product is judged on. Ravi has labs every quarter, an Oura
 - **Modality:** comparison frame (fixed axes, side by side); inline limits statement.
 - **UX constraints / laws:** nothing ranked silently (Law 2 / Law 6-adjacent); ordering, if any, is the default effect×evidence order with all axes visible — a personal ranking appears **only** if he later asks to "simplify," and it names the preferences that produced it ([epistemics](../epistemics.md)). Red-flag routing is live: had he voiced *exertional chest pain*, the model would halt to a clinician rather than produce a plan.
 
-### Step 7 — The follow-up: understand → hypothesize
+### Step 9 — The follow-up: understand → hypothesize
 
 - **User intent here:** move from awareness to agency, in the same breath.
 - **User does:** stays in the conversation and asks (voice or text): *"What should I do about the ApoB?"*
@@ -99,13 +124,15 @@ This is the query the product is judged on. Ravi has labs every quarter, an Oura
 
 | Step | What we ask of the user | What they get back immediately |
 |---|---|---|
-| 2 | Speak/type one question, ~4s | The cardiac focus is *used* to shape retrieval, not discarded |
-| 3 | Wait a few seconds | A visible, on-device tool trace — proof the machine, not the cloud, did the work |
-| 4 | Read one paragraph | The cross-source synthesis no other tool produces, every claim labeled |
-| 4 | Tap an evidence label (optional) | A concept card with *his* claim as the worked example — one card, never a detour |
-| 5 | Click a source card | The underlying FHIR resource / document — the number's origin, one tap away |
-| 6 | Read the options | Interventions on fixed axes with no silent ranking + an explicit statement of limits |
-| 7 | Ask one follow-up | A ready-to-run hypothesis with a measurement window the marker can actually satisfy, aware of the experiment he's already running |
+| 2 | Speak/type one question, ~4s | It is taken as asked — no rewrite, no assumed goal |
+| 3 | Read three grouped cards, ~10s | Every marker that cleared its noise floor, with the reason each earned its place — **and** the reason a straight answer would have been worse. The turn pays for the choice it asks for |
+| 4 | One tap to pick a goal | A question that could not be ranked becomes one that can; the payload narrows with it |
+| 5 | Wait a few seconds | A visible, on-device tool trace — proof the machine, not the cloud, did the work |
+| 6 | Read one paragraph | The cross-source synthesis no other tool produces, every claim labeled |
+| 6 | Tap an evidence label (optional) | A concept card with *his* claim as the worked example — one card, never a detour |
+| 7 | Click a source card | The underlying FHIR resource / document — the number's origin, one tap away |
+| 8 | Read the options | Interventions on fixed axes with no silent ranking + an explicit statement of limits |
+| 9 | Ask one follow-up | A ready-to-run hypothesis with a measurement window the marker can actually satisfy, aware of the experiment he's already running |
 
 ## UX & modality constraints
 
@@ -125,8 +152,14 @@ This is the query the product is judged on. Ravi has labs every quarter, an Oura
 !!! warning "Sparse data → it says so, it does not invent"
     If a metric has too few points in the window (e.g. Whoop only connected two weeks ago), the agent **states the gap** — *"HRV trend is unreliable: 11 days of data in this window"* `[speculative ○○○○]` — rather than fabricating a trend. Empty state offers the next best action (connect the source, widen the window), never a dead end.
 
-!!! note "Ambiguous query → it asks one clarifying question"
-    *"What changed?"* with no focus and a broad record may return a clarifier — *"Across everything, or a system? You mentioned your heart before — start there?"* — a single question, not a form. Reciprocity: it proposes a sensible default so a one-word answer suffices.
+!!! note "The goal *is* inferable → it may answer directly, but must say so"
+    Ravi's record carries a strong cardiac prior — a father's MI at 62, controlled hypertension, an
+    active post-meal-walk experiment. Where that prior is strong enough, the loop may skip Step 3
+    and answer directly, but it must **name the assumption it made**: *"I read this as a cardiac
+    question because of your father's MI and your running experiment — say the word if it's
+    something else."* Inferring silently trades one invisible choice for another and is not
+    permitted. Clarifying is the default when the prior is weak; declaring is the requirement when
+    it is strong.
 
 !!! abstract "A hard synthesis the local reasoner strains on → it says so, with an offered lever"
     If the cross-source reasoning is at the edge of the local model, the answer says so — *"this synthesis is near the limit of the local reasoner; a frontier reasoner may connect these more reliably"* — and points to the optional hybrid path ([10-enable-cloud-reasoning.md](10-enable-cloud-reasoning.md)) **without pushing**. Choosing it would route only the PII-stripped reasoning prompt through the [PII gateway](../pii-gateway.md) with a pre-send review (Law 4); the medical extractor and raw records **never** leave. Declining costs reasoning depth on one hard question and nothing else (Law 6). Raw documents, imaging pixels, and genomic sequence stay excluded regardless.
@@ -143,6 +176,7 @@ This is the query the product is judged on. Ravi has labs every quarter, an Oura
 ## What good looks like
 
 - Ravi gets **one paragraph** that reads across labs, wearables, imaging, meds, genome, and family history — every sentence one tap from its source, and he *sees* it was computed on his Mac Mini (three greens, a local tool trace, `any_left_device = false`).
+- He leaves knowing something he did not know when he arrived: **that "what changed?" was the wrong question**, and what a better one looks like. Next quarter he asks the sharper version himself, and the clarifying turn retires — the [literacy profile](../epistemics.md#the-literacy-profile) stops explaining and just groups.
 - The rising ApoB and the reassuring CAC 0 are held **together**, neither buried — and the system states plainly what it *won't* claim.
 - The follow-up turns awareness into a testable experiment in the same conversation — understand → hypothesize, no dead end, no upsell.
 - Nothing pressured him toward the cloud: the local answer stood on its own, and the hybrid reasoner sat as an offered lever he did not need to pull.

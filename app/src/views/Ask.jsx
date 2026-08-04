@@ -7,10 +7,10 @@ import VoiceInput from '../components/VoiceInput.jsx'
 import ContextStrip, { ContextCaveats } from '../components/ContextStrip.jsx'
 import { useDrawer } from '../components/Drawer.jsx'
 import { usePosture } from '../mock/posture.jsx'
-import { ask, suggestedQuestions } from '../mock/agent.js'
-import { presend } from '../mock/ledger.js'
+import { ask, clarifyFor, suggestedQuestions } from '../mock/agent.js'
+import { presendFor } from '../mock/ledger.js'
 import { storeStats } from '../mock/persona.js'
-import { assemble } from '../context/assemble.js'
+import { assemble, REASONS } from '../context/assemble.js'
 
 // Inline renderer: **bold**, {{ev:kind}} evidence labels, {{cite:id}} citations.
 function Inline({ text }) {
@@ -107,6 +107,73 @@ function AiAnswer({ question, answer, declined }) {
   )
 }
 
+// The clarifying turn — the first response to a question with no goal term.
+//
+// It is deliberately NOT an answer, and deliberately not a gate either. Three
+// things it must do, in this order, or it is just an interrogation:
+//
+//   1. report what the mechanistic pass found, grouped, with the reason each
+//      group earned its place — visible here, not folded behind the context
+//      strip, because the reasons are the only thing that explains the grouping;
+//   2. say why a straight answer would be worse, in terms of *this* data;
+//   3. offer the choice.
+//
+// No model runs, so no payload exists, so there is nothing to consent to. The
+// egress decision moves to whichever scoped question the user picks — the point
+// at which they know what they are buying.
+function ClarifyTurn({ question, turn, onPick }) {
+  const { posture } = usePosture()
+  const [toggles, setToggles] = useState({})
+  // Assembled under a local destination regardless of posture: this turn does
+  // not call a model, so the cloud budget and the gateway do not apply to it.
+  const ctx = useMemo(
+    () => assemble(question, { where: 'local', toggles }),
+    [question, toggles])
+
+  return (
+    <div className="bubble ai clarify-turn">
+      <div className="clarify-badge">
+        <span className="led local" />
+        deterministic · no model call · nothing to send
+        {posture.reasoner.where === 'cloud' && (
+          <span className="faint"> — your reasoner is a cloud model, but this turn never reaches it</span>
+        )}
+      </div>
+
+      <ContextStrip ctx={ctx} onToggle={(k, v) => setToggles(t => ({ ...t, [k]: v }))} />
+
+      <p className="serif-lead">{turn.lead}</p>
+      <p className="clarify-why"><Inline text={turn.why} /></p>
+
+      <div className="clarify-groups">
+        {turn.groups.map(g => (
+          <button key={g.key} className="clarify-group" onClick={() => onPick(g.question)}>
+            <div className="cg-head">
+              <b>{g.label}</b>
+              <span className="cg-count">{g.count} marker{g.count === 1 ? '' : 's'}</span>
+            </div>
+            <div className="cg-finding"><Inline text={g.finding} /></div>
+            <div className="cg-reasons">
+              {g.reasons.map(r => (
+                <span key={r} className="cg-reason" title={REASONS[r]?.desc}>
+                  <span className="glyph">{REASONS[r]?.glyph}</span> {REASONS[r]?.label}
+                </span>
+              ))}
+            </div>
+            <span className="cg-go">Ask this →</span>
+          </button>
+        ))}
+      </div>
+
+      {turn.unremarkable && (
+        <p className="clarify-rest"><Inline text={turn.unremarkable.text} /></p>
+      )}
+      {turn.concept && <ConceptBlock block={turn.concept} />}
+      <ContextCaveats ctx={ctx} />
+    </div>
+  )
+}
+
 // The way out of the answer and into the loop. Understanding is only the first
 // quarter of vision.md's loop — act, measure, share are the rest, and until now
 // every one of them meant navigating away and rebuilding the context by hand.
@@ -150,7 +217,7 @@ function PreSendBubble({ question, onSend, onCancel }) {
         The reasoner is a cloud model in this configuration. Before it runs, here is exactly
         what would leave — PII-stripped — and what is withheld:
       </p>
-      <PreSendPanel presend={presend} onSend={onSend} onCancel={onCancel} assembled={ctx} />
+      <PreSendPanel presend={presendFor(question)} onSend={onSend} onCancel={onCancel} assembled={ctx} />
     </div>
   )
 }
@@ -227,10 +294,19 @@ export default function Ask() {
   const submit = q => {
     const question = (q ?? input).trim()
     if (!question) return
-    const answer = ask(question)
-    const item = gateNeeded(answer)
-      ? { role: 'presend', question, answer }
-      : { role: 'ai', question, answer }
+
+    // A goal-free question resolves to a clarifying turn, never a synthesis and
+    // never a consent gate — it is computed on device, so there is no payload.
+    const turn = clarifyFor(question)
+    const item = turn
+      ? { role: 'clarify', question, turn }
+      : (() => {
+        const answer = ask(question)
+        return gateNeeded(answer)
+          ? { role: 'presend', question, answer }
+          : { role: 'ai', question, answer }
+      })()
+
     setThread(t => [...t, { role: 'me', text: question }, item])
     setHistory(h => [question, ...h.filter(x => x !== question)])
     setInput('')
@@ -267,6 +343,9 @@ export default function Ask() {
 
           {thread.map((m, i) => {
             if (m.role === 'me') return <div key={i} className="bubble me">{m.text}</div>
+            if (m.role === 'clarify') return (
+              <ClarifyTurn key={i} question={m.question} turn={m.turn} onPick={submit} />
+            )
             if (m.role === 'presend') return (
               <PreSendBubble key={i} question={m.question}
                 onSend={() => resolvePresend(i, true)}

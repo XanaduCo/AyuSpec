@@ -279,3 +279,60 @@
   .ctx-cf-cost { grid-column: 2; }
   .ctx-item { grid-template-columns: 1fr; }
 }
+
+/* ---------- the clarifying turn ----------
+   The first response to a goal-free question. Visually it must read as a
+   *result*, not as a prompt or an error — so it uses the same surface as an
+   answer, and the group cards carry their findings at answer weight. The only
+   colour is the local green on the badge, earning its place because "no model
+   ran" is exactly the green/amber distinction the rest of the app uses. */
+.clarify-badge {
+  display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+  font-family: var(--mono); font-size: 11px; color: var(--local);
+  border: 1px solid var(--local); background: var(--local-soft);
+  border-radius: 6px; padding: 4px 9px; margin-bottom: 12px; width: fit-content;
+}
+.clarify-badge .led {
+  width: 7px; height: 7px; border-radius: 99px; background: var(--local); flex: 0 0 auto;
+}
+.clarify-badge .faint { color: var(--mute); }
+
+.clarify-why {
+  border-left: 2px solid var(--line); padding-left: 12px;
+  color: var(--body); margin: 10px 0 16px;
+}
+
+.clarify-groups { display: flex; flex-direction: column; gap: 10px; margin: 14px 0; }
+.clarify-group {
+  all: unset; box-sizing: border-box; cursor: pointer; display: block;
+  border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
+  background: var(--surface); transition: border-color .12s, box-shadow .12s;
+}
+.clarify-group:hover { border-color: var(--brand); box-shadow: var(--shadow); }
+.clarify-group:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+.cg-head { display: flex; align-items: baseline; gap: 10px; }
+.cg-head b { font-size: 15px; color: var(--ink); }
+.cg-count {
+  font-family: var(--mono); font-size: 11px; color: var(--faint); margin-left: auto;
+}
+.cg-finding { margin-top: 5px; color: var(--body); line-height: 1.5; }
+.cg-reasons { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 9px; }
+.cg-reason {
+  display: inline-flex; align-items: center; gap: 5px; cursor: help;
+  border: 1px solid var(--line); border-radius: 5px; padding: 2px 7px;
+  font-family: var(--mono); font-size: 10.5px; color: var(--body);
+}
+.cg-reason .glyph { color: var(--ink); font-weight: 700; }
+.cg-go {
+  display: inline-block; margin-top: 10px;
+  font-family: var(--mono); font-size: 11.5px; color: var(--brand);
+}
+.clarify-group:hover .cg-go { text-decoration: underline; }
+
+.clarify-rest { color: var(--mute); font-size: 14px; margin: 12px 0; }
+
+@media (max-width: 640px) {
+  .cg-count { margin-left: 0; }
+  .cg-head { flex-wrap: wrap; }
+}
