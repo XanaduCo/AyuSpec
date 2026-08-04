@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The PII gateway sits between the agent and any outbound model call. It guarantees that no cloud-bound call escapes de-identification and review — the chokepoint is structural, with no code path around it. It does *not* promise perfect redaction: the local NER and regex stripping is best-effort and carries a measurable miss rate (see [Measurement & the trust contract](#measurement-the-trust-contract)). So the honest split is this — what is *impossible* is reaching a cloud service without passing through the gateway; what the gateway then makes *less likely*, not impossible, is an individual identifier surviving the strip.
+The PII gateway sits between the agent and any outbound model call. It guarantees that no cloud-bound call escapes de-identification and review — the chokepoint is structural, with no code path around it. It does *not* promise perfect redaction: the local NER and regex stripping is best-effort and carries a measurable miss rate (see [Measurement & the trust contract](#measurement-the-trust-contract)). So the split is this — what is *impossible* is reaching a cloud service without passing through the gateway; what the gateway then makes *less likely*, not impossible, is an individual identifier surviving the strip.
 
 ## When it activates
 
@@ -96,7 +96,7 @@ Most of what the gateway strips is not the NER model's job. The [strip table](#w
 already routes the high-risk **direct identifiers** — SSN, MRN, phone/fax, DOB, structured
 dates, account numbers — to **deterministic regex**. These have formats, so near-100% recall is
 achievable and a miss is a *bug caught by a test suite*, not a statistic to be tolerated. That
-leaves NER responsible only for the genuinely unstructured entities — **names, addresses,
+leaves NER responsible only for the unstructured entities — **names, addresses,
 facility names** — which is the far smaller surface the "acceptable miss rate" question actually
 applies to.
 

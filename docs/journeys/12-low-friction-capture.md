@@ -10,7 +10,7 @@ abandoned every food diary and mood app she ever tried, and she knows why: they 
 today and promised value "later, once you've logged enough." She chose ayuOS partly on the promise
 that it treats **adherence as a product problem, not a test of her discipline**
 ([data capture](../data-capture.md#cross-cutting-principles)). The job she's hiring capture for
-here: *"detect what you can, ask me only for what you genuinely can't, keep every manual log under
+here: *"detect what you can, ask me only for what you can't, keep every manual log under
 ten seconds, and hand me something back the instant I give you something."*
 
 ## Preconditions
@@ -113,7 +113,7 @@ ten seconds, and hand me something back the instant I give you something."*
 - **UX constraints / laws:** posture three-green (Law 1) — STT and parse are both local; if her only
   STT option were a cloud one, the voice affordance would be **disabled with its reason shown**, and
   she'd type instead (fallback beside the tier, Law 6). Confidence-graded: an uncertain token is
-  highlighted for confirmation, honest about what it heard.
+  highlighted for confirmation rather than silently accepted.
 
 ### Step 5 — The anti-pattern it refuses: no standing food diary
 
@@ -150,7 +150,7 @@ ten seconds, and hand me something back the instant I give you something."*
   compounding on top.
 - **Modality:** Ask (text) → local synthesis.
 - **UX constraints / laws:** three greens in the header (Law 1); the synthesis **streams over
-  seconds**, not instantly (honest local latency). Each claim tappable to source (Law 3).
+  seconds**, not instantly (visible local latency). Each claim tappable to source (Law 3).
 
 ## Exchange ledger
 
@@ -171,7 +171,7 @@ ten seconds, and hand me something back the instant I give you something."*
 - **Color semantics dominant here:** **green throughout** — photo extraction, voice transcription,
   parsing, and interaction checks all run on local models; nothing egresses, so Law 4 (egress preview)
   barely applies. The one place **red** appears is an interaction serious enough to route to a
-  clinician (below) — a stop, not a decoration.
+  clinician (below) — the hard-stop use the color is reserved for.
 - **Laws that bind this journey:** Law 1 (posture stays three-green — capture must not quietly invoke
   a cloud model), Law 3 (parse confidence and interaction claims are labeled and tappable), Law 7
   (prompts inject and **retire**, never nag or block), Law 8 (doses, distances, and codes in tabular
@@ -188,7 +188,7 @@ ten seconds, and hand me something back the instant I give you something."*
 
 !!! warning "A high-liability interaction routes to a clinician — it is never silently accepted"
     Absorption/timing notes (iron, calcium, magnesium vs levothyroxine) are shown inline and the log
-    proceeds. But an interaction that is **clinically significant** — a genuine drug–drug or
+    proceeds. But an interaction that is **clinically significant** — a drug–drug or
     drug–condition risk — is rendered **red**, the log is held pending review, and the user is routed
     to compose a question for their clinician ([Journey 13](13-share-doctor-packet.md)). ayuOS
     surfaces and routes; it does not adjudicate a dangerous interaction on its own.

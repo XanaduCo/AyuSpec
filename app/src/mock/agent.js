@@ -77,7 +77,7 @@ export const answers = {
     cloud: true,
     tools: ['query_health_model', 'rank_interventions', 'search_guidelines'],
     blocks: [
-      { kind: 'lead', text: "Here is the honest picture — I won't tell you yes or no." },
+      { kind: 'lead', text: "Here is what the evidence supports — I won't tell you yes or no." },
       { kind: 'p', text: 'NMN has **low-quality evidence** on outcomes that matter {{ev:low}}: animal work and short human trials on surrogate markers {{ev:inf}}, none powered for anything you care about. That is different from *negative* evidence — it mostly has not been tested at your endpoint {{ev:none}}.' },
       { kind: 'frame', caption: 'Same axes as everything else. Alternative interventions enter the same frame, no separate category.',
         cols: ['Option', 'Evidence', 'Effect', 'Certainty', 'Cost', 'Risk', 'Effort'],
@@ -137,7 +137,7 @@ export const answers = {
       { kind: 'share', domains: ['toxicology'], label: 'Add to a doctor packet' },
     ],
     blocks: [
-      { kind: 'lead', text: 'One metal is genuinely elevated, and it has an obvious cause you can act on.' },
+      { kind: 'lead', text: 'One metal is above its reference ceiling, and it has an obvious cause you can act on.' },
       { kind: 'p', text: '**Blood mercury is 14.2 µg/L** {{cite:obs-mercury}}, against a reference ceiling of 10 {{ev:guide}}. It has risen at every draw for two years — 5.8 → 8.1 → 9.8 → 11.6 → 14.2 {{ev:src}}. That is a trend, not a single odd result, which is the difference between "recheck it" and "look for the source".' },
       { kind: 'p', text: 'The source is almost certainly food, and your own logs say so: seafood servings went from **~3/week in 2024 to ~8/week since April** {{cite:nutr-seafood-trend}}, including 17 tuna or swordfish meals in the last four weeks alone {{ev:src}}. Two other analytes corroborate it from different directions — **selenium 168 µg/L** {{cite:obs-selenium}} and an **omega-3 index of 9.6%** {{cite:obs-omega3-index}}, both high, both tracking the same behaviour {{ev:inf}}.' },
       { kind: 'p', text: 'The other three metals are unremarkable: **lead 1.8** {{cite:obs-lead}}, **cadmium 0.38** {{cite:obs-cadmium}}, both flat and in range {{ev:src}}. I am telling you that explicitly because an answer that only reports the abnormal one is a worse answer.' },
@@ -213,7 +213,7 @@ export const answers = {
       { kind: 'concept', concept: 'base-rates',
         text: 'A negative on a test with 16.8% early-stage sensitivity barely moves your posterior probability of having an early cancer. A negative on your colonoscopy — a test with high sensitivity for the thing it looks at — moves it a great deal, for that one organ. Sensitivity, not the word "negative", is what carries the information.' },
       { kind: 'p', text: 'It also replaces nothing. Your **colonoscopy was clean in 2023 and is not due until 2033** {{cite:scr-colonoscopy}}; your **skin check was clear in February** {{cite:scr-skin}} {{ev:src}}. Those are guideline-recommended, organ-specific, and stand regardless of what the blood test said {{ev:guide}}.' },
-      { kind: 'p', text: 'And the honest structural point: **no randomised trial has shown that MCED screening reduces cancer mortality** {{ev:none}}. The evidence supports "detects signal", not "saves lives" — those are different claims and the marketing tends to blur them.' },
+      { kind: 'p', text: 'And the structural point: **no randomised trial has shown that MCED screening reduces cancer mortality** {{ev:none}}. The evidence supports "detects signal", not "saves lives" — those are different claims and the marketing tends to blur them.' },
       { kind: 'p', text: 'I checked the nonspecific markers that sometimes accompany occult malignancy — **LDH, ESR, CBC all in range** {{cite:obs-ldh}} {{cite:obs-esr}} {{ev:src}}. Weak reassurance, stated so you know it was looked at rather than skipped. Your rising **ferritin** {{cite:obs-ferritin}} has a much more likely explanation waiting in your genome than this one.' },
       { kind: 'sources', text: 'Records behind this answer:',
         cites: ['scr-galleri', 'scr-colonoscopy', 'scr-skin', 'obs-ferritin'] },

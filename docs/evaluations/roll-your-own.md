@@ -11,7 +11,7 @@ The objection to Medplum is not weight — it's **being boxed in on data modelli
 
 - A goal's tracking metric is polymorphic (a biomarker `Observation` one cycle, a wearable
   `SeriesType` the next), so it becomes a soft reference into two different stores with no FK.
-- A nutrition plan — trigger points, what to eat, why — has no honest FHIR home.
+- A nutrition plan — trigger points, what to eat, why — has no FHIR home.
   `NutritionOrder` is inpatient meal ordering; `PlanDefinition` is clinical decision support.
 - **FHIR search cannot express cross-resource joins.** `_include` only walks references. The
   cross-cutting queries a personal health agent needs require dropping to SQL — and Medplum
@@ -99,7 +99,7 @@ search using its standard search facilities"*, and transaction Bundles may carry
 references servers SHALL resolve. So idempotent ingest and transaction processing are
 *downstream of search* — nearly free once search exists, impossible before.
 
-## The honest counterweight
+## The counterweight
 
 Raw size is not the same as relevant work, so the scary numbers need reading before they count against us:
 
@@ -114,7 +114,7 @@ Raw size is not the same as relevant work, so the scary numbers need reading bef
   index token/reference/date for one user. The number itself is not the argument — what those
   migrations *changed* is, and until that is examined, v110 is an upper bound on the wrong scope.
 - **`wso2/fhir-server`** is a funded team building this exact design. Its own README, after
-  ~1 month, documents where a fresh, honest effort lands: `_sort` **silently ignored**,
+  ~1 month, documents where a fresh effort lands: `_sort` **silently ignored**,
   `quantity`/`uri` indexed but not queryable, `sa`/`eb` "parse but fall back to `eq`", no
   chaining or `_has` at all — i.e. precisely the 15% itemized below, punted.
 
@@ -138,7 +138,7 @@ If you own the store, **you write it in TypeScript**:
 |---|---|
 | **Python** | `fhir.resources` **dropped R4 at v7.0.0**. Options are R4B (a semantic compromise) or pinning 6.5.0 — pydantic v1, unmaintained since Jan 2023. |
 | **Rust** | **No R4 models exist anywhere.** `fhir-sdk` ships stu3/r4b/r5 only, with FHIRPath and validation explicitly unimplemented. |
-| **Go** | `fhir-toolbox-go` is genuinely good (real FHIRPath v2.0.0 with UCUM) but is **v0.0.4**. |
+| **Go** | `fhir-toolbox-go` is good (real FHIRPath v2.0.0 with UCUM) but is **v0.0.4**. |
 
 See [FHIR libraries](fhir-libraries.md) for the full survey.
 
@@ -155,7 +155,7 @@ See [FHIR libraries](fhir-libraries.md) for the full survey.
 ## Reference implementations
 
 - **Medplum's schema is the best documented** — [search architecture](https://www.medplum.com/docs/contributing/search-architecture). Four strategies: `COLUMN`, `TOKEN_COLUMN`, `RANGE_COLUMN` (native `TSTZMULTIRANGE`/`NUMMULTIRANGE` + `__xxxSort` scalars), `LOOKUP_TABLE`.
-- **[wso2/fhir-server](https://github.com/wso2/fhir-server)** (Go + Postgres, Apache-2.0) — closest to this exact design; its honest limitations list is the best available cost estimate. ⚠️ Created 2026-06-17, 7 stars.
+- **[wso2/fhir-server](https://github.com/wso2/fhir-server)** (Go + Postgres, Apache-2.0) — closest to this exact design; its self-reported limitations list is the best available cost estimate. ⚠️ Created 2026-06-17, 7 stars.
 - **FHIRbase is dead and never had search.** Frozen ("*untill new hero will support it*"), and the shipped SQL has six CRUD functions, zero `CREATE INDEX`, and the word "search" appears zero times. Readable as a design reference only.
 
 ## Why it was adopted
@@ -178,5 +178,5 @@ arguments for keeping Medplum that did not survive review.
 Reverting to a FHIR server would require an external FHIR client to appear, or the ~85%
 search-fidelity ceiling to bind on a real workflow (chaining, `_has`, or conformance-grade
 validation). If validation specifically becomes the issue,
-[HAPI as a sidecar](hapi-fhir.md#as-a-validator-genuinely-best-in-class) is the cheaper answer
+[HAPI as a sidecar](hapi-fhir.md#as-a-validator-best-in-class) is the cheaper answer
 than adopting a server.

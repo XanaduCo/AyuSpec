@@ -36,7 +36,7 @@ app… **all without needing Epic's involvement**."*
 Community member side: must have USCDI APIs in their open.epic licensing agreement and must
 not have disabled auto-download.
 
-## Cost: genuinely free
+## Cost: free
 
 | Thing | Cost |
 |---|---|

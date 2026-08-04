@@ -3,7 +3,7 @@
 // calibrated confidence; an experiment (experimentation.md) tests it with a
 // pre-registered success criterion, a measured baseline, and an honest verdict.
 //
-// The load-bearing honesty guardrail (experimentation.md#honesty-guardrails):
+// The load-bearing overclaiming guardrail (experimentation.md#guardrails-against-overclaiming):
 // a positive n-of-1 is still EVIDENCE: LOW, and an experiment whose effect sits
 // inside baseline noise reads "inconclusive", never "it worked". The three
 // seeded experiments below exist precisely to show all three verdicts.
@@ -113,7 +113,7 @@ export const experiments = [
     successCriterion: 'Mean morning HRV rises ≥ 5 ms vs. baseline, pre-registered before day 1.',
     confounders: [{ flag: 'illness', when: 'days 5–7', note: 'mild head cold — HRV dipped independent of the shower' }],
     verdict: 'inconclusive',
-    resultText: 'Mean HRV rose ~1.5 ms — well inside the baseline’s own day-to-day swing, and below the pre-registered 5 ms threshold. With n=14 and this much natural variability the experiment is underpowered to detect an effect this small. The honest read is inconclusive, not a null and not a win.',
+    resultText: 'Mean HRV rose ~1.5 ms — well inside the baseline’s own day-to-day swing, and below the pre-registered 5 ms threshold. With n=14 and this much natural variability the experiment is underpowered to detect an effect this small. The verdict is inconclusive: the window cannot score it either way.',
     underpowered: true,
     baseline: { window: '2025-05-04 → 2025-05-24', label: 'Morning HRV, no cold shower', unit: 'ms',
       samples: [44, 48, 41, 46, 43, 49, 40, 45, 47, 42, 46, 44, 48, 43] },

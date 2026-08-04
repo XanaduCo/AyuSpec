@@ -4,7 +4,7 @@
 
 ## The intent
 
-This is the query the product is judged on. Ravi has labs every quarter, an Oura ring, a Whoop, an Epic record, a brain MRI, and a 23andMe file — and until now, no single place that could answer *"what actually changed, and does my heart look okay?"* He is not asking for a dashboard. He wants a synthesis that reads across **all** his sources at once, tells him what moved, labels how sure it is, and — critically — does it without shipping his health record to anyone. He is mildly anxious (father had an MI at 62) and time-poor. The job he is hiring ayuOS for: *replace the mental work of stitching six silos together into one honest paragraph.*
+This is the query the product is judged on. Ravi has labs every quarter, an Oura ring, a Whoop, an Epic record, a brain MRI, and a 23andMe file — and until now, no single place that could answer *"what actually changed, and does my heart look okay?"* He wants a synthesis — not another dashboard — that reads across **all** his sources at once, tells him what moved, labels how sure it is, and — critically — does it without shipping his health record to anyone. He is mildly anxious (father had an MI at 62) and time-poor. The job he is hiring ayuOS for: *replace the mental work of stitching six silos together into one grounded paragraph.*
 
 !!! abstract "Why this journey is the reciprocity high-water mark"
     The whole exchange is **one question in, a cross-source grounded answer out, zero egress.** He supplies a single sentence and a few seconds of patience; he gets back a labeled synthesis across labs, wearables, imaging, meds, genome, and family history — every claim one tap from its source, computed entirely on his own machine. No prior tool he has used can produce this answer at all, let alone offline. Everything else in this page is in service of not squandering that one ask.
@@ -36,7 +36,7 @@ This is the query the product is judged on. Ravi has labs every quarter, an Oura
 ### Step 2 — Ask the question (voice *or* text)
 
 - **User intent here:** phrase it the way he'd ask a smart friend.
-- **User does:** taps the mic and **speaks**: *"What changed in my last 90 days? I care most about my heart."* (Typing the same sentence is equivalent — voice is a first-class input, not a novelty.)
+- **User does:** taps the mic and **speaks**: *"What changed in my last 90 days? I care most about my heart."* (Typing the same sentence is equivalent — voice is a first-class input.)
 - **System does:** transcribes on-device, drops the text into the composer for him to eyeball, and submits. The transcription itself is a model call and is ledgered like any other.
 - **Value returned this step:** he expressed intent hands-free in ~4 seconds; the cardiac focus he voiced becomes a real constraint on retrieval, not decoration.
 - **Modality:** **voice** input (on-device STT), with the transcript shown before send.
@@ -55,11 +55,11 @@ This is the query the product is judged on. Ravi has labs every quarter, an Oura
   A compact, expandable "thinking" strip narrates the chain at a high level ("pulled 7 metrics · computed trends · retrieved 2 notes · checked lipid guideline"). Tool failures degrade rather than halt — a timed-out call is logged, skipped, and the reasoner proceeds over the partial context with the gap disclosed. The posture stays **three greens** the entire time; one query fans out into several ledger rows, one per model call.
 - **Value returned this step:** legibility — he can see *what* it looked at, and that it never left the box.
 - **Modality:** live tool-trace strip; header posture indicator.
-- **UX constraints / laws:** posture always on screen (Law 1); honest local latency — this is seconds of visible work, not an instant trick (see [latency expectations](../frontend.md)). Every one of these calls lands in the [call ledger](../ai-transparency.md) with `any_left_device = false`.
+- **UX constraints / laws:** posture always on screen (Law 1); local latency shown as it is — seconds of visible work, never dressed up as instant (see [latency expectations](../frontend.md)). Every one of these calls lands in the [call ledger](../ai-transparency.md) with `any_left_device = false`.
 
 ### Step 4 — The answer streams, every claim labeled
 
-- **User intent here:** read one honest paragraph, not ten charts.
+- **User intent here:** read one grounded paragraph, not ten charts.
 - **User does:** reads as the reasoner (DeepSeek-R1, local) streams the synthesis over a few seconds.
 - **System does:** produces a cardiac-focused synthesis touching his real data, **every clause carrying an evidence label** — the hue-free strength ramp (`●●●●` HIGH → `○○○○` NONE) plus the provenance tag (source-backed / guideline-backed / inferred / speculative). For example:
     > Your **ApoB is 95 mg/dL** and has drifted up from 88 over the window `[source-backed ●●●● · Observation ApoB 2026-07-19]` — above the optimal target given your family history `[guideline-backed ●●●○ · AHA/ACC lipids]`. Your **CAC score is 0** `[source-backed ●●●● · ImagingStudy CAC]`, which meaningfully lowers near-term event risk despite that number. Your **VO₂max is 52** — strong for your age and independently protective `[source-backed ●●●● · Observation]`. HRV and sleep from Oura and Whoop are stable-to-slightly-improved `[source-backed ●●●○]`; the dip mid-June tracks two short-sleep weeks `[inferred ●●○○]`. BP is controlled on lisinopril `[source-backed ●●●●]`. Your genome (APOE ε3/ε3, CVD polygenic risk ~70th percentile) is context, **not a verdict** — treated as a low-confidence hypothesis, not a measurement `[speculative ○○○○ · MolecularSequence]`.
@@ -82,7 +82,7 @@ This is the query the product is judged on. Ravi has labs every quarter, an Oura
 - **User does:** reads the "things you could consider" block the synthesis appends for the ApoB.
 - **System does:** surfaces candidate interventions from the [healthspan model](../healthspan-model.md) (`query_health_model` → `resolve_modifiers` → `rank_interventions`) rendered on the **comparison frame's fixed axes** — evidence, effect, certainty, cost, risk, reversibility, effort — with **no silent ranking**. Statin adherence, increased fibre, Zone 2 volume, and post-meal walking sit side by side, each cell traced to a cited edge (no cited edge, no cell). It then states its limits plainly:
     > I can tell you your ApoB is elevated and trending up, and that your CAC is 0. I **cannot** tell you your personal 10-year event risk, whether to start or change a statin, or that any single number caused another — those are clinician decisions, and the correlations here are associations, not proof. `[speculative ○○○○ where I've guessed]`
-- **Value returned this step:** honesty over decisiveness (Law 2) — he gets a map of the trade-offs and an explicit boundary, not a fake verdict.
+- **Value returned this step:** trade-offs over verdicts (Law 2) — he gets a map of the trade-offs and an explicit boundary in place of a verdict the evidence can't support.
 - **Modality:** comparison frame (fixed axes, side by side); inline limits statement.
 - **UX constraints / laws:** nothing ranked silently (Law 2 / Law 6-adjacent); ordering, if any, is the default effect×evidence order with all axes visible — a personal ranking appears **only** if he later asks to "simplify," and it names the preferences that produced it ([epistemics](../epistemics.md)). Red-flag routing is live: had he voiced *exertional chest pain*, the model would halt to a clinician rather than produce a plan.
 
@@ -102,21 +102,21 @@ This is the query the product is judged on. Ravi has labs every quarter, an Oura
 | 2 | Speak/type one question, ~4s | The cardiac focus is *used* to shape retrieval, not discarded |
 | 3 | Wait a few seconds | A visible, on-device tool trace — proof the machine, not the cloud, did the work |
 | 4 | Read one paragraph | The cross-source synthesis no other tool produces, every claim labeled |
-| 4 | Tap an evidence label (optional) | A concept card with *his* claim as the worked example — literacy, not a lecture |
+| 4 | Tap an evidence label (optional) | A concept card with *his* claim as the worked example — one card, never a detour |
 | 5 | Click a source card | The underlying FHIR resource / document — the number's origin, one tap away |
 | 6 | Read the options | Interventions on fixed axes with no silent ranking + an explicit statement of limits |
-| 7 | Ask one follow-up | A ready-to-run hypothesis with an honest measurement window, aware of the experiment he's already running |
+| 7 | Ask one follow-up | A ready-to-run hypothesis with a measurement window the marker can actually satisfy, aware of the experiment he's already running |
 
 ## UX & modality constraints
 
 - **Input:** text **and** voice (Law 5); transcript shown before send; the mic is on-device in the zero-egress default.
-- **Latency:** honest and local — tool fan-out and streamed synthesis take **seconds**, not milliseconds. The tool-trace strip makes the wait legible instead of blank. Never pretend it is instant.
+- **Latency:** local and stated plainly — tool fan-out and streamed synthesis take **seconds**, not milliseconds. The tool-trace strip makes the wait legible instead of blank. Never pretend it is instant.
 - **Offline:** first-class. The entire journey runs with the network cable pulled; posture stays three greens and nothing degrades, because nothing here needs egress.
 - **Evidence labels (Law 3):** the hue-free `●●●●→○○○○` strength ramp **plus** a provenance tag; tappable, expanding at most one concept card per response ([epistemics](../epistemics.md)).
 - **Color semantics:** green = local throughout (this query never crosses the boundary); strength is deliberately hue-free so it can't be confused with the privacy language. No amber appears anywhere in this journey.
-- **Honesty over decisiveness (Law 2):** options on fixed axes, no silent ranking (Law 6-adjacent); an explicit "what I cannot conclude" statement is required, not optional.
+- **Trade-offs over verdicts (Law 2):** options on fixed axes, no silent ranking (Law 6-adjacent); an explicit "what I cannot conclude" statement is required, not optional.
 - **Accessibility:** voice-first path for hands-free / low-vision use; monospace tabular numerals for every value; source cards are keyboard-reachable; strength dots are colorblind-safe by construction.
-- **Empty / sparse states:** never a dead end — a thin metric returns an honest "not enough data" plus the next best action (connect the source, widen the window), and an ambiguous ask returns one clarifying question with a sensible default, not a blank form.
+- **Empty / sparse states:** never a dead end — a thin metric returns an explicit "not enough data" plus the next best action (connect the source, widen the window), and an ambiguous ask returns one clarifying question with a sensible default, not a blank form.
 - **Ledger discipline:** every call in this journey — the STT transcription, each tool-backed model step, the reasoner synthesis — is recorded in the [call ledger](../ai-transparency.md) with its full payload; the query's audit entry reads `any_left_device = false`.
 - **Dominant laws here:** **5** (fast to first question), **1** (posture on screen), **3** (labeled claims), **2** (no silent choice), **8** (data over chrome).
 
@@ -128,8 +128,8 @@ This is the query the product is judged on. Ravi has labs every quarter, an Oura
 !!! note "Ambiguous query → it asks one clarifying question"
     *"What changed?"* with no focus and a broad record may return a clarifier — *"Across everything, or a system? You mentioned your heart before — start there?"* — a single question, not a form. Reciprocity: it proposes a sensible default so a one-word answer suffices.
 
-!!! abstract "A hard synthesis the local reasoner strains on → honest, with an offered lever"
-    If the cross-source reasoning is genuinely at the edge of the local model, the answer says so — *"this synthesis is near the limit of the local reasoner; a frontier reasoner may connect these more reliably"* — and points to the optional hybrid path ([10-enable-cloud-reasoning.md](10-enable-cloud-reasoning.md)) **without pushing**. Choosing it would route only the PII-stripped reasoning prompt through the [PII gateway](../pii-gateway.md) with a pre-send review (Law 4); the medical extractor and raw records **never** leave. Declining costs reasoning depth on one hard question and nothing else (Law 6). Raw documents, imaging pixels, and genomic sequence stay excluded regardless.
+!!! abstract "A hard synthesis the local reasoner strains on → it says so, with an offered lever"
+    If the cross-source reasoning is at the edge of the local model, the answer says so — *"this synthesis is near the limit of the local reasoner; a frontier reasoner may connect these more reliably"* — and points to the optional hybrid path ([10-enable-cloud-reasoning.md](10-enable-cloud-reasoning.md)) **without pushing**. Choosing it would route only the PII-stripped reasoning prompt through the [PII gateway](../pii-gateway.md) with a pre-send review (Law 4); the medical extractor and raw records **never** leave. Declining costs reasoning depth on one hard question and nothing else (Law 6). Raw documents, imaging pixels, and genomic sequence stay excluded regardless.
 
 !!! warning "A connector was broken at ingest → degrade loudly, answer anyway"
     If, say, the Oura sync errored last week, that source is flagged in the answer's provenance and skipped; the agent still synthesizes over everything stored. Broken connectors fail loudly and never block the query — see [08-switch-connectors.md](08-switch-connectors.md).
@@ -143,7 +143,7 @@ This is the query the product is judged on. Ravi has labs every quarter, an Oura
 ## What good looks like
 
 - Ravi gets **one paragraph** that reads across labs, wearables, imaging, meds, genome, and family history — every sentence one tap from its source, and he *sees* it was computed on his Mac Mini (three greens, a local tool trace, `any_left_device = false`).
-- The rising ApoB and the reassuring CAC 0 are held **together, honestly**, neither buried — and the system states plainly what it *won't* claim.
+- The rising ApoB and the reassuring CAC 0 are held **together**, neither buried — and the system states plainly what it *won't* claim.
 - The follow-up turns awareness into a testable experiment in the same conversation — understand → hypothesize, no dead end, no upsell.
 - Nothing pressured him toward the cloud: the local answer stood on its own, and the hybrid reasoner sat as an offered lever he did not need to pull.
 

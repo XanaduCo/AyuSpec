@@ -33,8 +33,8 @@ Ravi has looked at Function Health and Superpower and stalled on the same object
 
 - **User intent here:** pick self-hosted over managed on purpose, understanding what he keeps and what he takes on.
 - **User does:** compares self-hosted vs [ayuOS Cloud](../tiers.md) on Axis 1 (deployment); accepts that he provides the hardware and the ops in exchange for an *architectural* guarantee rather than a policy one.
-- **System does:** the [Tiers](../tiers.md) page presents the trade honestly — managed is a weaker, policy-backed claim; self-hosted is the strongest posture but asks for a Mac Mini and some terminal time. Neither is hidden behind the other.
-- **Value returned this step:** clarity, not a sales funnel. He knows precisely which risk posture he is in and that he can migrate later (the choices are configuration, not a one-way install).
+- **System does:** the [Tiers](../tiers.md) page states the trade plainly — managed is a weaker, policy-backed claim; self-hosted is the strongest posture but asks for a Mac Mini and some terminal time. Neither is hidden behind the other.
+- **Value returned this step:** clarity. He knows precisely which risk posture he is in and that he can migrate later (the choices are configuration, not a one-way install).
 - **Modality:** reading (web).
 - **UX constraints / laws:** Law 6 — the paid tier is shown beside the free path it degrades to; his sister Priya's no-server path ([Journey 02](02-managed-cloud.md)) is the same core, so choosing self-hosted forecloses nothing.
 
@@ -43,22 +43,22 @@ Ravi has looked at Function Health and Superpower and stalled on the same object
 - **User intent here:** get the runtime pieces in place with the least possible ceremony.
 - **User does:** in Terminal, installs **Homebrew**, then **Ollama** (local model runtime) and **Postgres 16** via Homebrew; obtains ayuOS (the repo / release) and puts `ayu` on his `PATH`. He **skips Docker** — he'll only need it if he later runs Open Wearables for direct wearable sync ([Journey 04](04-connect-wearables.md)).
 - **System does:** nothing yet — this is host setup. ayuOS deliberately leans on standard, separately-auditable components rather than bundling opaque binaries.
-- **Value returned this step:** each dependency is a well-known, inspectable tool he (or anyone) can verify independently — the install itself is part of the transparency story, not a black box.
+- **Value returned this step:** each dependency is a well-known, inspectable tool he (or anyone) can verify independently — the install itself is part of the transparency story.
 - **Modality:** CLI.
-- **UX constraints / laws:** Docker is *optional* — needed only for Open Wearables (see [Deployment](../deployment.md)). The prerequisite list is honest and short; no hidden services.
+- **UX constraints / laws:** Docker is *optional* — needed only for Open Wearables (see [Deployment](../deployment.md)). The prerequisite list is short and complete; no hidden services.
 
-### Step 4 — `ayu setup`, part one: pull the models (the honest wait)
+### Step 4 — `ayu setup`, part one: pull the models (the one long wait)
 
 - **User intent here:** get the local model stack onto the machine so reasoning can run offline.
 - **User does:** runs `ayu setup`. The first phase pulls three Ollama models: **DeepSeek-R1 distill** (reasoner), **Qwen** (tool-caller), and **MedGemma** (medical extractor — the role that reads raw clinical text, kept local).
 - **System does:** downloads roughly **13 GB total** of quantized weights (≈5 GB + ≈4 GB + ≈4 GB). On typical home broadband this is **tens of minutes**, not seconds — and `setup` says so up front, shows per-model progress, and narrates *why each model exists* while it downloads.
 
-    !!! warning "Set expectations honestly"
+    !!! warning "State the wait up front"
         This is the longest single wait in the whole product, and it is one-time. `ayu setup` prints the total download size and a rough ETA before it starts, so Ravi can start it and step away rather than watch a spinner.
 
 - **Value returned this step:** the wait buys *understanding*, not just bytes. By the time the download finishes, `setup` has explained the three-role model architecture — so when the posture header later shows `reasoner · tools · medical`, he already knows what each pill means. (Reciprocity: the narration is the value returned *during* the wait.)
 - **Modality:** CLI, streaming progress.
-- **UX constraints / laws:** local inference is not instant and the spec never pretends it is (latency honesty). The three roles map exactly to the header status indicator (Law 1) he'll see in the app.
+- **UX constraints / laws:** local inference is not instant and the spec never pretends it is (stated latency expectations). The three roles map exactly to the header status indicator (Law 1) he'll see in the app.
 
 ### Step 5 — `ayu setup`, part two: database, catalogue, connectors, import prompt
 
@@ -95,7 +95,7 @@ Ravi has looked at Function Health and Superpower and stalled on the same object
 
 | Step | What we ask of the user | What they get back immediately |
 |---|---|---|
-| 1 | Read the trust claim and licence | A claim he can *falsify* later on his own hardware — not a promise to trust |
+| 1 | Read the trust claim and licence | A claim he can *falsify* later on his own hardware |
 | 2 | Choose a deployment posture | Legible trade-off; certainty about which risk posture he's in; no lock-in |
 | 3 | Install Homebrew / Ollama / Postgres | Standard, independently-auditable components — the install is part of the transparency |
 | 4 | Wait ~tens of minutes for ~13 GB of models | A narrated explanation of the three-role model architecture during the wait |
@@ -106,7 +106,7 @@ Ravi has looked at Function Health and Superpower and stalled on the same object
 ## UX & modality constraints
 
 - **Input modality:** CLI for install/run (`ayu setup`, `ayu start`); the app itself is a local web app on `http://localhost:4000` with text **and** voice Ask input.
-- **Latency:** the model pull is the one honest, minutes-long wait — surfaced with size and ETA, one-time. Everything after (`ayu start`, first Ask render) is fast; *reasoning* answers stream over seconds once real data exists.
+- **Latency:** the model pull is the one minutes-long wait — surfaced with size and ETA, one-time. Everything after (`ayu start`, first Ask render) is fast; *reasoning* answers stream over seconds once real data exists.
 - **Offline:** first-class. Internet is required *once* for downloads; the running product needs none. Pulling the cable is a supported test, not a failure.
 - **Empty/error states:** the empty Ask screen is self-explaining and offers the next best action (import / connect) — never a dead dashboard.
 - **Color semantics:** the three green posture pills (Law 1) are the dominant signal of this journey — green = local = "this did not leave your machine." No amber appears anywhere in a default self-hosted install.
@@ -128,7 +128,7 @@ Ravi has looked at Function Health and Superpower and stalled on the same object
     `ayu start` checks both before starting the core and refuses to come up half-broken — it names exactly which dependency is missing and what to start. Connectors and the agent [fail loudly and degrade gracefully](../tiers.md) as a rule; the startup checks are the same principle applied to the runtime itself.
 
 !!! note "FileVault not enabled"
-    Encryption at rest is the user's responsibility; ayuOS **checks at startup and warns** if full-disk encryption is off ([Security](../security.md)). The app still runs — the warning is honest, not a gate.
+    Encryption at rest is the user's responsibility; ayuOS **checks at startup and warns** if full-disk encryption is off ([Security](../security.md)). The app still runs — the warning informs; it does not gate.
 
 !!! note "No background phone-home"
     There is nothing to break here, because there is nothing running. ayuOS makes **no background

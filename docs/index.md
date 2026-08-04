@@ -12,7 +12,7 @@ What does not vary: every model call is disclosed before it happens and recorded
 
 ## The anchor: a loop you drive
 
-The workflow ayuOS is built around is a loop you drive — **understand → hypothesize → act → measure → learn** — not a one-off answer. *"What changed in my last 90 days?"* is where it starts, not where it stops, and every claim along the way is labeled source-backed, inferred, or speculative. [Vision & Problem](vision.md#the-loop) explains each step.
+The workflow ayuOS is built around is a loop you drive: **understand → hypothesize → act → measure → learn.** *"What changed in my last 90 days?"* is where it starts, not where it stops, and every claim along the way is labeled source-backed, inferred, or speculative. [Vision & Problem](vision.md#the-loop) explains each step.
 
 ---
 

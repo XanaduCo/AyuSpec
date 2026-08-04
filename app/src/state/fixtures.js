@@ -143,7 +143,7 @@ export const IMPORTS = {
     took: '19s',
     model: 'no model — bundled ClinVar/dbSNP snapshot',
     scannedNote:
-      'You already have a 30× whole genome, so a 650k-SNP array adds no new sites: it is a sparse subset of what is already stored. What it can do is disagree — and where an array call and a sequence call disagree, the honest thing is to keep both and say which one wins, not to silently overwrite the older file.',
+      'You already have a 30× whole genome, so a 650k-SNP array adds no new sites: it is a sparse subset of what is already stored. What it can do is disagree — and where an array call and a sequence call disagree, the rule is to keep both and say which one wins, not to silently overwrite the older file.',
     rows: [
       row({ id: 'arr-apoe', name: 'APOE · rs429358/rs7412', kind: 'variant', detail: 'ε3/ε3 — agrees with the 30× sequence', conf: 0.93 }),
       row({ id: 'arr-lpa', name: 'LPA · rs3798220', kind: 'variant', detail: 'C/T carrier — agrees with the 30× sequence', conf: 0.9 }),

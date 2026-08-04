@@ -20,12 +20,12 @@ Ravi has just run the anchor query ([Journey 09](09-anchor-query.md)) and pushed
 
 ### Step 1 — Feel the ceiling, decide to escalate
 
-- **User intent here:** confirm the local answer is genuinely weaker before spending trust on egress.
+- **User intent here:** confirm the local answer is actually weaker before spending trust on egress.
 - **User does:** re-reads the local reasoner's answer in **Ask**; taps the evidence labels and sees the synthesis is thin, not the sources. Decides to try a frontier reasoner for this class of question.
 - **System does:** nothing yet — no escalation happens implicitly. There is no "the model wasn't sure, so we sent it to the cloud" path. Egress is a decision the user makes, not one the agent makes for him.
 - **Value returned this step:** clarity that the weakness is in the *reasoner*, not the data — so cloud reasoning is the right lever, not more ingestion.
 - **Modality:** text answer in Ask; tappable evidence labels (Law 3).
-- **UX constraints / laws:** posture still three-green (Law 1); the agent never routes to cloud silently (Law 4). Honesty over decisiveness — the system shows the ceiling, it doesn't quietly climb over it.
+- **UX constraints / laws:** posture still three-green (Law 1); the agent never routes to cloud silently (Law 4). Trade-offs over verdicts — the system shows the ceiling, it doesn't quietly climb over it.
 
 ### Step 2 — Configure the reasoner role (only the reasoner)
 
@@ -65,10 +65,10 @@ Ravi has just run the anchor query ([Journey 09](09-anchor-query.md)) and pushed
 
 - **User intent here:** send it, read a better answer, and keep the record.
 - **User does:** clicks **Confirm and send**.
-- **System does:** the gateway strips (unconditionally — this is not the confirm button's job; the button gates *asking*, never *stripping*), sends, and streams back a stronger synthesis: it weighs CAC 0 against the family history honestly, commits to a comparison frame across interventions, and names its own genome-blindness inline. A **ledger row is written locally, forever** — `provider: anthropic`, full payload retained (not hashed), `gateway.applied: true`, `hard_exclusions: ["MolecularSequence"]`, `cost_usd: 0.043`, `review.user_confirmed: true`.
+- **System does:** the gateway strips (unconditionally — this is not the confirm button's job; the button gates *asking*, never *stripping*), sends, and streams back a stronger synthesis: it weighs CAC 0 against the family history proportionally, commits to a comparison frame across interventions, and names its own genome-blindness inline. A **ledger row is written locally, forever** — `provider: anthropic`, full payload retained (not hashed), `gateway.applied: true`, `hard_exclusions: ["MolecularSequence"]`, `cost_usd: 0.043`, `review.user_confirmed: true`.
 - **Value returned this step:** the better answer he came for — *and* a permanent, queryable receipt of the exact trade he just made. The synthesis streams over a few seconds; the row is instantaneous.
 - **Modality:** streamed markdown answer in Ask; comparison frame; ledger write.
-- **UX constraints / laws:** the answer carries evidence labels (Law 3) and, because it used a cloud reasoner, is honest about it. Every call is logged regardless of mode — the ledger is unsuppressable ([AI Transparency](../ai-transparency.md#3-call-ledger)).
+- **UX constraints / laws:** the answer carries evidence labels (Law 3) and, because it used a cloud reasoner, says so. Every call is logged regardless of mode — the ledger is unsuppressable ([AI Transparency](../ai-transparency.md#3-call-ledger)).
 
 !!! abstract "The row that was written (`ayuos.model_calls`)"
     ```json
@@ -106,7 +106,7 @@ Ravi has just run the anchor query ([Journey 09](09-anchor-query.md)) and pushed
 - **System does:** `new_shape` now prompts only when a *distinct payload shape* appears — a new resource type, a new tool's output, a new redaction category — and lets structurally identical sends proceed. The UI **blocks `off`** until he has seen at least one full preview for that role (he has) *and* the shipped stripper version has cleared its per-class recall bars in CI; even under `off`, a deterministic backstop and the ledger remain. No mode ever suppresses a ledger row.
 - **Value returned this step:** friction drops to match his trust, in his control, without the record ever going dark. He can dial it back up — or **revoke the Anthropic provider** entirely — anytime and return to three greens.
 - **Modality:** Settings; the review-mode selector.
-- **UX constraints / laws:** review mode changes *how often he's asked*, never *whether stripping happens* or *whether it's logged* ([PII Gateway](../pii-gateway.md#the-review-gate)). Reversibility is a first-class property — the amber is a preference, not a one-way door.
+- **UX constraints / laws:** review mode changes *how often he's asked*, never *whether stripping happens* or *whether it's logged* ([PII Gateway](../pii-gateway.md#the-review-gate)). Reversibility is a first-class property — the amber is a revocable preference.
 
 ## Exchange ledger
 
@@ -115,7 +115,7 @@ Ravi has just run the anchor query ([Journey 09](09-anchor-query.md)) and pushed
 | 1 | Read the local answer critically before escalating | Confidence the weakness is the reasoner, not the data — so cloud is the right lever |
 | 2 | Configure one role, paste an API key | The recommended hybrid, exact: frontier synthesis, PHI-handling roles still green; the change visible instantly |
 | 3 | Read the pre-send review in full | Sees his genome and MRI didn't leave; learns the answer's blind spot *before* reading it; a checkable redaction diff |
-| 4 | Click Confirm and send | A stronger, honest synthesis **plus** a permanent, queryable receipt of the exact trade |
+| 4 | Click Confirm and send | A stronger, evidence-labeled synthesis **plus** a permanent, queryable receipt of the exact trade |
 | 5 | Click the amber pill | Proof the indicator and the ledger agree, and that only the escalated role left |
 | 6 | Choose a standing review mode | Friction that matches his trust, fully reversible, with the ledger never suppressible |
 
@@ -138,7 +138,7 @@ Ravi has just run the anchor query ([Journey 09](09-anchor-query.md)) and pushed
 | **Invalid / expired API key** | The call **falls back to the local reasoner** rather than failing. The posture pill shows what *actually ran* — it flips back to **green** for that call, because the indicator reflects resolved runtime state, not config. | The answer, on local models. He notices the green pill and re-checks the key. |
 | **Offline / provider outage** | Same fallback to local; the ledger records the fallback. Offline is a first-class state in the self-hosted tier, not an error. | Every workflow completes on local models alone ([Model Providers](../model-providers.md#fallback-behaviour)). |
 | **He revokes the provider** | Reasoner returns to Ollama; posture returns to **three greens**; the historical ledger rows stay. | Full local operation, and the permanent record of the calls he *did* make. |
-| **He wants this question genome-aware** | Two honest paths: opt in to send the genome to the cloud model — warned it's identifiable and stays that way — or ask it against the *local* reasoner, which sees the genome with nothing leaving the device. | Either a genome-aware cloud answer he explicitly authorised, or one at the local reasoner's quality ceiling. The trade is explicit, not hidden. |
+| **He wants this question genome-aware** | Two paths: opt in to send the genome to the cloud model — warned it's identifiable and stays that way — or ask it against the *local* reasoner, which sees the genome with nothing leaving the device. | Either a genome-aware cloud answer he explicitly authorised, or one at the local reasoner's quality ceiling. The trade is explicit, not hidden. |
 
 **Contrast — Maya never takes this step.** [Maya](14-verify-and-maintain.md) runs all three roles local, always, and accepts a weaker synthesis as the price of zero-egress; she is the user who pulls the network cable to prove it and audits the ledger for any row at all. Ravi's amber pill is a legitimate, different risk posture — the system's job is not to pick between them ([Tiers](../tiers.md)).
 

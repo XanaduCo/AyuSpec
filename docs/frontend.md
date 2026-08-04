@@ -24,7 +24,7 @@ The primary interface. A conversation-style chat with the agent.
 
 ### Timeline
 
-A chronological view of the user's health data. Not a dashboard — a navigable record.
+A chronological, navigable record of the user's health data.
 
 - Zoomable time axis (day / week / month / year)
 - Tracks: labs, wearable metrics, conditions, procedures, medications, imaging studies
@@ -33,7 +33,7 @@ A chronological view of the user's health data. Not a dashboard — a navigable 
 
 ### Doctor Packet
 
-A structured export for sharing with a clinician. Not a raw data dump — a curated brief.
+A structured export for sharing with a clinician: a curated brief.
 
 **Sections:**
 1. Summary: key metrics and notable changes over the selected period

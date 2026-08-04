@@ -6,7 +6,7 @@
 
 Both users have hit the one wall the direct tier cannot climb. Maya owns a **Garmin**; Open Wearables has a complete Garmin integration but cannot get new API credentials — Garmin's developer program is closed to new applicants, and no amount of local compute reaches it. Ravi's **cardiologist runs on Cerner**, which the Epic SMART-on-FHIR path does not serve. Neither wants a bridge on principle. Each wants to see, precisely, what a bridge would give them and what it would cost their guarantee — and then decide. This journey is the *legibility of that trade*, not the data behind it.
 
-!!! abstract "The one rule that makes this journey honest"
+!!! abstract "The one rule this journey rests on"
     A bridge is only ever offered **where the direct path is closed** — never as an upsell over a source you could reach for free. It is opt-in per provider, off by default, states plainly that records transit a third party, and falls back to the direct tier if it vanishes ([Journey 08](08-switch-connectors.md)). The value ayuOS returns here is the *legibility of the trade*, so the user can decline with the same confidence as they accept.
 
 ## Preconditions
@@ -27,7 +27,7 @@ The two cases share one shape: *hit the wall → see the bridge beside its fallb
 - **User intent here:** Add her Garmin so its readiness, body battery, and HRV join the record.
 - **User does:** Opens **Data sources**, taps *Add a source*, types "Garmin".
 - **System does:** Shows a Garmin card marked **not reachable directly** — Open Wearables has the integration built, but Garmin's developer program is closed to new applicants, so a self-hosted install cannot obtain credentials. The card does **not** dead-end: it names the only path that reaches Garmin (Terra Bridge, 🟠 bridged) and, in the same card, what she keeps without it.
-- **Value returned this step:** An honest answer in one step — *why* the free path fails (a developer-agreement wall, not a bug), stated without burying it or pretending the direct path can do it.
+- **Value returned this step:** The answer in one step — *why* the free path fails (a developer-agreement wall, not a bug), stated without burying it or pretending the direct path can do it.
 - **Modality:** Connector search + card in Data sources.
 - **UX constraints / laws:** Connectors **fail loudly, never silently** — the wall is stated, not hidden. Amber marks the bridged option the instant it appears (color is a language, not decoration).
 
@@ -43,7 +43,7 @@ The two cases share one shape: *hit the wall → see the bridge beside its fallb
     | ~50+ providers reachable, per-provider | Every **direct** provider (Oura, Whoop, Polar, Fitbit…) via Open Wearables, zero transit |
     | Records transit Terra's cloud before landing locally | **Garmin FIT-file export → local parse** — a zero-transit path for historical Garmin data, no bridge |
 
-- **Value returned this step:** She can see the whole decision at a glance — the bridge is never shown without the fallback beside it, so "no" is a fully-informed option, not a defeat.
+- **Value returned this step:** She can see the whole decision at a glance — the bridge is never shown without the fallback beside it, so "no" is a fully-informed option.
 - **Modality:** Two-column comparison card, fixed axes (no silent ranking — Law 2).
 - **UX constraints / laws:** **Law 6** dominates — a tier is never rendered without what you keep without it. **Law 2** — nothing is ranked; the columns sit on the same axes and ayuOS does not nudge toward the paid one.
 
@@ -70,7 +70,7 @@ The two cases share one shape: *hit the wall → see the bridge beside its fallb
 - **User intent here:** Decide. For her sovereign posture, transiting Terra's cloud is not worth live Garmin sync.
 - **User does:** Closes the consent screen without enabling. Instead she taps *Use FIT-file export instead* on the Garmin card.
 - **System does:** Enables the **zero-transit** Garmin path — she drops FIT exports into the uploads pane and they parse locally, same as any file. Garmin history lands in the store with **no amber anywhere**. No modal asks "are you sure?", no reminder badge reappears, no periodic prompt to reconsider. The Garmin card simply shows *direct (FIT export) · bridge available if you want it later*.
-- **Value returned this step:** She gets Garmin history **on her own terms** — and, just as important, the product treats "no" as a legitimate final answer, not a funnel to re-enter. The reward for effort this step is her guarantee kept intact plus the data she actually needed.
+- **Value returned this step:** She gets Garmin history **on her own terms** — and, just as important, the product treats "no" as a legitimate final answer. The reward for effort this step is her guarantee kept intact plus the data she actually needed.
 - **Modality:** File upload (FIT) → local parse; no live connector.
 - **UX constraints / laws:** **No dark patterns** — declining a paid tier must not degrade the free experience or nag (Law 7: education/prompts inject, never nag, never gate). The absence of amber is the visible proof her posture held.
 
@@ -79,7 +79,7 @@ The two cases share one shape: *hit the wall → see the bridge beside its fallb
 - **User intent here:** Show that the *same* screen serves a user who wants the bridge — the point is the choice was legible, not that one answer is correct.
 - **User does:** A Maya-shaped user who *does* want live Garmin sync taps *Enable Terra Bridge for Garmin*, pays Terra's per-connection fee, and authorizes Garmin through Terra's hosted widget.
 - **System does:** Terra begins delivering Garmin data to the local Open Wearables endpoint. The Garmin source card turns **🟠 amber**; the header posture summary now reads *1 bridged source (Garmin)*, everything else green. The consent log records the enable with timestamp, scope, and the transit disclosure. First sync streams in over minutes, not instantly.
-- **Value returned this step:** Live gated-device data, with the cost rendered permanently and honestly on the source — amber for Garmin, green for the rest, auditable forever.
+- **Value returned this step:** Live gated-device data, with the cost rendered permanently on the source — amber for Garmin, green for the rest, auditable forever.
 - **Modality:** Hosted Terra widget (OAuth) → local webhook; amber posture on the source card.
 - **UX constraints / laws:** **Law 1** — posture is always on screen; the amber is not a one-time warning, it is the source's standing state. **Law 4** — the transit was previewed and is now logged.
 
@@ -88,7 +88,7 @@ The two cases share one shape: *hit the wall → see the bridge beside its fallb
 - **User intent here:** Pull his cardiologist's records — the one provider his Epic direct path cannot reach.
 - **User does:** In **Data sources**, searches for his cardiology group; it resolves to a **Cerner (Oracle Health)** system.
 - **System does:** Marks it **not reachable directly** — Epic auto-distribution serves only Epic orgs; Cerner has no equivalent free self-service path. The card names the one path that reaches it (**Fasten Connect**, 🟠 bridged, paid) and, beside it, what he keeps without it: his **Epic** hospital (labs, notes, Outside Records) and his wearables, all direct, all green.
-- **Value returned this step:** Same honest wall, same fallback-beside-it framing — Ravi immediately sees this bridge buys *one* provider, not a replacement for his working direct tier.
+- **Value returned this step:** Same wall, same fallback-beside-it framing — Ravi immediately sees this bridge buys *one* provider, not a replacement for his working direct tier.
 - **Modality:** Connector search + card; the EHR equivalent of Maya's Garmin card.
 - **UX constraints / laws:** **Law 6** again — the paid EHR tier renders beside the free Epic + Apple-export paths it never replaces.
 
@@ -117,7 +117,7 @@ The two cases share one shape: *hit the wall → see the bridge beside its fallb
 - **System does:** Fasten pulls the records; ayuOS polls and downloads NDJSON to the local store, deduplicating against Epic and Apple-export data by `(patient, LOINC code, effective date/time)`. The cardiology source card turns **🟠 amber**; **Epic stays green, wearables stay green.** The header posture reads *1 bridged EHR source*. New cardiology labs now merge into the same timeline as his Epic labs.
 - **Value returned this step:** The one missing provider, unified into a record that was already answering his questions — with the cost isolated to exactly that source and visible forever.
 - **Modality:** Fasten Stitch widget → poll/download NDJSON → local dedup + merge.
-- **UX constraints / laws:** **Law 1** — amber marks only the Cerner source; posture is per-source, never a blanket verdict on the install. **Data over chrome** — the merged labs render in the timeline with honest ranges, source-labeled.
+- **UX constraints / laws:** **Law 1** — amber marks only the Cerner source; posture is per-source, never a blanket verdict on the install. **Data over chrome** — the merged labs render in the timeline with their reference ranges, source-labeled.
 
 ---
 
@@ -125,12 +125,12 @@ The two cases share one shape: *hit the wall → see the bridge beside its fallb
 
 | Step | What we ask of the user | What they get back immediately |
 |---|---|---|
-| 1 | Search for a gated provider (Garmin) | The honest reason the direct path can't reach it, plus the one path that can — no dead end |
+| 1 | Search for a gated provider (Garmin) | The reason the direct path can't reach it, plus the one path that can — no dead end |
 | 2 | Read the bridge card | The full trade at a glance: the bridge *and* everything kept without it, side by side (Law 6) |
 | 3 | Open the consent screen | Exact terms, exact scope, exact posture change — with zero obligation to enable |
 | 4 | Decline the bridge | Garmin history via zero-transit FIT export, guarantee intact, and no nagging afterward |
 | 5 | (Accept branch) pay + authorize Terra | Live gated-device sync with the cost rendered permanently as amber on that source only |
-| 6 | Ravi searches for his Cerner cardiologist | Same honest wall + the Epic/Apple fallback shown beside the paid option |
+| 6 | Ravi searches for his Cerner cardiologist | Same wall + the Epic/Apple fallback shown beside the paid option |
 | 7 | Ravi reads the Fasten consent | Bridged-EHR terms in full — 24h retention, CARIN AI/ML disclosure, per-provider scope |
 | 8 | Ravi accepts for one provider | The missing cardiologist merged into his timeline; amber isolated to that source, Epic stays green |
 
@@ -157,9 +157,9 @@ The two cases share one shape: *hit the wall → see the bridge beside its fallb
 |---|---|---|
 | **User declines consent** | Nothing enabled; card offers the zero-transit path | Fine — the intended, respected outcome. Garmin via FIT export; Cerner deferred, Epic + Apple export intact |
 | **Terra / Fasten changes pricing or shuts the service** | The bridged source stops syncing, logged loudly | Everything already ingested **stays in Postgres**; direct providers keep working — the switch-and-lose flow is [Journey 08](08-switch-connectors.md) |
-| **A provider even the bridge can't reach** | Card marks it unreachable by *any* path, honestly | No pretense — offered the nearest manual path (FIT export, a portal PDF upload) rather than a promise it can't keep |
+| **A provider even the bridge can't reach** | Card marks it unreachable by *any* path | No pretense — offered the nearest manual path (FIT export, a portal PDF upload) rather than a promise it can't keep |
 | **Bridge sync errors mid-pull** | Error surfaced on the source card; partial data flagged | Connectors fail loudly and skip; the agent still answers over what's stored — nothing else stalls |
-| **Commercial fit unverified (Fasten individual pricing)** | If no individual tier exists, the tier is simply not offerable | The honest limitation is stated ([ADR-0001](../adr/0001-ehr-ingestion.md)); Epic + Apple export remain the working EHR floor |
+| **Commercial fit unverified (Fasten individual pricing)** | If no individual tier exists, the tier is simply not offerable | The limitation is stated ([ADR-0001](../adr/0001-ehr-ingestion.md)); Epic + Apple export remain the working EHR floor |
 | **Later doubt about an amber source** | The user wants to audit exactly what left the device | The amber source's every sync is in the ledger — verified in [Journey 14](14-verify-and-maintain.md) |
 
 ---

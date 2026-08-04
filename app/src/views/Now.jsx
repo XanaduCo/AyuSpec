@@ -63,8 +63,8 @@ export default function Now() {
           : `${open.length} thing${open.length > 1 ? 's' : ''} worth a minute.`}
       </div>
       <p className="muted" style={{ marginTop: 8, maxWidth: '66ch' }}>
-        Not a dashboard — there is no score here and nothing to keep a streak on. This is the list
-        of things that changed, are genuinely due, or are waiting on a decision only you can make.
+        There is no score here and nothing to keep a streak on. This is the list
+        of things that changed, are due, or are waiting on a decision only you can make.
         Snoozing is a first-class answer.
       </p>
 

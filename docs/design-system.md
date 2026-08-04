@@ -6,7 +6,7 @@ obeys, so the app reads as one instrument rather than a dozen features stapled t
 
 !!! abstract "The stance"
     ayuOS is **an instrument you own that never hides what it's doing.** Two ideas — sovereignty made
-    visible, and honesty over decisiveness — are not marketing; they are constraints on every screen.
+    visible, and trade-offs over verdicts — are not marketing; they are constraints on every screen.
     If a view doesn't make them *felt*, it is a worse version of the products ayuOS exists to replace.
 
 This system governs the [reference demo](#the-reference-demo) being built now, and is the contract any
@@ -22,7 +22,7 @@ job is to make those two differences legible on every screen.
 | | The idea | How the UI carries it |
 |---|---|---|
 | **Sovereignty, made visible** | You can always see where your data is and what is leaving the device. | The current posture is on screen at all times — never buried in settings. Green means it stayed; amber means it left. |
-| **Honesty over decisiveness** | The system shows you the trade-off; it does not make the choice. | Nothing is scored, ranked, or recommended silently. Options sit on fixed axes; evidence is labeled; every promotion names its reason. |
+| **Trade-offs over verdicts** | The system shows you the trade-off; it does not make the choice. | Nothing is scored, ranked, or recommended silently. Options sit on fixed axes; evidence is labeled; every promotion names its reason. |
 
 These trace directly to [AI Transparency](ai-transparency.md) and [Health Literacy &
 Epistemics](epistemics.md) — this page is where they become pixels.
@@ -43,11 +43,11 @@ than taste.
 | 5 | **Fast to the first question.** The app opens on **Ask** with the cursor ready. No dashboard wall, no onboarding gate. | [Frontend](frontend.md#principles) |
 | 6 | **A tier is never shown without its fallback.** Every paid or cloud affordance renders beside what you keep without it. Losing a tier costs breadth, never the system or your history. | [Tiers](tiers.md#the-fallback-guarantee) |
 | 7 | **Education injects, never blocks.** Concept cards appear inline, at most one per response, and retire once fluency is shown. Never a modal, never a nag, never a gate on functionality. | [Epistemics](epistemics.md#the-injection-policy) |
-| 8 | **Data over chrome.** Health values use tabular, monospaced numerals and honest reference ranges. The interface recedes; the record is the subject. | — |
+| 8 | **Data over chrome.** Health values use tabular, monospaced numerals and as-reported reference ranges. The interface recedes; the record is the subject. | — |
 
 ---
 
-## Color is a language, not a palette
+## Color is a language
 
 The identity's backbone is a strict rule: **three hues carry meaning and are never used
 decoratively.** Because they are reserved, the user learns them once and can trust them. The brand
@@ -92,7 +92,7 @@ the per-view detail; this is the consolidated map the navigation is built from.
 | **✦ Ask** *(home)* | Chat with the agent — voice/text, markdown answers, inline evidence labels, comparison frames, source cards, history. | [Frontend](frontend.md#chat), [Agent Loop](agent-loop.md) |
 | **◷ Timeline** | Zoomable record of labs, wearables, conditions, meds, imaging. Overlay two metrics; click an event → its FHIR resource. | [Frontend](frontend.md#timeline) |
 | **◇ Explore** | The healthspan model — systems → functions → interventions, live modifier resolution, comparison frame, markers. | [Healthspan Model](healthspan-model.md) |
-| **⁘ Experiments** | Hypotheses and n-of-1 experiments — baseline, protocol, pre-registered success criteria, honest supported/inconclusive verdicts. | [Evidence](evidence.md), [Experimentation](experimentation.md) |
+| **⁘ Experiments** | Hypotheses and n-of-1 experiments — baseline, protocol, pre-registered success criteria, supported/inconclusive verdicts. | [Evidence](evidence.md), [Experimentation](experimentation.md) |
 | **⇲ Data sources** | Connector cards — tier (direct/bridged), last sync, record counts, errors. File uploads: Apple Health, lab PDFs, DICOM, genome. | [Ingestion](ingestion/index.md) |
 | **◨ Share** | Doctor-packet & sliver composer — scope, format, preview of exactly what's included, append-only consent log. | [Sharing](sharing.md) |
 | **▤ Transparency** | The call ledger — every model call, filterable, with full payload. Pre-send review and per-role posture detail. | [AI Transparency](ai-transparency.md) |

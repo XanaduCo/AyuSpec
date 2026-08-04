@@ -5,7 +5,7 @@
 
 ## Overview
 
-The healthspan model is ayuOS's **bundled knowledge graph of the body**: every system, what is known to preserve its function with age, how to measure that function honestly, which interventions help and by how much, and how a person's own conditions, anatomy, and environment reshape those recommendations.
+The healthspan model is ayuOS's **bundled knowledge graph of the body**: every system, what is known to preserve its function with age, how to measure that function, which interventions help and by how much, and how a person's own conditions, anatomy, and environment reshape those recommendations.
 
 It is the substrate that makes the rest of the system concrete. [Evidence & Hypotheses](evidence.md) needs a curated intervention library to form hypotheses from; [Health Literacy & Epistemics](epistemics.md) needs real cells to fill its comparison frames with; [Experimentation](experimentation.md) needs to know which marker is worth measuring and how noisy it is. All three currently hand-wave that content. This is it.
 
@@ -65,7 +65,7 @@ A first-class axis, because the difference between a CPET-measured VO₂max and 
 
 Each marker also carries `noise` (typical within-person variability), `cost`, `invasiveness`, `min_useful_interval` (measuring ApoB weekly tells you nothing), and `ingestible_via` — a link into [ingestion](ingestion/index.md) saying whether ayuOS can actually get this automatically.
 
-This is directly load-bearing elsewhere: [experimentation](experimentation.md#methodology-support) needs `noise` for its power/duration heuristics, and a Tier C marker with high noise should tell the user honestly that their planned two-week n-of-1 cannot detect the effect they're hoping for.
+This is directly load-bearing elsewhere: [experimentation](experimentation.md#methodology-support) needs `noise` for its power/duration heuristics, and a Tier C marker with high noise should tell the user that their planned two-week n-of-1 cannot detect the effect they're hoping for.
 
 ## Effectiveness ordering
 
@@ -202,7 +202,7 @@ mistakes their own assertion for evidence.
 
 The [effectiveness-ordering](#effectiveness-ordering) rule — *"No cited edge, no cell; synthesis
 is not permitted"* — becomes: **every cell traces to an edge with a declared source.** A
-`self`-sourced cell is a legitimate, honestly-labelled case; what remains forbidden is the
+`self`-sourced cell is legitimate and labelled as user-authored; what remains forbidden is the
 *model* inventing a cell at query time. The [retrieve-don't-invent](#agent-integration) guard is
 untouched — user editing adds a permitted non-default source, it does not open a synthesis path.
 
@@ -249,7 +249,7 @@ The agent **retrieves, it does not invent**. Any intervention claim in a respons
 
 ## Authoring & maintenance
 
-The honest risk: **this is the largest content-maintenance burden in the project**, and content rot here is worse than code rot — a stale recommendation looks exactly like a current one.
+The risk: **this is the largest content-maintenance burden in the project**, and content rot here is worse than code rot — a stale recommendation looks exactly like a current one.
 
 This section governs the **default (`ayuos_default`) layer** and any **expert/community packs**. User `self` edits are personal data, uncited-but-labelled, and outside this gate — see [Editability & provenance](#editability-provenance). Distributing authorship across those layers is also what keeps editorial liability tractable: ayuOS owns review of the default it ships, not of every recommendation a user or expert authors on top.
 
@@ -274,7 +274,7 @@ Depth beats breadth in v0: a shallow node for every system reads as complete whi
 ## Relationship to other components
 
 - [Evidence & Hypotheses](evidence.md) — this **is** the curated intervention library that spec calls for; hypotheses are formed by walking `SUPPORTS` edges against the user's goals and gaps.
-- [Health Literacy & Epistemics](epistemics.md) — supplies the comparison-frame cells and the modifier explanations; the graph is what makes the frame honest rather than generated.
+- [Health Literacy & Epistemics](epistemics.md) — supplies the comparison-frame cells and the modifier explanations; the graph is what grounds the frame in cited edges rather than model generation.
 - [Experimentation & Validation](experimentation.md) — `MEASURED_BY` noise and tier data drive marker selection and power/duration heuristics.
 - [Agent Loop](agent-loop.md) — new retrieval tools; the no-uncited-claims rule.
 - [Storage](storage.md) — new `knowledge` schema, versioned separately from user data.
@@ -296,6 +296,6 @@ records what building it forced this spec to change.
 - [ ] How is the user's modifier profile assembled — inferred from the clinical store, explicitly confirmed by the user, or both? Inferring "chronic back pain" from a single coded encounter is fragile.
 - [ ] Do we model dose-response as structured data (intensity × duration × frequency) or prose per edge?
 - [ ] Interaction edges: worth the combinatorics in v1, or defer entirely to v2?
-- [ ] Supplement coverage — the biohacker audience expects it, but it is the weakest-evidence, highest-noise region of the graph. Ship it labelled honestly, or scope it out of v0?
+- [ ] Supplement coverage — the biohacker audience expects it, but it is the weakest-evidence, highest-noise region of the graph. Ship it labelled as such, or scope it out of v0?
 - [ ] Localisation and context: food, climate, and access assumptions are culturally specific. Does the graph carry regional variants, or ship one variant and accept the limitation?
 - [ ] How do we version *user-visible* recommendations — if a v2 content update reverses advice the user acted on, do we surface that proactively? *(The [overlay's](#editability-provenance) `overrides` link and `model_version` make the diff computable — open question is the surfacing UX, especially when the reversed edge is one the user had overridden or subscribed to via an expert layer.)*

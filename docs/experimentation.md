@@ -25,7 +25,7 @@ It serves user job #5 in the [vision](vision.md#what-users-want-to-do).
 
 ## Methodology support
 
-The value here is methodological honesty — most people run bad n-of-1s. ayuOS should help with:
+The value here is methodological rigor — most people run bad n-of-1s. ayuOS should help with:
 
 - **Baseline establishment** — measure natural variability before intervening, so signal can be told from noise.
 - **Duration / power heuristics** — given a metric's variance and the expected effect size, suggest a minimum window. Underpowered experiments get flagged, not silently run.
@@ -45,11 +45,11 @@ Baseline window ──► Intervention window ──► Comparison
      result label: supported / not supported / inconclusive
 ```
 
-Analysis must account for measurement noise, regression to the mean, and the small-n reality. When variability swamps the effect, the honest answer is **inconclusive** — and the component should say so rather than manufacture a finding.
+Analysis must account for measurement noise, regression to the mean, and the small-n reality. When variability swamps the effect, the answer is **inconclusive** — and the component should say so rather than manufacture a finding.
 
-## Honesty guardrails
+## Guardrails against overclaiming
 
-n-of-1 is genuinely weak evidence: one subject, no blinding by default, high confounding. The component must:
+n-of-1 is weak evidence: one subject, no blinding by default, high confounding. The component must:
 
 - Never report correlation from a single window as causation.
 - Carry the [evidence-strength labeling](evidence.md#strength-of-evidence-labeling) through to results — a positive n-of-1 is `EVIDENCE: LOW`, full stop.

@@ -66,4 +66,4 @@ A hypothesis is a first-class, stored object:
 - [ ] Should hypotheses be agent-proposed proactively, user-authored, or both?
 - [ ] How do we prevent the confident-but-wrong failure mode — an eloquent hypothesis with `EVIDENCE: NONE` that reads as authoritative?
 - [ ] Where do hypotheses live — Postgres, or FHIR (there's no clean R4 resource for "personal hypothesis")?
-- [ ] How is `confidence` calibrated and kept honestly distinct from `evidence_strength`?
+- [ ] How is `confidence` calibrated and kept distinct from `evidence_strength`?

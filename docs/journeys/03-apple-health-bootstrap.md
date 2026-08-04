@@ -36,7 +36,7 @@ rewards her purism instead of taxing it.
   hers. No connector, no login, no vendor between her and her data.
 - **Modality:** native iOS export → file transfer (AirDrop / USB / scp).
 - **UX constraints / laws:** this step is **un-automatable** and manual by Apple's design — there is
-  no Shortcuts action, so honesty means saying so up front rather than implying live sync. The
+  no Shortcuts action, so the spec says so up front rather than implying live sync. The
   cumulative-dump property is what makes re-import safe later (Step 5).
 
 !!! note "One file, two schemas"
@@ -66,14 +66,14 @@ rewards her purism instead of taxing it.
 - **User does:** nothing — she leaves the Data sources view and clicks into Ask.
 - **System does:** parsing continues on a background worker. For a heavy archive (years of Watch
   data can be **tens of millions of time-series samples**) this is minutes, not seconds, and ayuOS
-  says so honestly. Watch metrics stream into `timeseries` first (they parse fast); the
+  says so up front. Watch metrics stream into `timeseries` first (they parse fast); the
   `clinical-records/` FHIR files are mapped to R4 and written to `clinical` as they resolve. A
-  progress row stays pinned with an honest estimate and a per-type breakdown.
+  progress row stays pinned with a running estimate and a per-type breakdown.
 - **Value returned this step:** the app is fully usable *during* the import — offline is a
   first-class state, and a long parse is a background job, never a modal wall (Law 5). Early-parsed
   data is already queryable before the run finishes.
 - **Modality:** background job + a persistent progress indicator.
-- **UX constraints / laws:** honest latency (§3 latency expectations). No blocking screen; the
+- **UX constraints / laws:** latency stated up front (§3 latency expectations). No blocking screen; the
   empty state she started from is already filling in behind her.
 
 ### Step 4 — Watch the record light up
@@ -92,8 +92,8 @@ rewards her purism instead of taxing it.
 - **Value returned this step:** a longitudinal record materialized from a single file — the labs and
   the Watch metrics on one axis, which no single app on her phone showed her.
 - **Modality:** Timeline (zoomable, click-through to source).
-- **UX constraints / laws:** every value renders in tabular monospace against honest reference
-  ranges (Law 8). Provenance is real: each resource carries `content_hash` +
+- **UX constraints / laws:** every value renders in tabular monospace against its source's reference
+  range (Law 8). Provenance is real: each resource carries `content_hash` +
   `(source, source_resource_id)` — see [Storage](../storage.md).
 
 !!! warning "Provider FHIR carries no note text and no institution name inline"
@@ -115,10 +115,10 @@ rewards her purism instead of taxing it.
 - **Value returned this step:** a grounded, source-backed answer from **one file and zero setup** —
   no wearable connector, no EHR registration, no cloud. This is the whole promise in one screen.
 - **Modality:** text (voice available); markdown answer with inline source cards.
-- **UX constraints / laws:** the answer streams over seconds on local inference — honest, not
-  instant (§3). Posture stays three greens: the reasoner ran on-device, nothing left the machine
-  (Law 1, Law 4). If coverage is thin, the answer says so rather than overreaching (honesty over
-  decisiveness).
+- **UX constraints / laws:** the answer streams over seconds on local inference, never disguised
+  as instant (§3). Posture stays three greens: the reasoner ran on-device, nothing left the machine
+  (Law 1, Law 4). If coverage is thin, the answer says so rather than overreaching (trade-offs
+  over verdicts).
 
 ## Exchange ledger
 
@@ -134,7 +134,7 @@ rewards her purism instead of taxing it.
 
 - **Input modality:** file upload (drag-drop primary, browse fallback) → text/voice Ask.
 - **Latency:** parsing a heavy archive is minutes on a background worker; the synthesis answer
-  streams over seconds locally. Both are stated honestly, never disguised as instant.
+  streams over seconds locally. Both are stated up front, never disguised as instant.
 - **Offline:** the entire journey runs with the network cable pulled — Maya's proof test. Nothing in
   it requires egress (Law 1, Law 4 — posture never leaves green).
 - **Empty state:** before the import, Data sources offers the export as the *next best action*, not a
@@ -147,7 +147,7 @@ rewards her purism instead of taxing it.
 ## Where it can break (and the fallback)
 
 - **Very large zip / slow parse.** A multi-year archive can be tens of millions of samples. Import
-  runs in the background with an honest estimate; the app is usable throughout and early-parsed data
+  runs in the background with a running estimate; the app is usable throughout and early-parsed data
   is already queryable. Never a blocking screen.
 - **Messy or partial export.** Mixed **DSTU2 and R4** resources appear in the same export, per
   record; some records fail to convert. The parser **fails loudly and degrades gracefully** — it
@@ -164,7 +164,7 @@ rewards her purism instead of taxing it.
   were clinical results.
 - **Re-import next quarter.** She exports again in 90 days — another full cumulative dump. Dedup by
   `content_hash` + `(source, source_resource_id)` means unchanged resources are recognized, not
-  duplicated; only genuinely new or modified records are written ([Storage](../storage.md)). No
+  duplicated; only new or modified records are written ([Storage](../storage.md)). No
   merge dialog, no growing pile of duplicate labs.
 
 ## What good looks like

@@ -94,7 +94,7 @@ export default function Timeline() {
     <div className="page tl-page">
       <p className="eyebrow">The record · Ravi Mehta</p>
       <div className="tl-top">
-        <div className="lede">A navigable record, not a dashboard.</div>
+        <div className="lede">The whole record on one date axis.</div>
         <div className="tl-zoom" role="tablist" aria-label="Zoom">
           {WINDOWS.map(w => (
             <button key={w.key} role="tab" aria-selected={w.key === winKey}

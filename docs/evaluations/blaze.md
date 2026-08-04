@@ -12,7 +12,7 @@
 A FHIR R4 server in Clojure with **embedded RocksDB storage** — a single process, no external
 database. [samply/blaze](https://github.com/samply/blaze), 226 stars.
 
-Genuinely production-grade, not a hobby project. README: *"Blaze is stable and widely used in
+Production-grade. README: *"Blaze is stable and widely used in
 the Medical Informatics Initiative in Germany and in Biobanks across Europe."* Peer-reviewed:
 Kiel et al., *Stud Health Technol Inform* 336 (MIE 2026), [doi:10.3233/SHTI260455](https://doi.org/10.3233/SHTI260455).
 
@@ -66,7 +66,7 @@ refers to the full demo stack (frontend + Keycloak + nginx), not the bare backen
 
 ## What would change this
 
-Adopt only if Medplum's four-container footprint proves genuinely unworkable on a 16 GB Mac
+Adopt only if Medplum's four-container footprint proves unworkable on a 16 GB Mac
 Mini **and** the cross-cutting-query requirement is dropped or moved entirely into the
 `ayuos` schema. If the store must be joinable, [HAPI](hapi-fhir.md) is the correct fallback
 instead — it is heavier but Postgres-backed.

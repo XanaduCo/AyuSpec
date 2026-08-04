@@ -7,11 +7,11 @@
 
 A core product thesis: **users don't know what to ask, or how to weigh the answers.** People come to ayuOS precisely because they don't have a clear picture of their health and no clinician has taken the time to build one with them. If the system just answers questions, it serves the users who already know how to interrogate evidence — and quietly fails everyone else.
 
-This component teaches the *epistemic skills* needed to use ayuOS well — the hierarchy of evidence, how to reason with imperfect data, why "it worked for me" is hard to interpret, how to compare interventions honestly — **without an explicit onboarding module**. There is no course, no gate, no tutorial to complete. Education is injected at decision points, indexed by the user's actual situation, and it retires itself as the user demonstrates fluency.
+This component teaches the *epistemic skills* needed to use ayuOS well — the hierarchy of evidence, how to reason with imperfect data, why "it worked for me" is hard to interpret, how to compare interventions on the same axes — **without an explicit onboarding module**. There is no course, no gate, no tutorial to complete. Education is injected at decision points, indexed by the user's actual situation, and it retires itself as the user demonstrates fluency.
 
 Two hard constraints:
 
-1. **Never prescriptive.** ayuOS does not say "heart disease is your most important lever." It shows the difference in likelihood-of-working between, say, NMN supplementation and a walk after every meal — same axes, honest labels — and leaves the choice with the user.
+1. **Never prescriptive.** ayuOS does not say "heart disease is your most important lever." It shows the difference in likelihood-of-working between, say, NMN supplementation and a walk after every meal — same axes, labeled evidence — and leaves the choice with the user.
 2. **Simplification is opt-in.** If the user asks ayuOS to simplify the choice, it collapses the trade-offs through an explicit [preference model](#the-preference-model-simplify-this-for-me) — and always shows how their stated preferences produced the ranking.
 
 ## Design principles
@@ -96,7 +96,7 @@ When the user weighs interventions — or asks "what should I do?" — options r
 
 The system fills in the cells and stops. It does not rank, recommend, or editorialize. A user who reads that table has learned the comparison *method* — evidence strength, effect size, cost, risk are separate questions — without being told what to choose. This is the primary vehicle for the "likelihood of working" education, and it is deliberately structural rather than verbal.
 
-Alternative-medicine options enter the same frame — same axes, no separate category. Honesty cuts both ways: *absence* of evidence is labeled distinctly from *negative* evidence, and where placebo-arm effects are large, that is stated as a real quantified effect, not a dismissal.
+Alternative-medicine options enter the same frame — same axes, no separate category. The labeling cuts both ways: *absence* of evidence is labeled distinctly from *negative* evidence, and where placebo-arm effects are large, that is stated as a real quantified effect, not a dismissal.
 
 ## The preference model ("simplify this for me")
 
@@ -138,7 +138,7 @@ This component strengthens the wellness-information positioning: a system that t
 
 - [Evidence & Hypotheses](evidence.md) — supplies the labels that serve as injection points; concepts explain the ladder. Directly addresses evidence.md's open question about the confident-but-wrong failure mode: an eloquent `EVIDENCE: NONE` hypothesis triggers the relevant concept.
 - [Agent Loop](agent-loop.md) — executes the injection policy; concept summaries and comparison frames are rendered in responses.
-- [Experimentation & Validation](experimentation.md) — the n-of-1 concept cluster teaches the methodology that component enforces; its honesty guardrails and this component are two halves of the same stance.
+- [Experimentation & Validation](experimentation.md) — the n-of-1 concept cluster teaches the methodology that component enforces; its guardrails against overclaiming and this component are two halves of the same stance.
 - [Frontend & UI](frontend.md) — tappable evidence labels, concept cards, the comparison view, quiz surface.
 - [Storage](storage.md) — concept library, literacy profile, and preference profile live in the `ayuos` schema.
 - [Governance & Stewardship](governance.md) — editorial review of concept content; the non-prescriptive constraint.

@@ -249,7 +249,7 @@ export default function ContextPanel({ ctx, onToggle }) {
           {!!budgetEvicted.length && (
             <>
               <p className="ctx-divider-note">
-                Evicted to fit the budget — relevant, permitted, and still not sent. The honest third
+                Evicted to fit the budget — relevant, permitted, and still not sent. The third
                 category, and the one an answer should always admit to.
               </p>
               <div className="ctx-drop" style={{ borderLeftColor: 'var(--block)' }}>

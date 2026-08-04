@@ -68,7 +68,7 @@ graph LR
 | **What it costs** | Data lives on operated infrastructure | PII-stripped context leaves the machine | Records transit a vendor before landing locally |
 | **Detail** | [Deployment](deployment.md) | [Model Providers](model-providers.md) | [ADR-0001](adr/0001-ehr-ingestion.md) · [Open Wearables](open-wearables.md) |
 
-The axes are genuinely independent. Choosing ayuOS Cloud does not force cloud models;
+The axes are independent. Choosing ayuOS Cloud does not force cloud models;
 choosing a cloud reasoner does not force bridged connectors.
 
 ---
@@ -143,7 +143,7 @@ explicitly that records transit the vendor's infrastructure. See
 
 !!! note "The tiers are complementary, not redundant"
     No single path covers a typical user's providers. Someone with a Garmin, an Epic hospital,
-    and a Cerner specialist needs three tiers. This is an honest limitation of the US health
+    and a Cerner specialist needs three tiers. This is a limitation of the US health
     data landscape, not a gap in the design.
 
 ---

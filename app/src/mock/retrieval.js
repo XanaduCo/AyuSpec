@@ -239,7 +239,7 @@ export const retrieval = {
         days: 730, label: '2 years',
         picks: ['dexa-2024-08-24', 'func-2024-07-10'],
         addendum: [
-          p('Over two years there is a control period to compare against: from mid-2024, with training roughly flat, VO₂max estimate drifted +0.9 and RHR moved 1 bpm. During the block, +1.7 and 2 bpm {{ev:inf}}. Weak, but it is the closest thing to a counterfactual your record contains — and it is the honest answer to "compared to what?"'),
+          p('Over two years there is a control period to compare against: from mid-2024, with training roughly flat, VO₂max estimate drifted +0.9 and RHR moved 1 bpm. During the block, +1.7 and 2 bpm {{ev:inf}}. Weak, but it is the closest thing to a counterfactual your record contains — and it is the answer to "compared to what?"'),
         ],
       },
       genome: { picks: [], noneRelevant: 'Nothing genomic bears on this. The record has no trainability or ACTN3-class variant reported, and inventing relevance to justify sending a genome would be exactly the wrong instinct.' },
@@ -514,7 +514,7 @@ export const retrieval = {
         addendum: [p('Your niacin and tryptophan intake are both comfortably above requirement {{ev:src}}. That is not evidence for or against NMN; it just means the deficiency argument does not apply to you {{ev:inf}}.')] },
     },
     caveats: {
-      empty: 'This answer barely uses your record. Almost all of it is the evidence base — which is the honest shape of the question.',
+      empty: 'This answer barely uses your record. Almost all of it is the evidence base — which is the shape of the question.',
     },
   },
 }

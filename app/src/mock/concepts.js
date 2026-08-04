@@ -39,7 +39,7 @@ Collapsing them into one number is exactly the sleight of hand ayuOS refuses to 
 
 This is the central reason "it worked for me" is hard to interpret: life rarely changes one variable at a time. The fix is to hold the other inputs roughly constant and vary just one — which is what an n-of-1 experiment is for.
 
-Confounding isn't a flaw in your data; it's a property of the world. Naming it is the first defence.`,
+Confounding is a property of the world, not a flaw in your data. Naming it is the first defence.`,
     related: ['n-of-1', 'regression-to-the-mean', 'effect-vs-certainty'],
     deepLink: 'Confounding variables — a plain-English primer',
   },
@@ -80,7 +80,7 @@ The failure mode is treating the *word* "negative" as the information, rather th
     body:
 `Extreme measurements tend to be followed by more ordinary ones, purely by chance. You usually start an intervention when a number looks alarming — its worst point. It then drifts back toward your normal range on its own, and the intervention gets the credit.
 
-This is not a rare edge case; it's the default trap in self-experimentation. It's why a pre-registered baseline window matters: you compare against your typical range, not against the bad day that prompted you to act.`,
+It is the default trap in self-experimentation, and the reason a pre-registered baseline window matters: you compare against your typical range, not against the bad day that prompted you to act.`,
     related: ['n-of-1', 'confounding'],
     deepLink: 'Regression to the mean in health self-tracking',
   },
@@ -89,7 +89,7 @@ This is not a rare edge case; it's the default trap in self-experimentation. It'
     title: 'The placebo effect',
     summary: 'A real, measurable effect from expectation — which is exactly why it fools you.',
     body:
-`The placebo effect is not "nothing." It's a genuine, quantified response to the belief that you're being treated — it can move subjective symptoms substantially. That's precisely the problem: feeling better after starting something is fully compatible with the something doing nothing.
+`The placebo effect is not "nothing." It's a real, quantified response to the belief that you're being treated — it can move subjective symptoms substantially. That's precisely the problem: feeling better after starting something is fully compatible with the something doing nothing.
 
 For interventions with large placebo arms in trials, ayuOS states that as a real effect, not a dismissal. It just means "I feel better" can't, by itself, tell you the mechanism is working.`,
     related: ['regression-to-the-mean', 'n-of-1'],
@@ -102,7 +102,7 @@ For interventions with large placebo arms in trials, ayuOS states that as a real
     body:
 `An n-of-1 is a trial with one subject: you. Done well — a defined baseline, one variable changed, pre-registered success criteria, ideally an on/off/on structure — it can tell you whether something works *for you*, which population trials can't.
 
-Done casually it inherits every trap on this list: confounding, regression to the mean, placebo. The discipline is what separates a real personal finding from a story. That's why ayuOS makes you write down the success criterion before you start, and reports "inconclusive" honestly when the result overlaps your baseline noise.`,
+Done casually it inherits every trap on this list: confounding, regression to the mean, placebo. The discipline is what separates a real personal finding from a story. That's why ayuOS makes you write down the success criterion before you start, and reports "inconclusive" when the result overlaps your baseline noise.`,
     related: ['confounding', 'regression-to-the-mean', 'placebo-effect'],
     deepLink: 'Designing an n-of-1 trial',
   },
@@ -113,7 +113,7 @@ Done casually it inherits every trap on this list: confounding, regression to th
     body:
 `A surrogate endpoint is a stand-in — a biomarker that's easy to measure and *assumed* to track the real outcome. "It raised NAD+ levels" is a surrogate; "it reduced heart attacks" is an outcome that matters.
 
-Surrogates are seductive because they move fast and photograph well in a study. But history is full of interventions that improved a marker and harmed the outcome. When evidence rests only on surrogates, the honest label is that the endpoint you care about simply hasn't been tested — different from evidence that it fails.`,
+Surrogates are seductive because they move fast and photograph well in a study. But history is full of interventions that improved a marker and harmed the outcome. When evidence rests only on surrogates, the label is that the endpoint you care about simply hasn't been tested — different from evidence that it fails.`,
     related: ['absence-of-evidence', 'effect-vs-certainty', 'hierarchy-of-evidence'],
     deepLink: 'Surrogate vs. clinical endpoints',
   },

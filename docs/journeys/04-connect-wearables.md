@@ -28,7 +28,7 @@ wearables into a live feed I own, without routing it through anyone."*
     Whoop data flows *from the vendor API into his machine and nowhere else*. That is why every card
     in this journey is **green**, including the Whoop OAuth one. OAuth is an authorization handshake,
     not a bridge — no third party ever holds the payload. Contrast [Journey 07](07-add-bridged-connector.md),
-    where a *bridge* (Terra) genuinely transits the data and the card turns amber.
+    where a *bridge* (Terra) transits the data and the card turns amber.
 
 ## Walkthrough
 
@@ -100,8 +100,7 @@ wearables into a live feed I own, without routing it through anyone."*
   principles](../ingestion/index.md#design-principles)). A manual **Sync now** returns fresh rows
   immediately.
 - **Value returned this step:** control over his own cadence, and an on-demand button that pays back
-  instantly — press it, watch the record count tick up. The stream is his to pace, not a vendor's to
-  drive.
+  instantly — press it, watch the record count tick up. The stream runs at the pace he sets.
 - **Modality:** tap / toggle.
 - **UX constraints / laws:** pull-don't-push is a sovereignty property, not just a scheduling one — no
   process reaches out unless he tells it to. Offline is first-class: if the Mac is asleep, the pull
@@ -121,7 +120,7 @@ wearables into a live feed I own, without routing it through anyone."*
   with an app update. If Oura re-weights readiness overnight, his own longitudinal metric stays
   consistent — and he can see exactly how it's computed.
 - **Modality:** tap (drill into a metric).
-- **UX constraints / laws:** honesty over decisiveness — the vendor score is shown *as the vendor's*,
+- **UX constraints / laws:** trade-offs over verdicts — the vendor score is shown *as the vendor's*,
   not passed off as ground truth. Values in monospace with their derivation inspectable (Law 8).
 
 ### Step 6 — First value: the live stream reaches **Timeline** and **Ask**
@@ -139,7 +138,7 @@ wearables into a live feed I own, without routing it through anyone."*
   signal. This is the stream every later experiment reads from ([Journey 11](11-run-experiment.md)).
 - **Modality:** Timeline (zoom/overlay) → Ask (text).
 - **UX constraints / laws:** three greens in the header — reasoner · tools · medical all local (Law
-  1). A synthesis answer *streams over seconds*, not instantly — honest local-inference latency.
+  1). A synthesis answer *streams over seconds*, not instantly — the stated local-inference latency.
   Every claim is tappable to its source (Law 3).
 
 ## Exchange ledger

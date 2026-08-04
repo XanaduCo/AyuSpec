@@ -8,7 +8,7 @@ import { VERDICTS, GOALS } from '../mock/experiments.js'
 import { useSession, useExperiments, stats } from '../state/store.js'
 import { CRITERIA, HYPOTHESIS_CANDIDATES, anchor } from '../state/fixtures.js'
 
-// Experiments — where a hunch becomes an n-of-1 with the honesty guardrails that
+// Experiments — where a hunch becomes an n-of-1 with the overclaiming guardrails that
 // make a self-test mean something (experimentation.md).
 //
 // This view used to be a museum: three finished exhibits you could read and not
@@ -42,13 +42,13 @@ export default function Experiments() {
     <div className="page exp-page">
       <p className="eyebrow">Experiments · n-of-1 · Ravi Mehta</p>
       <div className="exp-top">
-        <div className="lede">Test the hunch. Then read the result honestly.</div>
+        <div className="lede">Test the hunch. Read the result against the bar you set first.</div>
         <button className="btn pri" onClick={() => setDesigning(true)}>＋ Design an experiment</button>
       </div>
       <p className="muted" style={{ marginTop: 8, maxWidth: '68ch' }}>
-        A single subject with no blinding is genuinely weak evidence — so a positive n-of-1 is still
+        A single subject with no blinding is weak evidence — so a positive n-of-1 is still
         labelled <b>EVIDENCE: LOW</b>, and when natural day-to-day variability swamps the effect, the
-        answer is <b>inconclusive</b>, not a manufactured finding. {running} running · {done} complete.
+        verdict is <b>inconclusive</b> and stops there. {running} running · {done} complete.
       </p>
 
       {groups.map(g => (
@@ -80,7 +80,7 @@ function evaluate(e) {
   if (under) {
     return {
       verdict: 'inconclusive', underpowered: true,
-      resultText: `Closed at ${n} of ${c.protocolDays || c.minDays} days. The mean moved ${Math.abs(delta).toFixed(1)} ${c.unit} ${delta < 0 ? 'down' : 'up'}, but with this much day-to-day variability and only ${n} days, the window cannot resolve the pre-registered ${c.threshold} ${c.unit} bar either way. Inconclusive is the honest read — it is a statement about the design, not about the intervention.`,
+      resultText: `Closed at ${n} of ${c.protocolDays || c.minDays} days. The mean moved ${Math.abs(delta).toFixed(1)} ${c.unit} ${delta < 0 ? 'down' : 'up'}, but with this much day-to-day variability and only ${n} days, the window cannot resolve the pre-registered ${c.threshold} ${c.unit} bar either way. Inconclusive here is a statement about the design, not about the intervention.`,
     }
   }
   if (moved >= c.threshold) {
@@ -92,7 +92,7 @@ function evaluate(e) {
   if (moved > c.threshold * 0.4) {
     return {
       verdict: 'inconclusive', underpowered: false,
-      resultText: `The ${c.metric} moved ${Math.abs(delta).toFixed(1)} ${c.unit} in the expected direction over ${n} days, but short of the ${c.threshold} ${c.unit} bar you set. That is not a win and it is not a null: the effect is smaller than this design was built to call. A longer window or a less noisy sensor is the next move.`,
+      resultText: `The ${c.metric} moved ${Math.abs(delta).toFixed(1)} ${c.unit} in the expected direction over ${n} days, but short of the ${c.threshold} ${c.unit} bar you set. The effect is smaller than this design was built to call, so the window cannot score it either way. A longer window or a less noisy sensor is the next move.`,
     }
   }
   return {
@@ -270,7 +270,7 @@ function ConfounderForm({ onSave, onCancel }) {
     <div>
       <p className="note" style={{ marginTop: 0 }}>
         A flagged day is annotated and down-weighted at analysis — visibly, with its reason. It is
-        never silently dropped, because a dataset you quietly pruned is not a dataset.
+        never silently dropped, because pruning days out of sight moves the verdict invisibly.
       </p>
       <div className="comp-field">
         <span className="fl">what happened</span>
@@ -399,7 +399,7 @@ function DesignFlow({ onClose, proposed }) {
               <div>
                 {duration} days against a {baseline}-day baseline can detect a {threshold}{' '}
                 {cand.metric.unit} shift in {cand.metric.name}
-                {noisy ? ', but only just — this is a high-noise consumer sensor, so a smaller effect will be invisible and the honest answer will be inconclusive.' : '. A smaller effect than that will not be resolvable, and the verdict will say so rather than guess.'}
+                {noisy ? ', but only just — this is a high-noise consumer sensor, so a smaller effect will be invisible and the verdict will be inconclusive.' : '. A smaller effect than that will not be resolvable, and the verdict will say so rather than guess.'}
               </div>
             )}
             <div className="faint" style={{ marginTop: 8, fontSize: 12.5 }}>

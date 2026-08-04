@@ -68,7 +68,7 @@ running in-process. We were paying for an interop surface with no consumers.
 
 ## Storage classes — one size does not fit
 
-The second decisive input: the data has genuinely different shapes, and forcing it all into
+The second decisive input: the data has different shapes, and forcing it all into
 FHIR resources is wrong for most of it.
 
 | Class | Store | Rationale |
@@ -77,7 +77,7 @@ FHIR resources is wrong for most of it.
 | **High-frequency wearable samples** (continuous HR, per-second streams) | Narrow time-series table, partitioned | See volume analysis below |
 | **Daily/aggregate wearable metrics** | Same time-series table, coarser grain | Cheap to co-locate |
 | **Documents, notes, imaging, genomes** | Blob on disk + `pgvector` embeddings | Content is not relational |
-| **Application objects** (goals, hypotheses, experiments, plans) | Native relational tables | No honest FHIR representation — these are ayuOS concepts, not clinical ones |
+| **Application objects** (goals, hypotheses, experiments, plans) | Native relational tables | No FHIR resource fits — these are ayuOS concepts, not clinical ones |
 
 ### The wearable volume argument
 
@@ -105,7 +105,7 @@ offered as something expensive to rebuild. Four do not survive.
 | **Transaction bundles** with `urn:uuid:` resolution | **No ingestion path sends them.** Apple Health export is individual resource files; Fasten Connect is NDJSON (one resource per line); Epic patient apps do per-resource read/search with no `Patient/$export`. Irrelevant. |
 | **FHIR search** | Answers 2 of the 10 queries above, and exists for external clients we do not have. |
 
-What genuinely remained — FHIR resource modelling and validation — **is available as a
+What remained — FHIR resource modelling and validation — **is available as a
 library**, without a server.
 
 One further point in favour: **ayuOS is predominantly a FHIR *consumer*, not an author.** Data

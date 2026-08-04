@@ -26,7 +26,7 @@ eyes open rather than a thing she finds out later.
 
 ## Walkthrough
 
-### Step 1 — The honest fork: self-hosted or managed
+### Step 1 — The fork: self-hosted or managed
 
 - **User intent here:** decide whether to run it herself or let someone operate it — and understand
   what that choice actually costs before making it.
@@ -114,17 +114,17 @@ eyes open rather than a thing she finds out later.
 - **UX constraints / laws:** **Law 1 / Law 4** again — posture on screen, egress on record. The ledger
   is append-only and never transmitted anywhere.
 
-!!! warning "The one honest limit she accepts"
+!!! warning "The one limit she accepts"
     Priya can audit **her own tenant's ledger** — what was sent, where, and stripped how. She
     **cannot audit the running instance's code** the way a self-hoster can (block the process at the
     firewall, diff the binary against the public source). That fourth verification requires custody
-    of the machine, and in the managed tier ayuOS holds it. This is the honest difference between the
+    of the machine, and in the managed tier ayuOS holds it. This is the difference between the
     tiers, stated where it bites — see [AI Transparency](../ai-transparency.md#verifying-it-yourself).
     It is the price of every ops step she skipped, and she is choosing it knowingly.
 
 ### Step 5 — The exit is built in, from day one
 
-- **User intent here:** make sure this isn't a trap — that leaving later is cheap.
+- **User intent here:** confirm that leaving later is cheap — before she has more to lose.
 - **User does:** opens **Settings → export** and sees a one-action full export of everything, ledger
   included, in open formats.
 - **System does:** confirms the fallback in writing: because the cloud tier runs the *same open core*,
@@ -156,7 +156,7 @@ eyes open rather than a thing she finds out later.
 - **Latency:** inference streams over seconds; a first upload parses in the background while the app
   stays usable. Nothing about "managed" makes synthesis instant.
 - **Offline:** **not** a first-class state here, unlike self-hosted. The managed tier is a hosted web
-  app; it needs the network. This is a genuine difference from Ravi's and Maya's tiers, and the spec
+  app; it needs the network. This differs from Ravi's and Maya's tiers, and the spec
   does not pretend otherwise.
 - **Empty state:** a brand-new tenant with no data still opens on Ask and offers the next best action
   (upload a file, connect a source) — never a dead-end dashboard.
@@ -180,7 +180,7 @@ eyes open rather than a thing she finds out later.
   system.
 - **She wants a guarantee the managed tier structurally cannot give** — that the code her data runs on
   is the audited public source. It cannot, and the UI says so (Step 4's warning) rather than implying
-  otherwise. Her honest options are: accept the policy guarantee, or migrate to self-hosted.
+  otherwise. Her options are: accept the policy guarantee, or migrate to self-hosted.
 
 ## What good looks like
 

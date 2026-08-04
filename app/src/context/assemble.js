@@ -38,7 +38,7 @@ export const REASONS = {
   experiment: { glyph: '⁘', label: 'active experiment', weight: 6, desc: 'A running n-of-1 is already testing this question.' },
   correlation: { glyph: '∿', label: 'co-moves', weight: 5, desc: 'Covaries with the metric in question above the planner\'s threshold.' },
   recency: { glyph: '◷', label: 'most recent', weight: 4, desc: 'Newest measurement of its kind inside the window.' },
-  coverage: { glyph: '◌', label: 'coverage gap', weight: 4, desc: 'A hole in the data. Retrieved because it changes what can honestly be claimed.' },
+  coverage: { glyph: '◌', label: 'coverage gap', weight: 4, desc: 'A hole in the data. Retrieved because it changes what can be claimed.' },
   vector: { glyph: '~', label: 'semantic match', weight: 3, desc: 'Nearest-neighbour hit against the embedded record.' },
   'weak-signal': { glyph: '·', label: 'checked, unremarkable', weight: 1, desc: 'In range and unmoved. Included so the answer can say it looked rather than staying silent.' },
 }

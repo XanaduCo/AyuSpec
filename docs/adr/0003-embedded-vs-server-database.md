@@ -12,13 +12,13 @@
     (Medplum, Blaze, HAPI, Aidbox). It never examined the **embedded-vs-server** axis — SQLite
     was not on the table. That is a real gap: for a local-first, single-user default, an
     embedded engine is the more obvious starting point, not the less. This ADR evaluates it
-    honestly and can revise ADR-0002's "one Postgres instance" if accepted.
+    and can revise ADR-0002's "one Postgres instance" if accepted.
 
 ## Decision
 
 **Postgres remains the single storage engine (Option A).**
 
-SQLite was genuinely evaluated — see below — and is viable for a single-user local install,
+SQLite was evaluated — see below — and is viable for a single-user local install,
 per-second heart rate included. It is rejected anyway, for two reasons that outrank the
 ergonomic win:
 
@@ -40,7 +40,7 @@ Two commitments come with the decision:
 
 The full evaluation that led here is preserved below, because the reasoning is the point.
 
-## Context — why this is a genuine question, not a settled one
+## Context — why this question needed asking
 
 The whole product ethos points at SQLite. The default install is **single-user, self-hosted,
 local-first**, and [Deployment](../deployment.md) works to keep the footprint small and Docker
@@ -64,7 +64,7 @@ option. Here is that argument, on both sides.
 | **Full-text** | `tsvector` | FTS5 (excellent) |
 | **Managed multi-user tier** (ayuOS Cloud) | Designed for it | Not designed for it |
 
-On inspection, only **one** row is a genuine capability gap for a single user:
+On inspection, only **one** row is a capability gap for a single user:
 **vector-index maturity** (`pgvector`'s HNSW vs the younger `sqlite-vec`). The concurrency row
 looks decisive but mostly is not here — wearable ingestion is bursty batch, so there is
 effectively one writer (the ingest job) plus a read-only agent, which is SQLite's happy path
@@ -139,7 +139,7 @@ abandons the managed tier.
 
 Concretely:
 
-1. Keep Postgres as the sole store; document SQLite honestly (this ADR) so the choice is on the
+1. Keep Postgres as the sole store; document SQLite (this ADR) so the choice is on the
    record rather than accidental.
 2. Keep the schema **portable** — prefer standard SQL and isolate Postgres-only features
    (partitioning, `pgvector` operators) behind a thin data-access layer — so an embedded

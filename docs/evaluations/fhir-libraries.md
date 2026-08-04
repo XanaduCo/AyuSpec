@@ -125,7 +125,7 @@ is not a clean pass rate.
 
 - **HAPI** — `hapi-fhir-structures-r4` and `hapi-fhir-validation` are **separate Maven
   artifacts** from the JPA server, both Apache-2.0. The only reference-grade R4 validator. See
-  [HAPI evaluation](hapi-fhir.md#as-a-validator-genuinely-best-in-class).
+  [HAPI evaluation](hapi-fhir.md#as-a-validator-best-in-class).
 - **Firely .NET SDK** — **BSD-3-Clause and free for commercial use**, verified three ways
   (repo LICENSE, NuGet `licenseExpression: BSD-3-Clause`, README). GitHub's `NOASSERTION` is a
   false alarm. **The paid product is Firely *Server*, a different thing** — see

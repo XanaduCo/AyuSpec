@@ -331,7 +331,7 @@ export default function Share() {
       <p className="note" style={{ marginTop: 0, marginBottom: 14, maxWidth: '70ch' }}>
         Every sliver you generate lands here permanently, with the exact scope serialised. A
         file-based share can’t be un-shared — revocation is only meaningful for a hosted link, and the
-        log is honest about the difference.
+        log labels which kind each share was.
       </p>
       <div className="consent-log">
         {log.map(e => (

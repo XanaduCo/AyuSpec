@@ -116,7 +116,7 @@ files.push({
   id: 'tests', group: 'Third-party tests', name: 'Test report PDF', accept: 'PDF',
   tier: 'file', lastImport: '2025-07-19',
   records: bodyCompStats.dexaMeasures + bodyCompStats.functionalMeasures + agingStats.rows + screeningStats.rows,
-  hint: `DEXA, metabolic-cart CPET, functional battery, epigenetic panels, MCED. ${bodyCompStats.dexaScans} DEXA scans, ${bodyCompStats.vo2Tests} lab VO₂max tests, ${bodyCompStats.functionalSessions} functional sessions, ${agingStats.tests} methylation panels, ${screeningStats.tests} screening results. Each carries its own reproducibility metadata, because a delta smaller than an assay's test–retest band is not a delta.`,
+  hint: `DEXA, metabolic-cart CPET, functional battery, epigenetic panels, MCED. ${bodyCompStats.dexaScans} DEXA scans, ${bodyCompStats.vo2Tests} lab VO₂max tests, ${bodyCompStats.functionalSessions} functional sessions, ${agingStats.tests} methylation panels, ${screeningStats.tests} screening results. Each carries its own reproducibility metadata, because a delta smaller than an assay's test–retest band cannot be read as a change.`,
   parse: { found: 22, kind: 'DiagnosticReport (1 DEXA)', confidence: 0.93, took: '9s',
     note: 'Parsed locally. The scan is stored with its device and operator so a future delta is only computed against a comparable scan.' },
 })

@@ -39,7 +39,7 @@ Why not adopted over Medplum:
 It is the **correct fallback** if Medplum's ops burden proves too high, because unlike
 [Blaze](blaze.md) it keeps the store in Postgres and therefore joinable against pgvector.
 
-## As a validator — genuinely best-in-class
+## As a validator — best-in-class
 
 This is the more likely near-term use. `hapi-fhir-validation` is **the only reference-grade
 FHIR R4 validator** — the same code path as the `validator_cli.jar` HL7 uses to validate the

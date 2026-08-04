@@ -8,7 +8,7 @@ Maya has Hashimoto's, runs on levothyroxine, and is chasing steadier daytime ene
 query surfaced something she half-suspected: her morning glucose swings more on some days than
 others, and the rough days track the swings. She has a hunch — *"a two-week window of lower-carb
 breakfasts flattens my morning glucose variability and steadies my energy."* She has run enough bad
-self-experiments to distrust her own enthusiasm, so what she actually wants is not a quick win but a
+self-experiments to distrust her own enthusiasm, so what she actually wants is a
 **verdict she can't talk herself into**: the design fixed and the success bar set *before* she sees
 a single day of data. She will run this entirely on-device and accept a weaker local analysis rather
 than let one number leave the machine.
@@ -34,7 +34,7 @@ than let one number leave the machine.
 
 ### Step 1 — A hunch, handed to her by the anchor query
 
-- **User intent here:** act on a real pattern, not a vibe she talked herself into.
+- **User intent here:** act on a pattern the data flagged, not one she talked herself into.
 - **User does:** from the [anchor-query](09-anchor-query.md) answer where morning glucose
   variability and low-energy mornings co-move, she taps **"test this"** on the flagged pattern.
 - **System does:** opens **Experiments** with the pattern pre-loaded as a candidate hypothesis and
@@ -60,7 +60,7 @@ than let one number leave the machine.
     corpus — not synthesised ([evidence](../evidence.md)).
   It also names the **confounders up front**: levothyroxine timing (absorption vs. breakfast timing
   affects energy), sleep quality, and the menstrual cycle phase — each something to watch, not ignore.
-- **Value returned this step:** a sharp, falsifiable statement with its evidence honestly graded and
+- **Value returned this step:** a sharp, falsifiable statement with its evidence graded and
   its confounders on the table — the difference between an experiment and a wish.
 - **Modality:** voice/text refinement; inline evidence label + one concept card.
 - **UX constraints / laws:** every external claim carries a tappable label (Law 3). Because this is
@@ -68,12 +68,12 @@ than let one number leave the machine.
   can't establish* — inline, never a modal (Law 7; [epistemics](../epistemics.md)). Evidence strength
   uses the ink-dot ramp so it can never be mistaken for the green/amber privacy language.
 
-!!! abstract "Grounded, but honest about the ceiling"
+!!! abstract "Grounded, with its ceiling stated"
     The evidence grounding is limited to what ships offline. The optional literature index would be a
     cloud fetch through the [PII gateway](../pii-gateway.md) — Maya declines it, so the agent says so
-    plainly: *"external grounding here is the bundled guideline corpus only."* Honesty over reach.
+    plainly: *"external grounding here is the bundled guideline corpus only."*
 
-### Step 3 — Pre-register the design (the honesty mechanism)
+### Step 3 — Pre-register the design (lock the bar before the data)
 
 - **User intent here:** lock the rules so the verdict can't be moved after she sees the data.
 - **User does:** walks the pre-registration card with the agent and confirms each field.
@@ -91,7 +91,7 @@ than let one number leave the machine.
 
   A **power/duration heuristic** reads the CGM marker's `noise` from the healthspan model and warns
   that a Tier C consumer sensor is noisy: 14 days can detect a 15% shift but not a 5% one — so the
-  bar is honest about what this design can actually see.
+  bar is set within what this design can actually detect.
 - **Value returned this step:** a result she will *trust*, because the threshold was set while she
   was still ignorant of the outcome — the single thing that separates an n-of-1 from a rationalisation.
 - **Modality:** guided form (confirm-per-field), values in monospace.
@@ -122,7 +122,7 @@ than let one number leave the machine.
   EMA does the remembering. Posture stays green; the CGM path is zero-transit by her own choice
   (Law 6). Offline is first-class — logging works with the network cable pulled.
 
-### Step 5 — Mid-window: an adherence gap and a confounder, handled honestly
+### Step 5 — Mid-window: an adherence gap and a confounder, surfaced with their cost
 
 - **User intent here:** not have a rough patch silently poison the result.
 - **User does:** misses two breakfast logs on a travel day and reports a bad night's sleep via EMA.
@@ -132,28 +132,29 @@ than let one number leave the machine.
     to extend the window rather than pretend the gap didn't happen;
   - detects the flagged **confounder** (sleep < 6 h coincides with a glucose spike) and annotates that
     day so it can be down-weighted or excluded at analysis — visibly, with its reason, never silently.
-- **Value returned this step:** an honest running status instead of a corrupted dataset she'd only
-  discover at the end. A gap costs *power*, transparently — it doesn't invalidate the run or hide.
+- **Value returned this step:** a running status that states the lost power as it happens, instead
+  of a corrupted dataset she'd only discover at the end. A gap costs *power*, visibly — it doesn't
+  invalidate the run or hide.
 - **Modality:** inline experiment-view annotations; an optional extend-window prompt.
-- **UX constraints / laws:** honesty over decisiveness — the system surfaces the trade-off (reduced
+- **UX constraints / laws:** trade-offs over verdicts — the system surfaces the trade-off (reduced
   power, confounded day) and lets her decide, rather than quietly dropping data. Confounder handling
   is shown with its reason (Law 3-adjacent transparency).
 
 ### Step 6 — The verdict: supported or inconclusive, never overclaimed
 
-- **User intent here:** an answer she can act on — or an honest "we don't know yet."
+- **User intent here:** an answer she can act on — or an explicit "we don't know yet."
 - **User does:** at day 21 opens the completed experiment.
 - **System does:** the **local reasoner** compares the intervention window to baseline **against the
   pre-registered criteria only** — no moving the goalposts. It reports one of:
   - **Supported** — glucose SD fell ≥ 15% *and* energy rose ≥ 1, labelled `EVIDENCE: LOW` because a
-    positive n-of-1 is low evidence, full stop ([experimentation](../experimentation.md#honesty-guardrails)),
+    positive n-of-1 is low evidence, full stop ([experimentation](../experimentation.md#guardrails-against-overclaiming)),
     with A-B-A replication suggested before she treats it as settled;
   - **Inconclusive** — the likeliest outcome given Tier C noise and the missed days: the effect is
     smaller than this design can resolve. Framed as **informative, not a failure** — she learned the
     variance is larger than she guessed and the next window needs to be longer or the sensor upgraded.
   It never reports the single-window correlation as causation.
 - **Value returned this step:** a trustworthy read on her own body, with its confidence stated
-  honestly — and *inconclusive is a respected, useful result*, not a dead end.
+  outright — and *inconclusive is a respected, useful result*, not a dead end.
 - **Modality:** text verdict with the comparison rendered; source cards to the underlying windows.
 - **UX constraints / laws:** three greens throughout — the analysis ran on-device
   ([model providers](../model-providers.md)); the accepted trade is a weaker local model, **not**
@@ -180,9 +181,9 @@ than let one number leave the machine.
 |---|---|---|
 | 1 | One tap on a flagged pattern | The observation becomes an editable experiment, sources carried over — no retyping |
 | 2 | Refine the claim by voice | A falsifiable hypothesis, evidence-graded, confounders named up front |
-| 3 | Confirm the pre-registered design | A locked success bar + an honest power warning *before* investing 21 days |
+| 3 | Confirm the pre-registered design | A locked success bar + a warning about what the design can detect, *before* investing 21 days |
 | 4 | Wear a CGM, log breakfast in <10s, one EMA/day | Live glucose-vs-baseline redraw on every log; sleep pulled passively |
-| 5 | Report a bad night; miss two logs | Honest power/confounder status and an extend-window option — no silent corruption |
+| 5 | Report a bad night; miss two logs | Live power/confounder status and an extend-window option — no silent corruption |
 | 6 | Open the finished window | A trustworthy supported/inconclusive verdict, evidence-labelled, on-device |
 | 7 | Accept the result | A durable, exportable belief that seeds the next loop |
 
@@ -192,7 +193,7 @@ than let one number leave the machine.
   intervention log; single-question EMA for the subjective outcome; passive wearable ingest for
   sleep and resting HR.
 - **Latency:** the design conversation and the final analysis stream over seconds on local inference
-  — honest, not instant. A CGM re-import parses in the background; the app stays usable.
+  — the wait is visible, never masked. A CGM re-import parses in the background; the app stays usable.
 - **Offline:** the entire journey runs with the network disconnected — capture, EMA, and the local
   analysis all work offline (Maya's proof test).
 - **Empty / error states:** an underpowered design is flagged at pre-registration, not silently run;
@@ -209,14 +210,14 @@ than let one number leave the machine.
 - **Underpowered by design.** A Tier C CGM plus a 14-day window can't resolve a small effect. The
   power heuristic says so *before* she starts ([healthspan model](../healthspan-model.md) marker
   `noise`) and offers a longer window or a note that only a large effect is detectable — the design
-  is honest about its own ceiling rather than manufacturing a finding.
+  states its own detection ceiling rather than manufacturing a finding.
 - **Adherence gaps.** Missed logs are expected, not a moral failing. The EMA does the remembering;
   gaps are shown with their power cost and an extend-window option (Step 5). The verdict is computed
-  over what was actually captured, honestly.
+  over what was actually captured.
 - **A confounder lands mid-window.** Illness, a poor-sleep night, a cycle-phase shift, or a
   levothyroxine-timing change is flagged against `confounder_flags`, annotated on the offending day
   with its reason, and down-weighted or excluded — visibly, never silently.
-- **Inconclusive is not a failure.** When variability swamps the effect, the honest answer is
+- **Inconclusive is not a failure.** When variability swamps the effect, the verdict is
   *inconclusive* ([experimentation](../experimentation.md)). It is reported as such — informative
   about her variance, pointing at a better next design — not dressed up as a weak positive.
 - **CGM data path.** Because she declined the [bridge](07-add-bridged-connector.md), glucose arrives
@@ -234,13 +235,13 @@ than let one number leave the machine.
   verdict, Maya trusts it, because she couldn't have moved it.
 - Every breakfast log and EMA visibly advanced *her* experiment in the moment — no generic diary,
   no effort without payback.
-- An **inconclusive** result lands as a genuine, respected finding that sharpens the next window —
+- An **inconclusive** result lands as a respected finding that sharpens the next window —
   the loop turns again, and the whole history stays local, durable, and hers.
 
 ## Related
 
 - [Experimentation & Validation](../experimentation.md) — the experiment object, methodology support,
-  and honesty guardrails this journey exercises.
+  and overclaiming guardrails this journey exercises.
 - [Evidence & Hypotheses](../evidence.md) — the hypothesis object and the evidence-strength ladder.
 - [Health Literacy & Epistemics](../epistemics.md) — the n-of-1 concept injected at first design;
   pre-registration and natural-variability education.

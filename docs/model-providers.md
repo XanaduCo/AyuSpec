@@ -4,7 +4,7 @@ ayuOS decouples model **roles** from model **providers**. The three roles (reaso
 
 ## Why this is per-role and not one switch
 
-The naive design is a single "use cloud AI" toggle. Per-role configuration exists because the three roles have genuinely different risk profiles, and collapsing them forces a worse trade than necessary:
+The naive design is a single "use cloud AI" toggle. Per-role configuration exists because the three roles have different risk profiles, and collapsing them forces a worse trade than necessary:
 
 - **The medical extractor sees raw clinical text.** It reads notes and lab documents before anything has been normalized or stripped. It should stay local in almost every configuration.
 - **The tool-caller sees structure, not content** — which query to run, which tool to invoke. Low sensitivity, and small local models handle it reliably.

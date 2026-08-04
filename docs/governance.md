@@ -50,7 +50,7 @@ contributors, and integration into other people's systems, all of which copyleft
   [Sustainability](#sustainability). A licence that makes a hospital's legal review say no is a
   licence that costs us the partnership.
 - **It deters casual contributors and downstream reuse.** Someone who wants to lift the Apple
-  Health export parser — the one genuinely novel piece of code here, which
+  Health export parser — the one novel piece of code here, which
   [nobody else has](adr/0001-ehr-ingestion.md#consequences) — should be able to, with no licence
   conversation. Health data tooling is under-built. More of it existing is good for users even
   when it isn't ours.
@@ -68,7 +68,7 @@ Two consequences, neither of which is "someone else hosts it":
   licence would compel an operator running a modified ayuOS as a service to publish those
   changes; a permissive licence does not. So the [fallback guarantee](tiers.md#the-fallback-guarantee)
   and the no-feature-gating commitment rest on the governance rules below and nothing else.
-  **This is the one place a permissive licence genuinely weakens a user-facing guarantee**, and
+  **This is the one place a permissive licence weakens a user-facing guarantee**, and
   it should be defended deliberately — by publishing what the managed tier runs, not by assuming
   good intent.
 
@@ -153,7 +153,7 @@ How do the maintainers keep going? The model is **open core**: the MIT-licensed 
 
 The distinction that makes this compatible with the trust claim: **the revenue is for operating infrastructure, not for access to data.** A subscriber pays the same whether they upload one lab or ten years of records, so no growth path for the business runs through accumulating more health data. That is the property to preserve when evaluating any future revenue idea.
 
-The constraints that keep the open tier honest:
+The commitments that keep the open tier whole:
 
 - **No feature is withheld from the self-hosted tier to drive subscriptions.** The cloud tier sells operations, not capability.
 - **The cloud tier runs the same open core.** There is no proprietary component, so migrating off it is a data export, not a rewrite. Under MIT this is a commitment rather than a licence obligation, which makes it more important to state, not less.

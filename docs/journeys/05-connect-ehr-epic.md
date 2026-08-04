@@ -113,8 +113,8 @@ aggregator holding a copy. His hospital runs **Epic**, which is the one path tha
 - **UX constraints / laws:** **green throughout** — direct = zero third-party transit
   ([Law 1](../design-system.md#interaction-laws)). Connectors **fail loudly and degrade
   gracefully**: any resource type the org's API doesn't expose is logged and skipped, and the rest
-  still lands. Latency is honest — a first pull of a multi-year record streams over a while, not
-  instantly.
+  still lands. Latency is stated up front — a first pull of a multi-year record streams over a
+  while, not instantly.
 
 ### Step 5 — First value: a note explains a number
 

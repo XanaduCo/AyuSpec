@@ -112,7 +112,7 @@ or ML must be clearly disclosed**, which our local LLM reasoning arguably consti
 - **Vendor concentration risk on Fasten.** They killed the free path once already, this year,
   for stated sustainability reasons. Mitigated by the adapter interface.
 - **macOS cannot read HealthKit.** `isHealthDataAvailable()` returns false on macOS, so a
-  Mac Mini deployment genuinely requires the manual export or the iOS companion. Not
+  Mac Mini deployment requires the manual export or the iOS companion. Not
   optional.
 
 ### Traps that must be respected in implementation

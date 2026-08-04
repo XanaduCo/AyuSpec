@@ -14,7 +14,7 @@ tedious."* **That premise was wrong.**
 The export zip contains **raw provider FHIR JSON** — one file per resource under
 `clinical-records/`, named `<ResourceType>-<id>.json`.
 
-This is a genuinely contested point — many blogs claim the export holds only CDA — so it was
+This is a contested point — many blogs claim the export holds only CDA — so it was
 resolved against **Apple's own DTD**, emitted inline at the top of `export.xml` (version 14,
 unchanged from v11):
 
@@ -92,7 +92,7 @@ ayuOS; the iCloud clause constrains any companion-app sync design.
 
 !!! danger "macOS cannot read HealthKit"
     `HKHealthStore.isHealthDataAvailable()` returns **false on macOS** — there is no Health
-    app on Mac. A Mac Mini deployment genuinely requires the manual export or the iOS
+    app on Mac. A Mac Mini deployment requires the manual export or the iOS
     companion. This is not optional.
 
 ## Coverage
@@ -106,7 +106,7 @@ was pulled directly: **18,632 US location rows, 5,933 unique brands.** But:
 
 - Apple states it is *"a partial list which is continuously updated"* — a floor
 - **~28% is lab draw sites** — Quest 2,163 + Labcorp 1,885 + VA 1,185
-- ~5,400 brands have exactly one location → only **~450 are genuinely multi-site health
+- ~5,400 brands have exactly one location → only **~450 are multi-site health
   systems**, strikingly consistent with the 2020 "over 500"
 - **Effectively US-only.** The directory hardcodes US/GB/CA; GB still has the same two NHS
   trusts as at 2020 launch.

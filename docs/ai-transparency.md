@@ -195,7 +195,7 @@ four of these are things a self-hosting user can do without our cooperation:
 | **The code does what this page says** | The source is public and MIT-licensed. The chokepoint is one module. |
 
 Cloud-tier users can do the first three against their own tenant's ledger, but not the
-fourth against the running instance — which is the honest difference between the tiers, stated
+fourth against the running instance — which is the difference between the tiers, stated
 again where it matters.
 
 ---

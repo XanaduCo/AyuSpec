@@ -54,11 +54,11 @@ scan, and a genome report that pretends to know more than it does.
 - **Value returned this step:** within a few seconds a preview table appears —
   `ApoB 95 mg/dL`, `HbA1c 5.4%`, `LDL-C`, `HDL-C` — each with its reference range and a
   `source=pdf · path=text-layer · confidence=high` provenance tag. His **ApoB 95** sits **above its
-  reference bound** — flagged out-of-range against an honest range, in the neutral data treatment,
+  reference bound** — flagged out-of-range against its reference range, in the neutral data treatment,
   not the reserved red block colour (red is for stops, not an elevated lipid).
 - **Modality:** upload → tabular preview.
 - **UX constraints / laws:** data over chrome (Law 8) — values in tabular monospaced numerals with
-  honest reference ranges; every extracted claim carries a provenance tag (Law 3); all local, so
+  their reference ranges; every extracted claim carries a provenance tag (Law 3); all local, so
   the posture stays 🟢 green.
 
 ### Step 3 — Confirm the lab values onto the Timeline
@@ -76,7 +76,7 @@ scan, and a genome report that pretends to know more than it does.
   first-class part of the cardiac picture the agent reasons over ([Journey 09](09-anchor-query.md)).
 - **Modality:** tap-confirm → Timeline → optional Ask query.
 - **UX constraints / laws:** every claim carries a label (Law 3); nothing entered silently — he
-  confirmed; the out-of-range ApoB is flagged against its honest reference range in tabular
+  confirmed; the out-of-range ApoB is flagged against its reference range in tabular
   monospaced numerals (Law 8), not dressed in the reserved red block colour.
 
 ### Step 4 — Upload the DICOM MRI study
@@ -105,7 +105,7 @@ scan, and a genome report that pretends to know more than it does.
 
 ### Step 5 — Read the local MedGemma summary
 
-- **User intent here:** understand what the scan shows in words, honestly labeled.
+- **User intent here:** understand what the scan shows in words, labeled for what it is.
 - **User does:** clicks **Summarize** on the study card.
 - **System does:** the local **MedGemma vision** model reads representative slices per series and
   writes a plain-language summary into a `DocumentReference` (`source=ai-summary`, `model=medgemma`)
@@ -141,20 +141,20 @@ scan, and a genome report that pretends to know more than it does.
 
 - **User intent here:** know how much to actually believe this.
 - **User does:** taps the `inferred` label on the PRS result.
-- **System does:** expands a concept card stating the honest caveats verbatim: PRS are
+- **System does:** expands a concept card stating the caveats verbatim: PRS are
   **population-level statistics applied to one person, not diagnostic**; effect sizes come from
   GWAS studies of **largely European-ancestry** cohorts and are less predictive otherwise; and
   consumer genomics is **low analytic value with often-opaque methodology** — where the vendor's
   method can't be verified, the card **says so** rather than faking precision
   ([data capture, principle 5](../data-capture.md)).
-- **Value returned this step:** he gets meaning *and* the epistemic honesty that lets him weight it
+- **Value returned this step:** he gets meaning *and* the stated uncertainty that lets him weight it
   correctly — a hypothesis to hold lightly, not a verdict. The APOE ε3/ε3 result sits alongside his
   family early-CAD history without overclaiming; the agent will treat it as
   `inferred`/`speculative` when it reasons ([Journey 09](09-anchor-query.md)).
 - **Modality:** tap → inline concept card.
 - **UX constraints / laws:** every claim carries a label and expands with the live claim as the
-  worked example (Law 3); education injects, never blocks (Law 7); no false precision — honesty
-  over decisiveness.
+  worked example (Law 3); education injects, never blocks (Law 7); no false precision — trade-offs
+  over verdicts.
 
 ## Exchange ledger
 
@@ -164,9 +164,9 @@ scan, and a genome report that pretends to know more than it does.
 | 2 | Drag a lab PDF | A grounded, confidence-tagged value table in seconds — ApoB 95 flagged out of range |
 | 3 | Confirm the values | Trended `Observation`s on the Timeline, queryable on Ask right away |
 | 4 | Drop a DICOM folder | His scan viewable in-app (OHIF), plus a visible "never leaves device" guarantee |
-| 5 | Tap Summarize | A plain-language, honestly-labeled read of the scan — fully local |
+| 5 | Tap Summarize | A plain-language read of the scan, labeled as AI-inferred — fully local |
 | 6 | Drop a genome file | APOE ε3/ε3 and a CVD PRS surfaced — the file finally means something |
-| 7 | Tap the evidence label | The honest caveats that let him weight the result correctly |
+| 7 | Tap the evidence label | The caveats that let him weight the result correctly |
 
 ## UX & modality constraints
 
@@ -180,7 +180,7 @@ scan, and a genome report that pretends to know more than it does.
 - **Color semantics that dominate here:** **red is load-bearing — reserved for the two hard
   exclusions** (imaging pixels, Step 4; genomic sequence, Step 6), which are blocks. It is
   deliberately *not* used for the elevated ApoB: an out-of-range lab is a warning, not a stop, so it
-  is flagged against its honest reference range in the neutral data treatment (Law 8). Green marks
+  is flagged against its reference range in the neutral data treatment (Law 8). Green marks
   the local, on-device provenance of everything produced. Amber never appears in this journey.
 - **Laws that bind:** Law 3 (every claim labeled), Law 4 (egress previewed / hard exclusions
   visible), Law 7 (education injects, never blocks), Law 8 (data over chrome).

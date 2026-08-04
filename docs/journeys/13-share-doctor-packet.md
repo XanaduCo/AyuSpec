@@ -15,7 +15,7 @@ But he is deliberate about one thing: the cardiologist should see his **cardiac 
 lipids, the CAC 0, his blood pressure and lisinopril, the family early-CAD history, the relevant
 imaging — and **nothing else**. Not his genome, not unrelated notes, not his sleep data. This is
 [user job #2 from the vision](../vision.md): share a deliberately narrow slice, on his terms, not
-all-or-nothing. He wants the packet to be genuinely useful *and* to know, precisely and forever,
+all-or-nothing. He wants the packet to be useful *and* to know, precisely and forever,
 exactly what left.
 
 ## Preconditions
@@ -38,7 +38,7 @@ exactly what left.
   `Cardiology consult — 2026-08-17`, and sets the recipient to `Dr. cardiology (Cerner)`.
 - **System does:** records the purpose and recipient as the seed of an [append-only consent
   record](../sharing.md#consent-audit) — *before* any data is selected. Purpose is a required,
-  first-class field, not an afterthought.
+  first-class field.
 - **Value returned this step:** naming the purpose is what lets the agent **propose a scope for
   him** in the next step — a few typed words buy him a drafted cardiac sliver instead of a
   build-from-scratch checklist.
@@ -114,10 +114,9 @@ exactly what left.
   has been rendered for delivery or written to the consent log's shareable set yet — this is a
   draft, and the UI says so.
 - **Value returned this step:** he walks in with the **exact questions** that make the visit
-  efficient — the packet is a conversation starter he authored, not a machine's summary he's stuck
-  with.
+  efficient — the packet is a conversation starter he authored.
 - **Modality:** inline rich-text editing.
-- **UX constraints / laws:** honesty over decisiveness — the system drafted, the user decides; the
+- **UX constraints / laws:** trade-offs over verdicts — the system drafted, the user decides; the
   agent's evidence labels remain attached to the claims he keeps, so nothing he edits loses its
   provenance.
 
@@ -144,8 +143,8 @@ exactly what left.
   load-bearing here, not decorative (Law 4) — a hosted link crossing the device boundary is amber,
   a local file is green.
 
-!!! warning "Open question, stated honestly: how the *rich link* is delivered without breaking local-first"
-    The self-contained web view is easy; **delivering it as a live link** is the genuinely
+!!! warning "Open question: how the *rich link* is delivered without breaking local-first"
+    The self-contained web view is easy; **delivering it as a live link** is the
     unresolved part ([frontend open question](../frontend.md), [sharing open questions](../sharing.md#open-questions)).
     Three candidate mechanisms, none yet locked:
 
@@ -171,7 +170,7 @@ exactly what left.
   excluded resource), `format`, and an `expiry` for any hosted link — and produces the artifact(s).
   The record is visible in Share and mirrored where the [ledger and consent log are audited](14-verify-and-maintain.md).
 - **Value returned this step:** precise, durable, **revocable control** — for a hosted link,
-  **Revoke** invalidates it (honest caveat: a **file already handed over cannot be un-shared** —
+  **Revoke** invalidates it (the caveat: a **file already handed over cannot be un-shared** —
   the UI states this distinction plainly, [per the consent model](../sharing.md#consent-audit)).
 - **Modality:** confirm → consent-record row (monospace fields) + produced artifact(s).
 - **UX constraints / laws:** append-only, never transmitted anywhere; the consent log is the
@@ -219,7 +218,7 @@ exactly what left.
   fallback** is a first-class, always-local artifact — same content, printable, produced by a PDF
   library. He hands over paper and loses nothing but interactivity.
 - **A hosted link needs revoking:** after the visit he clicks **Revoke** on the consent record and
-  the link stops resolving. The UI is honest that this works **only for the hosted link** — a file
+  the link stops resolving. The UI states that this works **only for the hosted link** — a file
   already handed over (HTML or PDF) cannot be recalled.
 - **He's self-hosted and there's no ayuOS Cloud tenant:** the hosted link simply isn't offered —
   it's cloud-tier only ([sharing → egress posture](../sharing.md#relationship-to-egress-posture)).

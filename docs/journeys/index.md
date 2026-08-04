@@ -11,10 +11,10 @@ through the system**, step by step, and asks at every step a single question —
     immediately. If a step takes and gives nothing back, the step is designed wrong. These
     journeys are where that reciprocity is made visible, one exchange at a time.
 
-This is not a marketing walkthrough. It states the friction honestly, names the modality of every
-interaction, cites the [interaction laws](../design-system.md#interaction-laws) each step obeys,
-and — because ayoOS is a system of [tiers and fallbacks](../tiers.md) — shows what breaks and what
-the user keeps when it does.
+Each journey states the friction outright, names the modality of every interaction, cites the
+[interaction laws](../design-system.md#interaction-laws) each step obeys, and — because ayoOS is a
+system of [tiers and fallbacks](../tiers.md) — shows what breaks and what the user keeps when it
+does.
 
 ---
 
@@ -90,7 +90,7 @@ verify the privacy claim. These are the fourteen entry points, grouped by phase 
 | 03 | [Bootstrap with an Apple Health export](03-apple-health-bootstrap.md) | Maya | One `export.zip` → years of records answer a real question before any connector is set up. |
 | 04 | [Connect direct wearables — Oura & Whoop](04-connect-wearables.md) | Ravi | A PAT and an OAuth click → daily HRV/sleep/strain, our own recomputed scores, zero transit. |
 | 05 | [Connect an EHR directly — Epic](05-connect-ehr-epic.md) | Ravi | One hospital login → clinical notes and labs land locally, nothing transiting a third party. |
-| 06 | [Upload files — lab PDF, MRI, genome](06-upload-files.md) | Ravi | Drag a PDF / DICOM / genome file → parsed, placed on the timeline, honestly confidence-graded. |
+| 06 | [Upload files — lab PDF, MRI, genome](06-upload-files.md) | Ravi | Drag a PDF / DICOM / genome file → parsed, placed on the timeline, confidence-graded. |
 | 07 | [Add a bridged connector with consent](07-add-bridged-connector.md) | Maya · Ravi | Reach a gated provider — but only after a consent screen that says exactly what transits whom. |
 | 08 | [Switch, swap & lose a connector](08-switch-connectors.md) | both | Replace a device, drop a bridge, survive a vendor shutdown — history stays, breadth is what moves. |
 
@@ -100,7 +100,7 @@ verify the privacy claim. These are the fourteen entry points, grouped by phase 
 |---|---|---|---|
 | 09 | ["What changed in my last 90 days?"](09-anchor-query.md) | Ravi | One question → a grounded, evidence-labeled synthesis across every source, fully offline. |
 | 10 | [First egress — enabling hybrid cloud reasoning](10-enable-cloud-reasoning.md) | Ravi | Opts a frontier reasoner in — and sees the exact payload, the redaction diff, and the ledger row. |
-| 11 | [Run an n-of-1 experiment end to end](11-run-experiment.md) | Maya | A hunch becomes a pre-registered experiment with an honest supported/inconclusive verdict. |
+| 11 | [Run an n-of-1 experiment end to end](11-run-experiment.md) | Maya | A hunch becomes a pre-registered experiment with a supported/inconclusive verdict. |
 | 12 | [Low-friction capture — supplements, symptoms, voice](12-low-friction-capture.md) | Maya | Sub-10-second logging and passive inference — the action side of the loop without a food diary. |
 | 13 | [Share a scoped sliver / doctor packet](13-share-doctor-packet.md) | Ravi | Assembles exactly the cardiac slice for one cardiologist — previewed, consented, revocable. |
 
@@ -124,7 +124,7 @@ Each page follows the same shape, so you can scan or read deeply:
 | **Walkthrough** | The numbered spine. Every step names *user does · system does · **value returned this step** · modality · the laws it obeys.* |
 | **Exchange ledger** | A table making the give/get reciprocity explicit, row by row. |
 | **UX & modality constraints** | The input modes, latency, offline behavior, empty/error states, and color-semantics that bind this journey. |
-| **Where it can break** | Honest failure modes and the graceful fallback. |
+| **Where it can break** | The failure modes and the graceful fallback. |
 | **What good looks like** | The success signal — the "aha" for this persona. |
 
 ---

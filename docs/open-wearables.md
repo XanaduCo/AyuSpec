@@ -95,7 +95,7 @@ path as any other provider: a provider strategy maps incoming fields onto the
 [`SeriesType` catalog](#the-real-differentiator-developer-agreements). A Terra field with no
 corresponding `SeriesType` has nowhere to go.
 
-So the honest answer to *"can Open Wearables ingest everything Terra sends?"* is:
+So the answer to *"can Open Wearables ingest everything Terra sends?"* is:
 **most of it, but not everything, and only what has been explicitly mapped.**
 
 ### The mapping model

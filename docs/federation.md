@@ -4,7 +4,7 @@
 
 Federated analytics is a Phase 2 concern. The consent plumbing should be designed into the system from the start (cheap to add early, expensive to retrofit), but the analytics capability itself is deferred.
 
-**Honest reframing:** n≈1,000 self-selected biohackers is too small, too biased, and too label-noisy to produce population-grade medical intelligence. The right framing is **opt-in citizen-science** that contributes to open health knowledge — not a capability multiplier for ayuOS.
+**Reframing:** n≈1,000 self-selected biohackers is too small, too biased, and too label-noisy to produce population-grade medical intelligence. The right framing is **opt-in citizen-science** that contributes to open health knowledge — not a capability multiplier for ayuOS.
 
 ## What it is (when built)
 
@@ -39,7 +39,7 @@ There is an explicit governance firewall between ayuOS and any commercial use by
 
 ## Why this is weaker than it sounds
 
-Be honest with users and contributors about what federated analytics at this scale can and cannot do:
+Tell users and contributors what federated analytics at this scale can and cannot do:
 
 - **Selection bias:** biohackers are not representative of the general population
 - **Label noise:** self-reported conditions and wearable-derived metrics have significant noise

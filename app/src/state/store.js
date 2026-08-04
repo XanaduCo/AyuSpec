@@ -238,7 +238,7 @@ export function SessionProvider({ children }) {
         push('attention', {
           id: 'att-mehg', kind: 'finding',
           title: `Methylmercury ${mehg.value} µg/L — most of your total mercury, and it is dietary`,
-          body: 'Methylmercury is the seafood form. It confirms the source rather than the severity: your total is still above the limit, and the thing that moves it is what you eat, on a timescale of weeks rather than years. That makes it one of the few markers in this record where a short, honest experiment could actually settle the question.',
+          body: 'Methylmercury is the seafood form. It confirms the source rather than the severity: your total is still above the limit, and the thing that moves it is what you eat, on a timescale of weeks rather than years. That makes it one of the few markers in this record where a short experiment could actually settle the question.',
           when: 'just now',
           action: { label: 'Design that experiment', to: '/experiments' }, state: 'open',
         })
@@ -281,7 +281,7 @@ export function SessionProvider({ children }) {
       push('attention', {
         id: 'att-overlap', kind: 'finding',
         title: 'The Apple Watch and the Garmin both count your steps — both are kept',
-        body: '276 days overlap. The two are not averaged into a fiction and neither is dropped: each day keeps its own provenance and the Timeline shows them as separate lanes, because they genuinely disagree by a few hundred steps and pretending otherwise would invent a number neither device measured. Deduplication is by content hash, so re-importing this export next quarter adds only what changed.',
+        body: '276 days overlap. The two are not averaged into a fiction and neither is dropped: each day keeps its own provenance and the Timeline shows them as separate lanes, because they disagree by a few hundred steps and pretending otherwise would invent a number neither device measured. Deduplication is by content hash, so re-importing this export next quarter adds only what changed.',
         when: 'just now', action: { label: 'See both lanes', to: '/timeline' }, state: 'open',
       })
       patch.counts['apple-health'] = spec.counts.added

@@ -4,7 +4,7 @@
 
 ayuOS exists to help people **take control of their health and actively optimize it** — not merely observe what changed. Knowing your HRV dropped is table stakes. The point is to understand *why*, decide *what to do*, test whether it worked, and compound those decisions over years.
 
-ayuOS turns a pile of passive, siloed health data into an agentic loop the user drives: **understand → hypothesize → act → measure → learn.** Awareness is the entry point, not the destination. The destination is agency — a person who is measurably steering their own long-term health, with an AI partner that keeps every claim honest about how well the evidence supports it.
+ayuOS turns a pile of passive, siloed health data into an agentic loop the user drives: **understand → hypothesize → act → measure → learn.** Awareness is the entry point, not the destination. The destination is agency — a person who is measurably steering their own long-term health, with an AI partner that labels every claim by how well the evidence supports it.
 
 ## The loop
 
@@ -58,7 +58,7 @@ That flagship question — *"what changed in my last 90 days?"* — is one insta
 
 5. **Validate and iterate.** Understand which metrics and what methodology would let them actually test a hypothesis — n-of-1 design, what to measure, over what window, what counts as signal versus noise — and iterate toward better health.
 
-The through-line: ayuOS is not a dashboard that shows numbers. It is a reasoning partner for a continuous loop — *understand → hypothesize → act → measure → learn* — with every claim labeled by how well the evidence supports it.
+The through-line: ayuOS is a reasoning partner for a continuous loop — *understand → hypothesize → act → measure → learn* — with every claim labeled by how well the evidence supports it.
 
 ## What ayuOS does
 
@@ -129,4 +129,4 @@ incentive structures ultimately point at the data. ayuOS's point at the software
 - **Phase 2:** 1,000 users; opt-in federated analytics contributing to open health knowledge.
 
 !!! note "On federated analytics"
-    n≈1,000 self-selected biohackers is too small and too biased to produce population-grade medical intelligence. The honest framing is opt-in citizen-science that contributes to open health knowledge — not a capability multiplier. See [Federated Analytics](federation.md).
+    n≈1,000 self-selected biohackers is too small and too biased to produce population-grade medical intelligence. The framing is opt-in citizen-science that contributes to open health knowledge — not a capability multiplier. See [Federated Analytics](federation.md).

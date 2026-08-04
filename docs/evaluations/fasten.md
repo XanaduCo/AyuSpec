@@ -72,7 +72,7 @@ A hosted SaaS API plus an embeddable widget — **not self-hostable**.
 |---|---|
 | **Format** | **FHIR R4 as JSONL/NDJSON** (`application/fhir+ndjson`) — not proprietary |
 | **Delivery to a local box** | **Polling is supported** (`GET /bridge/fhir/ehi-export/{id}`) as a documented alternative to webhooks → **no tunnel, no inbound ports.** Download 302s to a short-lived S3 URL your machine pulls directly. |
-| **Retention** | **24 hours, then automatic deletion** — *"Once the 24 hour window elapses, the system deletes the cached copy automatically."* A transient pipe, not a data lake. |
+| **Retention** | **24 hours, then automatic deletion** — *"Once the 24 hour window elapses, the system deletes the cached copy automatically."* A transient pipe. |
 | **Data usage** | *"We don't sell your personal information, ever."* And: *"We do not currently anonymize or de-identify your Personal Information"* — with a commitment to update the policy first if that changes. **No AI/ML training clause.** CARIN Alliance Code of Conduct signatory. SOC2 claimed. |
 | **Mechanism** | SMART-on-FHIR patient access under the hood, riding Cures Act right-of-access — which is why it can serve non-treatment use cases |
 | **Landing store** | Fasten's own docs **name Medplum** as a recommended sink |

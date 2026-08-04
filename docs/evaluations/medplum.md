@@ -47,7 +47,7 @@ scoped to *at scale*.
 
 | Criterion | Finding |
 |---|---|
-| **arm64 / Apple Silicon** | ✅ Native, verified at the registry — genuine per-arch builds, no emulation. Zero open arm64 issues. |
+| **arm64 / Apple Silicon** | ✅ Native, verified at the registry — per-arch builds, no emulation. Zero open arm64 issues. |
 | **External services required** | **None.** Binary storage defaults to `file:./binary/` — no S3. Email defaults to `none` — no SES. Bots run in-process (`vmcontext`) — no Lambda. Postgres needs only stock extensions. |
 | **Redis** | **Required**, not optional — `redis: MedplumRedisConfig` is non-optional in the config type; backs BullMQ. Costs 37 MB. |
 | **FHIR R4 search** | Strongest of the practical options: chaining (capped at 3 links), `_has`, `_include`/`_revinclude`, `_filter`, `:not`/`:missing`/`:contains`, `_sort`, `_total`. Not available via GraphQL. |
@@ -96,7 +96,7 @@ per [ADR-0002](../adr/0002-clinical-data-store.md):
   *"an internal detail subject to change."*
 - **Wrong store for high-frequency wearable data** — continuous HR as FHIR `Observation`s
   costs 20–40× the storage of a narrow time-series row.
-- The capabilities that genuinely mattered — **FHIR resource modelling and validation — are
+- The capabilities that mattered — **FHIR resource modelling and validation — are
   available as libraries**, without a server.
 
 Four further arguments made for the server did not survive review (version history,

@@ -66,7 +66,7 @@ Three architectural properties make that real, and each sub-case leans on one:
 - **UX constraints / laws:** Dedup is idempotent because **we own the store** and every resource
   carries provenance ([Storage](../storage.md#idempotency-and-provenance)); Apple exports are
   cumulative full dumps re-imported wholesale, so re-running is safe by design. Color: both cards
-  green (direct). Law 8 — the Timeline shows the honest per-source values, not a merged fiction.
+  green (direct). Law 8 — the Timeline shows each source's own values rather than a merged series.
 
 ### Step 2 — Move a source from bridged to direct, reclaiming zero-transit (Maya, B)
 
@@ -84,7 +84,7 @@ Three architectural properties make that real, and each sub-case leans on one:
   green**.
 - **Value returned this step:** Everything Terra already pulled **stays in her Postgres** — she
   loses nothing she had. What she gains is the thing she came to ayuOS for: that source is now
-  zero-transit, and the card says so in green. What she gives up is honest and named — future
+  zero-transit, and the card says so in green. What she gives up is named on the card — future
   Garmin data now arrives only when she manually exports FIT files, not automatically.
 - **Modality:** Connector card source-picker toggle + FIT file upload.
 - **UX constraints / laws:** Law 6 — the switch is offered *beside* the fallback it degrades to, so
@@ -118,13 +118,13 @@ Three architectural properties make that real, and each sub-case leans on one:
 - **UX constraints / laws:** Law 6 dominates — a lost tier is never shown without what you keep.
   **Adapters, never interfaces** and **we own the store** are the two properties doing the work.
   The error badge is neutral, not the reserved red — losing a paid connector is a degradation, not
-  a hard block. Empty-state honesty: the Fasten card does not disappear; it stays, disabled, with a
+  a hard block. Empty-state rule: the Fasten card does not disappear; it stays, disabled, with a
   path to re-enable if he ever chooses to pay again.
 
 ### Step 4 — See exactly what survived, and what didn't (Ravi, C continued)
 
-- **User intent here:** Reassurance is not enough for a careful user — Ravi wants the ledger, not a
-  soothing sentence.
+- **User intent here:** Reassurance is not enough for a careful user — Ravi wants the ledger
+  itself.
 - **User does:** Opens the Data sources detail for the retired Fasten connector, then cross-checks
   in the [Timeline](../frontend.md).
 - **System does:** Shows the last successful sync timestamp, the record counts still resident by
@@ -136,7 +136,7 @@ Three architectural properties make that real, and each sub-case leans on one:
   another path (or re-subscribing) with full information.
 - **Modality:** Connector detail view + Timeline.
 - **UX constraints / laws:** Law 8 — data over chrome; the record counts are monospaced, tabular,
-  and honest. **The open core is the whole core** — none of this survived because of a hosted
+  and exact. **The open core is the whole core** — none of this survived because of a hosted
   feature; it survived because it was always local.
 
 ### Step 5 — A single connector breaks and the system keeps answering (Ravi, D)
@@ -151,7 +151,7 @@ Three architectural properties make that real, and each sub-case leans on one:
   Oura, labs, Apple Health, EHR — and, honoring Law 3, flags in the answer that Whoop recovery data
   is stale as of the last good sync so Ravi is not misled by a silent gap.
 - **Value returned this step:** One broken source never takes the system down. He still gets his
-  answer *and* an honest note about the one stream that is behind, plus a one-click retry when Whoop
+  answer *and* a note flagging the one stream that is behind, plus a one-click retry when Whoop
   fixes its endpoint (or the adapter ships a patch via [`ayu update`](../deployment.md)).
 - **Modality:** Ask (the answer) + Data sources error badge + Re-sync button.
 - **UX constraints / laws:** **Fail loudly, degrade gracefully** is the whole step. Law 3 — the
@@ -186,7 +186,7 @@ Three architectural properties make that real, and each sub-case leans on one:
 | 2 | Switch Garmin's adapter, upload FIT files, revoke Terra consent | Amber → green on that source; zero-transit reclaimed; nothing already pulled is lost |
 | 3 | Click the failing Fasten card to understand the loss | Proof the loss is future-only — all ingested Cerner history stays queryable, with the fallback shown inline |
 | 4 | Open the connector detail to audit | A precise, monospaced inventory of surviving records by type and date |
-| 5 | Nothing — just ask the usual question | A full answer over everything else, plus an honest staleness flag and a one-click Re-sync |
+| 5 | Nothing — just ask the usual question | A full answer over everything else, plus a staleness flag and a one-click Re-sync |
 | 6 | Glance at posture / open the ledger | Confirmation no hidden egress was introduced by any switch |
 
 ---
@@ -237,9 +237,9 @@ Three architectural properties make that real, and each sub-case leans on one:
 - Ravi swaps in a watch and the answer to *"how are my steps trending?"* is right the first time —
   no doubling, no gap where the ring's history used to be.
 - Maya watches a card go amber → green and understands exactly what she traded (auto-sync for
-  zero-transit) — the choice was hers and legible, not a default she has to fight.
+  zero-transit) — the choice was hers and legible.
 - The day Fasten dies, Ravi asks for his cardiology history and gets all of it. The guarantee is
-  something he *saw work*, not a sentence in the docs.
+  something he *saw work*.
 - A broken Whoop endpoint is a badge and a Re-sync button, not an outage. The system's usefulness is
   not hostage to any one connector.
 

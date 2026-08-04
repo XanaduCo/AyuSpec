@@ -11,7 +11,7 @@ The first thirteen journeys got Maya's record built and her experiments running.
 - Maya has a working self-hosted install with data in it — see [01 — Install self-hosted](01-install-self-hosted.md) and [03 — Apple Health bootstrap](03-apple-health-bootstrap.md).
 - All three model roles are (or are about to be) set local. Maya has never opted into a cloud reasoner.
 - She has run the workflows she wants to verify at least once: the [anchor query](09-anchor-query.md), an [n-of-1 experiment](11-run-experiment.md), a [doctor packet](13-share-doctor-packet.md).
-- Comfort with a terminal, `psql`, and a packet sniffer (`tcpdump`) or a per-app firewall (Little Snitch). This journey assumes the [sovereign configuration](../tiers.md#worked-configurations); the honest cloud-tier caveat is called out in the last step.
+- Comfort with a terminal, `psql`, and a packet sniffer (`tcpdump`) or a per-app firewall (Little Snitch). This journey assumes the [sovereign configuration](../tiers.md#worked-configurations); the cloud-tier caveat is called out in the last step.
 
 ---
 
@@ -35,10 +35,10 @@ The first thirteen journeys got Maya's record built and her experiments running.
 
 - **User intent here:** prove that in full-local config, the workflows do not merely *avoid* the network — there is no network path to avoid.
 - **User does:** pulls the Ethernet cable (or blocks the ayuOS process in Little Snitch), then runs the anchor query, opens a running experiment, and generates a doctor packet — fully offline.
-- **System does:** every workflow completes. Local inference streams over seconds (not instant — an honest expectation, not a spinner that implies a round-trip). Offline is a **first-class state**, not an error; nothing shows a "reconnect" banner because nothing needed the connection.
+- **System does:** every workflow completes. Local inference streams over seconds — visibly not instant, with no spinner that implies a round-trip. Offline is a **first-class state**, not an error; nothing shows a "reconnect" banner because nothing needed the connection.
 - **Value returned this step:** she has personally confirmed the first of the four self-checks — *nothing leaves in the full-local config* — without taking this page's word for it.
 - **Modality:** physical cable / firewall + normal in-app use.
-- **UX constraints / laws:** offline is first-class (self-hosted tier); latency honesty (synthesis streams over seconds). This is self-check #1 from [Verifying it yourself](../ai-transparency.md#verifying-it-yourself).
+- **UX constraints / laws:** offline is first-class (self-hosted tier); latency stated plainly (synthesis streams over seconds). This is self-check #1 from [Verifying it yourself](../ai-transparency.md#verifying-it-yourself).
 
 ### Step 3 — Reconcile the packet capture against the ledger
 
@@ -66,9 +66,9 @@ The first thirteen journeys got Maya's record built and her experiments running.
 - **User intent here:** take an update without losing a working system or a day of use.
 - **User does:** runs `ayu update` from the terminal.
 - **System does:** pulls the new core, **runs database migrations**, and updates any newly-configured Ollama models. A model update is the disruptive one: it **re-embeds every stored resource**, which for a full record can take **hours**. That work runs in the **background**; the app stays fully usable on the **old embeddings** meanwhile, and search quality steps up when re-indexing finishes — no downtime, no "come back later" wall.
-- **Value returned this step:** the honest cost is stated up front (this may run for hours) and paid in the background (she keeps using the app the whole time). No update phones home; `ayu update` is the only thing that checks for updates.
+- **Value returned this step:** the cost is stated up front (this may run for hours) and paid in the background (she keeps using the app the whole time). No update phones home; `ayu update` is the only thing that checks for updates.
 - **Modality:** CLI (`ayu update`).
-- **UX constraints / laws:** latency honesty (re-embed takes hours, app usable on old embeddings meanwhile); no background phone-home ever — see [Deployment — updates](../deployment.md#updates) and the [egress table](../security.md#egress-posture-is-a-configuration-not-a-fixed-property).
+- **UX constraints / laws:** latency stated up front (re-embed takes hours, app usable on old embeddings meanwhile); no background phone-home ever — see [Deployment — updates](../deployment.md#updates) and the [egress table](../security.md#egress-posture-is-a-configuration-not-a-fixed-property).
 
 ### Step 6 — A connector breaks; the agent keeps answering
 
@@ -84,7 +84,7 @@ The first thirteen journeys got Maya's record built and her experiments running.
 - **User intent here:** keep the record alive without a diary — get told when something real is due.
 - **User does:** nothing standing; weeks later a single inline nudge appears on Ask — "you're due for a TSH re-check; your last was 11 months ago" (relevant to Maya's Hashimoto's), or a screening due against age/sex/risk guidelines.
 - **System does:** the screening/lab **due-date engine** runs against guidelines and the dates already extracted from her records, and surfaces at most a small nudge inline — never a modal, never a nag (Law 7). It can offer to facilitate the booking; it does not gate anything behind it.
-- **Value returned this step:** the lowest-effort ongoing value in the whole product — a nudge that saves her a lapse she'd otherwise only notice at the next appointment. Honest reciprocity: the system did the watching so she didn't have to.
+- **Value returned this step:** the lowest-effort ongoing value in the whole product — a nudge that saves her a lapse she'd otherwise only notice at the next appointment. Reciprocity: the system did the watching so she didn't have to.
 - **Modality:** inline nudge on Ask (education/reminder injects, never blocks).
 - **UX constraints / laws:** Law 7 (education injects, never blocks; one per response, retires when acted on). This is the "cheapest recurring value is a reminder" principle — [Data Capture — screening history](../data-capture.md#screening-history) and [principle 8](../data-capture.md#cross-cutting-principles).
 
@@ -133,7 +133,7 @@ The first thirteen journeys got Maya's record built and her experiments running.
 !!! note "The re-embed is running long"
     On a large record the post-update re-embed can run for hours. This is expected, not a hang: the app stays usable on the **old embeddings** the entire time, and only vector-search freshness lags until it completes. No workflow is blocked waiting on it.
 
-!!! warning "The honest cloud-tier caveat"
+!!! warning "The cloud-tier caveat"
     Everything above is Maya's self-hosted reality. A [managed ayuOS Cloud user](02-managed-cloud.md) (Priya) can run the first three self-checks against **her own tenant's ledger** — same append-only table, same full payloads, exported with her data — but she **cannot** run the fourth check against the running instance's code, because she is not operating it. That is the real, stated difference between the tiers: the self-hosted guarantee is architectural; the cloud guarantee is a policy backed by a subscription that does not point at the data. The spec does not blur the two — see [Security — ayuOS Cloud is a different posture](../security.md#egress-posture-is-a-configuration-not-a-fixed-property) and [Tiers — Axis 1](../tiers.md#axis-1-deployment).
 
 !!! note "A vendor archives the product (again)"

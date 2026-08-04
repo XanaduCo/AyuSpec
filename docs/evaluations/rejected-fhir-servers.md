@@ -43,7 +43,7 @@ emulation is historically fragile), or whether a native arm64 build from source 
 
 ## Firely Spark — alive, but silently wrong
 
-Maintenance is genuinely healthy (Incendi took over from Firely; v3.1.0 released 2026-07-27,
+Maintenance is healthy (Incendi took over from Firely; v3.1.0 released 2026-07-27,
 ~422 commits in 52 weeks). Rejected anyway, on three counts.
 
 **The disqualifier, and it is severe: unsupported search parameters are dropped and the query
@@ -107,7 +107,7 @@ regardless: the 30-day expiry is a time bomb.
 MIT, .NET, actively maintained. Its README is explicit: *"NOT intended to be used for
 production workloads."* In-memory only.
 
-**Genuinely useful in one role:** a conformance/test fixture in CI. Not a store.
+**Useful in one role:** a conformance/test fixture in CI. Not a store.
 
 ## HeliosSoftware/hfs — watch, don't build on
 
@@ -135,13 +135,13 @@ Go + Postgres, Apache-2.0, arm64 ✅, corporate-backed, R4 4.0.1. **Created 2026
 stars** — six weeks old at evaluation. Not adoptable.
 
 **But it is the single most valuable reference for the [roll-your-own](roll-your-own.md)
-option**, because it implements exactly that design and documents its own gaps honestly: an
+option**, because it implements exactly that design and documents its own gaps: an
 11-table schema (`resources` jsonb + tsvector, `resource_history`, `sp_string`/`sp_token`/
 `sp_date`/`sp_number`/`sp_quantity`/`sp_uri`/`sp_reference`/`sp_coords`,
 `search_param_definitions` storing FHIRPath per param).
 
 Its self-reported limitations after ~1 month of a funded team are the best available cost
-estimate for building this yourself. See [roll-your-own](roll-your-own.md#the-honest-counterweight).
+estimate for building this yourself. See [roll-your-own](roll-your-own.md#the-counterweight).
 
 ## Also checked and dead
 
