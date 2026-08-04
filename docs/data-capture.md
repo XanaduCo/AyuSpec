@@ -20,6 +20,7 @@ This is the design behind user job #3 in the [vision](vision.md#what-users-want-
 | [Biomarkers & diagnostics](#biomarkers-diagnostics) | Hard — requires facility visits | **Very high** | P0 (facilitated) |
 | [Lifestyle & interventions](#lifestyle-interventions) | Variable, often high-friction | **Critical** — the entire "action" side | P0 |
 | [Self-feedback](#self-feedback) | Easy but unreliable | **High** — fastest subjective signal | P1 |
+| [Psychographic & preference signal](#psychographic-preference-signal) | Easy passively / sensitive to ask | **High** — sets the voice, the routing, and whether any answer lands | P1 |
 | [Screening history](#screening-history) | Scattered across records | Low analytically / **high for retention** | P1 |
 | [Historical medical records](#historical-medical-records) | Tedious | Moderate — trend lines | P1 |
 | [Family history](#family-history) | Moderate | Moderate — one-time prior | P1 |
@@ -77,6 +78,36 @@ The fastest-updating subjective signal, and often the outcome the user actually 
 
 **Fix:** EMA-style micro-prompts (1–2 questions) tied to active goals, fired at contextually smart moments. Treat adherence as a product problem. This is the manual-capture path referenced in [Experimentation](experimentation.md#capturing-the-inputs).
 
+### Psychographic & preference signal
+*What the person is worried about, how they communicate, what they weight when they decide, how much they trust the machine.*
+
+Every other class on this list is data about the **body**. This one is data about the **person** — and it is what decides whether a correct answer is a useful one. The same lab result is delivered differently to someone who wants the derivation and someone who wants the plain "so what"; the same worry is routed differently for someone eyes-open about the cloud and someone who declines all egress. Without this layer the agent is clinically right and personally deaf.
+
+The trap is to collect it with a personality quiz. That fails twice: onboarding surveys have terrible completion, and a self-reported trait is often the opposite of the behavioural one (the person who says they log everything is the one who abandons the tracker). So this is captured the same way every other signal is — **inferred first, graded for confidence, and shown with its provenance** — never asserted as a fixed fact about who someone is.
+
+The dimensions, and where each already has a home:
+
+- **Concerns** — what's on their mind, *including what the record implies but they have not said*. The unvoiced case is the important one: a signal the data points at and the person hasn't, held as a **hypothesis to raise at the right moment**, never announced. (New; the closest existing surface is decision-point injection in [epistemics](epistemics.md).)
+- **Disposition** — communication style, affect, appetite for effort and ambiguity. Sets the *voice* of ordinary answers, not just what's in them.
+- **Health literacy & numeracy** — already the [literacy profile](epistemics.md#the-literacy-profile): self-retiring, tracks what's been engaged, stops explaining once fluency shows.
+- **Decision preferences** — already the [preference model](epistemics.md#the-preference-model-simplify-this-for-me): a user-visible, editable weighting that shows how it produced a ranking.
+- **Trust posture** — the person's own egress and model choices, read as signal. A sovereign-purist posture and an eyes-open-cloud posture ask for different defaults.
+
+**Capture methods, passive before manual:**
+
+1. **Inferred from query pattern** (passive) — read from *what* they repeatedly ask and *how* they ask it. "Which source do I trust?" is a disposition signal; a cluster of cardiac questions is a concern signal.
+2. **Affect from wearables** (passive, on-device) — query timing and sentiment correlated with HRV/sleep/strain, to read state and detect anxious stretches. This is what surfaces the unvoiced concern.
+3. **Observed behaviour** (passive) — what they open, re-run, act on, or abandon. An abandonment pattern is a first-class capture, not a failure to log.
+4. **EMA micro-prompt** (manual, sub-10s) — a single in-context, one-tap or one-voice-line check at a smart moment, that also does other work (advancing an experiment). The [self-feedback](#self-feedback) path, reused.
+5. **First-run conversation & chosen posture** (manual) — a few questions in context, and the settings they pick — not an onboarding survey.
+
+!!! warning "This is sensitive data and is held as such"
+    A psychographic profile is **user-visible and editable — a stored object in the `ayuos` schema, never an inferred shadow profile** ([epistemics](epistemics.md#the-preference-model-simplify-this-for-me)). Every attribute carries how it was captured and how confident we are; it can be corrected or deleted; the affect inference runs on-device and its use is disclosed. An unvoiced concern is held as a hypothesis and surfaced as a question, never delivered as a verdict.
+
+**The two sample profiles** ([Ravi and Maya](personas.md)) are the illustration: Ravi gives the system a dense query history and audits what it infers; Maya gives it little on purpose and the work is earning the rest without taxing her. Same schema, opposite capture problems. The live version is the demo's [Profile view](demo/index.html#/profile).
+
+**Fix:** infer from the streams that already exist (queries, behaviour, wearables) before asking anything; grade every attribute for confidence and show its evidence; reuse the EMA path for the rest; keep the whole profile visible and editable. The [expansion roadmap](personas.md#how-wed-weave-more-in) — the next increment for each signal and the consent it's bound to — is carried per-person in the profiles.
+
 ### Screening history
 *Colonoscopy, mammogram, skin checks, vaccinations.*
 
@@ -116,3 +147,5 @@ Ambient data (air quality, UV) is easy via location APIs; personal exposures (mo
 - [ ] What guideline source powers the screening due-date engine, and how is it kept current per country?
 - [ ] How much of the country-specific record-retrieval playbook can be automated vs. documented for the user to execute?
 - [ ] Where do onboarding-interview outputs (family history, goals) land in the schema — FHIR `FamilyMemberHistory` + a goals object?
+- [ ] What is the confidence-decay policy on an inferred psychographic attribute — does a stale disposition signal lose weight over time, or only when contradicted by newer behaviour?
+- [ ] Should the disposition read set the *voice* of ordinary answers (warmer/more quantitative), or only the injection and routing decisions? (Mirrors the open question in [epistemics](epistemics.md).)

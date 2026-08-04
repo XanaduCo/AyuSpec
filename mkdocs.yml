@@ -45,6 +45,7 @@ nav:
   - Home: index.md
   - Overview:
     - Vision & Problem: vision.md
+    - Sample Patients: personas.md
     - Tiers & Fallbacks: tiers.md
     - Architecture Overview: architecture.md
   - Demo: demo/index.html

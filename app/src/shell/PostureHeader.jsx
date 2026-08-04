@@ -1,5 +1,6 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { usePosture, ROLES } from '../mock/posture.jsx'
+import { patients } from '../mock/patients.js'
 import PosturePill from '../components/PosturePill.jsx'
 import { useCapture } from '../components/Capture.jsx'
 
@@ -10,7 +11,16 @@ import { useCapture } from '../components/Capture.jsx'
 export default function PostureHeader({ title }) {
   const { posture } = usePosture()
   const navigate = useNavigate()
+  const location = useLocation()
+  const [params] = useSearchParams()
   const capture = useCapture()
+
+  // The header states what actually runs. On the Profile view that is the *viewed*
+  // person's posture — Maya's all-local instance is not Ravi's cloud-reasoner one —
+  // so the indicator would otherwise lie about whoever you are reading. This
+  // override is scoped to /profile; every other route shows the live session posture.
+  const viewed = location.pathname === '/profile' ? patients[params.get('p')] : null
+  const shown = viewed?.rolePosture || posture
   return (
     <div className="header">
       <span className="title">{title}</span>
@@ -24,7 +34,7 @@ export default function PostureHeader({ title }) {
           <span key={r.key} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
             <span className="role">{r.label}</span>
             <PosturePill
-              role={posture[r.key]}
+              role={shown[r.key]}
               onClick={() => navigate(`/transparency?role=${r.key}`)}
             />
           </span>

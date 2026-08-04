@@ -1,0 +1,117 @@
+/* Profile — the psychographic layer. Leans on the shared tokens and the .page /
+   .card / .eyebrow / .note / .fl vocabulary from app.css; only the profile-specific
+   pieces live here. Colour keeps its meaning: --local green = stayed on device /
+   passive, --egress amber = asked-for / left the device, --brand indigo = the
+   system's own voice. */
+
+.profile-page { max-width: 900px; }
+
+/* --- patient switch -------------------------------------------------------- */
+.pf-switch {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  margin: 10px 0 20px;
+}
+.pf-tab {
+  display: flex; flex-direction: column; gap: 3px; align-items: flex-start;
+  text-align: left; padding: 12px 14px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+  cursor: pointer; transition: border-color .12s, box-shadow .12s;
+}
+.pf-tab:hover { border-color: var(--brand); }
+.pf-tab.on { border-color: var(--brand); box-shadow: 0 0 0 1px var(--brand) inset; background: var(--brand-soft); }
+.pf-tab b { font-size: 15px; color: var(--ink); }
+.pf-tab .faint { font-size: 12px; }
+
+/* --- lede ------------------------------------------------------------------ */
+.pf-lede { margin-bottom: 18px; }
+.pf-summary { font-size: 17px; line-height: 1.5; color: var(--body); margin: 0 0 12px; max-width: 68ch; }
+.pf-posture { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.pf-posture-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 12.5px; font-family: var(--mono); padding: 4px 10px; border-radius: 999px;
+  border: 1px solid var(--line);
+}
+.pf-posture-chip .dot { width: 8px; height: 8px; border-radius: 50%; }
+.pf-posture-chip.tone-local { background: var(--local-soft); color: var(--local); border-color: transparent; }
+.pf-posture-chip.tone-local .dot { background: var(--local); }
+.pf-posture-chip.tone-egress { background: var(--egress-soft); color: var(--egress); border-color: transparent; }
+.pf-posture-chip.tone-egress .dot { background: var(--egress); }
+
+/* --- capture mix ----------------------------------------------------------- */
+.pf-mix { padding: 14px 16px; margin-bottom: 22px; }
+.pf-mix-bar { display: flex; height: 10px; border-radius: 999px; overflow: hidden; background: var(--sunk); }
+.pf-mix-bar .seg.passive { background: var(--local); }
+.pf-mix-bar .seg.active { background: var(--egress); }
+.pf-mix-legend { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; margin-top: 10px; font-size: 12.5px; color: var(--body); }
+.pf-mix-legend .sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.pf-mix-legend .sw.passive { background: var(--local); }
+.pf-mix-legend .sw.active { background: var(--egress); }
+
+/* --- unvoiced -------------------------------------------------------------- */
+.pf-unvoiced { padding: 16px 18px; margin-bottom: 24px; border-left: 3px solid var(--brand); }
+.pf-unvoiced-head { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.pf-unvoiced-head h3 { margin: 0; font-size: 15px; }
+.pf-flag {
+  font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600;
+  color: var(--brand-ink); background: var(--brand-soft); padding: 2px 8px; border-radius: 999px;
+}
+
+/* --- dimensions ------------------------------------------------------------ */
+.pf-dim { margin-bottom: 26px; }
+.pf-dim-head { margin-bottom: 12px; }
+.pf-dim-head h3 { margin: 0 0 3px; font-size: 15px; }
+
+/* --- one signal ------------------------------------------------------------ */
+.pf-signal { padding: 14px 16px; margin-bottom: 10px; }
+.pf-signal.is-unvoiced { background: var(--raise); }
+.pf-signal-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.pf-signal-label { font-weight: 600; color: var(--ink); font-size: 14.5px; }
+.pf-signal-detail { margin: 7px 0 12px; color: var(--body); font-size: 13.5px; line-height: 1.55; max-width: 74ch; }
+
+.pf-conf {
+  flex: none; font-size: 11px; letter-spacing: .02em; padding: 2px 8px; border-radius: 999px;
+  border: 1px solid var(--line); color: var(--mute); white-space: nowrap;
+}
+.pf-conf.c-confirmed { background: var(--local-soft); color: var(--local); border-color: transparent; }
+.pf-conf.c-corroborated { background: var(--adjusts-soft); color: var(--adjusts); border-color: transparent; }
+.pf-conf.c-observed { background: var(--raise); color: var(--body); }
+.pf-conf.c-hypothesis { background: var(--sunk); color: var(--mute); font-style: italic; }
+
+/* provenance line */
+.pf-prov { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding-top: 4px; border-top: 1px dashed var(--line); }
+.pf-method { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; }
+.pf-method .mi { font-family: var(--mono); }
+.pf-method.passive { color: var(--local); }
+.pf-method.active { color: var(--egress); }
+.pf-first { font-size: 11.5px; }
+.pf-ev-toggle { font-size: 12px; background: none; border: none; cursor: pointer; padding: 0; }
+
+.pf-ev-list { list-style: none; margin: 10px 0 0; padding: 10px 0 0; border-top: 1px dashed var(--line); display: grid; gap: 5px; }
+.pf-ev { font-size: 12.5px; color: var(--body); }
+.pf-ev-kind {
+  display: inline-block; min-width: 62px; font-size: 10px; text-transform: uppercase; letter-spacing: .05em;
+  color: var(--faint); font-family: var(--mono); margin-right: 8px;
+}
+
+.pf-usedfor { display: flex; gap: 10px; margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line); font-size: 12.5px; color: var(--body); }
+.pf-usedfor .fl { flex: none; }
+
+.fl { font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--faint); font-weight: 600; min-width: 58px; }
+
+/* --- roadmap --------------------------------------------------------------- */
+.pf-roadmap { margin-top: 30px; padding-top: 22px; border-top: 1px solid var(--line); }
+.pf-road-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+.pf-road { padding: 14px 16px; }
+.pf-road-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.pf-road-signal { font-weight: 600; color: var(--ink); font-size: 14px; }
+.pf-method-mini { font-size: 11px; padding: 2px 8px; border-radius: 999px; }
+.pf-method-mini.passive { background: var(--local-soft); color: var(--local); }
+.pf-method-mini.active { background: var(--egress-soft); color: var(--egress); }
+.pf-road-row { display: flex; gap: 10px; font-size: 12.5px; color: var(--body); line-height: 1.5; margin-bottom: 7px; }
+.pf-road-row.next span:last-child { color: var(--ink); }
+.pf-next-method { color: var(--brand); font-size: 11.5px; white-space: nowrap; }
+.pf-road-note { margin: 8px 0 0; padding-top: 8px; border-top: 1px dashed var(--line); font-size: 12px; color: var(--mute); font-style: italic; }
+
+@media (max-width: 720px) {
+  .pf-switch, .pf-road-grid { grid-template-columns: 1fr; }
+}

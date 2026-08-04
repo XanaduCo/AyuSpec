@@ -120,6 +120,8 @@ Rules:
 - **The ranking always shows its work:** "Walking ranked first because you weighted certainty and cost highly; NMN ranked lower on long-term unknowns, which you said you're cautious about." The transparency is itself education.
 - **Preferences are user-visible and editable** — a stored object in the `ayuos` schema, not an inferred shadow profile.
 
+The preference model and the [literacy profile](#the-literacy-profile) are two facets of a broader **psychographic layer** — worries, disposition, and trust posture captured the same provenance-carrying way. See [Sample Patients](personas.md) for the two worked profiles (Ravi and Maya) and [Data Capture → Psychographic signal](data-capture.md#psychographic-preference-signal) for how each attribute is captured.
+
 ## Quizzes as calibration games
 
 Quizzes exist, but as **prediction-and-reveal calibration games**, not comprehension tests:

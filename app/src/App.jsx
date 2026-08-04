@@ -5,6 +5,7 @@ import Ask from './views/Ask.jsx'
 import Timeline from './views/Timeline.jsx'
 import Explore from './views/Explore.jsx'
 import Experiments from './views/Experiments.jsx'
+import Profile from './views/Profile.jsx'
 import DataSources from './views/DataSources.jsx'
 import Share from './views/Share.jsx'
 import Transparency from './views/Transparency.jsx'
@@ -21,6 +22,7 @@ export default function App() {
         <Route path="/timeline" element={<Timeline />} />
         <Route path="/explore" element={<Explore />} />
         <Route path="/experiments" element={<Experiments />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/data" element={<DataSources />} />
         <Route path="/share" element={<Share />} />
         <Route path="/transparency" element={<Transparency />} />
