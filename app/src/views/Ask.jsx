@@ -11,6 +11,9 @@ import { ask, clarifyFor, suggestedQuestions } from '../mock/agent.js'
 import { presendFor } from '../mock/ledger.js'
 import { storeStats } from '../mock/persona.js'
 import { assemble, REASONS } from '../context/assemble.js'
+import { useSession, useConversations } from '../state/store.js'
+import { threadPosture, POSTURE_LABEL, POSTURE_TIP } from '../state/conversations.js'
+import '../styles/ask-history.css'
 
 // Inline renderer: **bold**, {{ev:kind}} evidence labels, {{cite:id}} citations.
 function Inline({ text }) {
@@ -264,9 +267,56 @@ function StoreCard() {
   )
 }
 
+// The conversation history — a quiet column beside the chat, in the spirit of a
+// ChatGPT/Claude sidebar but held to ayuOS's calm, local-first grammar. It is
+// scannable, not loud: a title (the first question), a fixed timestamp, and the
+// thread's own egress posture as a dot in the established colour language
+// (green = stayed on the local reasoner, amber = a cloud synthesis ran). The
+// only thing marked is the active thread; nothing here is a dashboard.
+//
+// It is deliberately honest about being ephemeral: this list lives in the
+// in-memory session overlay and resets on reload, and it says so — consistent
+// with the store's own "resets on reload, and the UI says so" rule.
+function ConversationHistory({ list, activeId, onSelect, onNew }) {
+  return (
+    <aside className="ask-history conv-history">
+      <div className="conv-head">
+        <span className="eyebrow">Conversations</span>
+        <button className="conv-new" onClick={onNew} title="Start a new conversation">＋ New</button>
+      </div>
+      <p className="note conv-note">Held in this session's memory — never written to disk, never sent.</p>
+
+      <div className="conv-list">
+        {list.map(c => {
+          const posture = threadPosture(c.messages)
+          const turns = c.messages.filter(m => m.role === 'me').length
+          return (
+            <button key={c.id} className={`conv-item ${c.id === activeId ? 'on' : ''}`}
+              onClick={() => onSelect(c.id)}
+              aria-current={c.id === activeId ? 'true' : undefined}>
+              <span className="conv-title">{c.title}</span>
+              <span className="conv-meta">
+                <span className={`conv-dot ${posture}`} title={POSTURE_TIP[posture]} />
+                <span className={`conv-posture ${posture}`}>{POSTURE_LABEL[posture]}</span>
+                <span className="conv-sep">·</span>
+                <span className="conv-when">{c.at}</span>
+                {turns > 1 && <><span className="conv-sep">·</span><span>{turns} turns</span></>}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+
+      <StoreCard />
+    </aside>
+  )
+}
+
 export default function Ask() {
   const { posture, markPreviewSeen } = usePosture()
   const drawer = useDrawer()
+  const { list, activeId, active } = useConversations()
+  const { newConversation, selectConversation, pushTurn, patchTurnMessage } = useSession().actions
 
   // Does this answer need the pre-send gate? Cloud reasoner + a cloud-marked
   // answer + a review mode that asks. `new_shape` gates only the first call.
@@ -284,8 +334,12 @@ export default function Ask() {
   // new user ever saw was a consent panel rather than an answer — the privacy
   // machinery arguing for itself before it had earned the right to. The gate is
   // still unskippable; it is now reached by asking, which is when it means something.
-  const [thread, setThread] = useState([])
-  const [history, setHistory] = useState([])
+  //
+  // The active thread lives in the session store now (see `useConversations`), so
+  // it survives navigating away and back and joins the conversation history — but
+  // the landing is unchanged: a fresh session has no active conversation, so the
+  // chat is empty and the cursor is ready.
+  const thread = active?.messages ?? []
   const [input, setInput] = useState('')
   const endRef = useRef(null)
 
@@ -307,19 +361,25 @@ export default function Ask() {
           : { role: 'ai', question, answer }
       })()
 
-    setThread(t => [...t, { role: 'me', text: question }, item])
-    setHistory(h => [question, ...h.filter(x => x !== question)])
+    // One turn = the user's bubble plus its response, appended to the active
+    // conversation (or a new one, titled from this question, if there is none).
+    pushTurn([{ role: 'me', text: question }, item], question)
     setInput('')
   }
+
+  // Start a fresh conversation: detach the chat (the previous one stays saved in
+  // history) and clear the input. The next question opens a new thread.
+  const startNew = () => { newConversation(); setInput('') }
 
   // Resolve a pending pre-send: send it (reveal the answer) or keep local.
   const resolvePresend = (index, send) => {
     cloudApproved.current = cloudApproved.current || send
     markPreviewSeen('reasoner') // seeing the full preview here unlocks review=off for the reasoner in Settings
-    setThread(t => t.map((m, i) =>
-      i === index
-        ? { role: 'ai', question: m.question, answer: send ? m.answer : localDecline(m.question), declined: !send }
-        : m))
+    const m = thread[index]
+    patchTurnMessage(index, {
+      role: 'ai', question: m.question,
+      answer: send ? m.answer : localDecline(m.question), declined: !send,
+    })
   }
 
   return (
@@ -372,18 +432,12 @@ export default function Ask() {
           </div>
         </div>
 
-        <aside className="ask-history">
-          <span className="eyebrow">History</span>
-          <p className="note" style={{ marginTop: 4 }}>Kept in memory only — never written to disk, never sent.</p>
-          <div className="history-list">
-            {history.map(q => (
-              <button key={q} className="history-item" onClick={() => submit(q)} title="Re-open">
-                <span className="q">{q}</span>
-              </button>
-            ))}
-          </div>
-          <StoreCard />
-        </aside>
+        <ConversationHistory
+          list={list}
+          activeId={activeId}
+          onSelect={selectConversation}
+          onNew={startNew}
+        />
       </div>
     </div>
   )

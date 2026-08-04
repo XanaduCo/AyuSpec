@@ -20,6 +20,7 @@ import {
   IMPORTS, SEED_ATTENTION, RECORD_GAPS, stepsSeries, WALK_LOG_QUEUE,
   anchor, NEW_PANEL_DATE,
 } from './fixtures.js'
+import { SEED_CONVERSATIONS } from './conversations.js'
 
 // ---------------------------------------------------------------------------
 // helpers
@@ -94,6 +95,16 @@ const initial = {
   imported: {},        // import key → true
   counts: {},          // connector/file id → extra records
   gapsFilled: {},      // record-gap id → how it was filled
+
+  // Ask's conversation history. Each conversation holds a full message thread,
+  // identical in shape to what the live chat renders. `activeConvId` is the one
+  // currently loaded into the chat area, or null for a fresh, empty ask — which
+  // is how the app lands (Interaction law 5: cursor ready, nothing asked yet).
+  // A conversation is only created once its first question is asked, so an
+  // untouched draft never clutters the list. Seeds are deterministic (fixed
+  // dates, drawn from the canned answers) so the history is never empty.
+  conversations: SEED_CONVERSATIONS,
+  activeConvId: null,
 }
 
 function applyPatch(s, patch) {
@@ -152,6 +163,39 @@ function reducer(s, a) {
       return { ...s, corrections: next }
     }
 
+    // --- Ask conversation history -----------------------------------------
+    case 'conversation/new':
+      // Not a deletion — the previous conversation stays saved in the list.
+      // This only detaches the chat area so the next question opens a fresh one.
+      return { ...s, activeConvId: null }
+
+    case 'conversation/select':
+      return { ...s, activeConvId: a.id }
+
+    case 'conversation/push': {
+      // Appending to the active conversation, or materialising a new one from
+      // the first question asked (which then becomes active and heads the list).
+      if (s.activeConvId) {
+        return {
+          ...s,
+          conversations: s.conversations.map(c =>
+            c.id === s.activeConvId ? { ...c, messages: [...c.messages, ...a.items] } : c),
+        }
+      }
+      const conv = { id: a.newId, title: a.title, at: 'just now', seeded: false, messages: [...a.items] }
+      return { ...s, conversations: [conv, ...s.conversations], activeConvId: conv.id }
+    }
+
+    case 'conversation/patchMessage':
+      // Resolve a message in place (a pre-send gate flipping to its answer).
+      return {
+        ...s,
+        conversations: s.conversations.map(c =>
+          c.id === s.activeConvId
+            ? { ...c, messages: c.messages.map((m, i) => (i === a.index ? a.message : m)) }
+            : c),
+      }
+
     default:
       return s
   }
@@ -164,6 +208,7 @@ function reducer(s, a) {
 const Ctx = createContext(null)
 
 let traceSeq = 0
+let convSeq = 0
 
 export function SessionProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initial)
@@ -594,15 +639,28 @@ export function SessionProvider({ children }) {
     })
   }, [apply])
 
+  // --- Ask conversation history --------------------------------------------
+  // The chat area reads the active conversation's messages through `useConversations`;
+  // these are the only writers. `pushTurn` carries a fresh id in case the active
+  // conversation is null (a new ask) — the reducer uses it or ignores it.
+  const newConversation = useCallback(() => dispatch({ type: 'conversation/new' }), [])
+  const selectConversation = useCallback(id => dispatch({ type: 'conversation/select', id }), [])
+  const pushTurn = useCallback((items, title) =>
+    dispatch({ type: 'conversation/push', items, title, newId: `conv-${++convSeq}` }), [])
+  const patchTurnMessage = useCallback((index, message) =>
+    dispatch({ type: 'conversation/patchMessage', index, message }), [])
+
   const actions = useMemo(() => ({
     commitImport, summarizeMRI, captureMed, captureActivity, captureReading, captureFamily,
     logExperimentDay, flagConfounder, closeExperiment, addExperiment,
     correctRecord, uncorrectRecord, resyncConnector, breakConnector,
     resolveAttention, snoozeAttention, reopenAttention, addArtifact,
+    newConversation, selectConversation, pushTurn, patchTurnMessage,
   }), [commitImport, summarizeMRI, captureMed, captureActivity, captureReading, captureFamily,
     logExperimentDay, flagConfounder, closeExperiment, addExperiment,
     correctRecord, uncorrectRecord, resyncConnector, breakConnector,
-    resolveAttention, snoozeAttention, reopenAttention, addArtifact])
+    resolveAttention, snoozeAttention, reopenAttention, addArtifact,
+    newConversation, selectConversation, pushTurn, patchTurnMessage])
 
   const value = useMemo(() => ({ state, actions }), [state, actions])
   // `createElement` rather than JSX so this module can stay a plain `.js` file.
@@ -729,6 +787,16 @@ export function useAttention() {
     const gaps = RECORD_GAPS.filter(g => !state.gapsFilled[g.id])
     return { all: state.attention, open, gaps, filled, count: open.length }
   }, [state.attention, state.gapsFilled])
+}
+
+// Ask's conversation history: the saved list, plus the active thread resolved.
+export function useConversations() {
+  const { state } = useSession()
+  return useMemo(() => ({
+    list: state.conversations,
+    activeId: state.activeConvId,
+    active: state.conversations.find(c => c.id === state.activeConvId) || null,
+  }), [state.conversations, state.activeConvId])
 }
 
 // Any record the session created, for the shared source drawer.

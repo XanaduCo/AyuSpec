@@ -1,0 +1,57 @@
+/* Ask · conversation history
+   ---------------------------
+   The quiet column beside the chat. It is a history list, not a dashboard: no
+   counts shouting, no cards competing with the answer. Everything is theme-aware
+   through the tokens, and the posture dots reuse the product's colour language
+   (--local green = the thread stayed on the local reasoner, --egress amber = a
+   cloud synthesis ran). The active thread is the only marked element.
+
+   `.ask-history` already carries the sticky-column geometry (and the
+   max-width:980 hide) from app.css; this file styles what lives inside it. */
+
+.conv-history { display: flex; flex-direction: column; }
+
+.conv-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.conv-new {
+  font-family: var(--mono); font-size: 11px; color: var(--brand-ink);
+  background: var(--brand-soft); border: 0; border-radius: 6px;
+  padding: 3px 9px; cursor: pointer; line-height: 1.4;
+}
+.conv-new:hover { filter: brightness(.97); }
+.conv-new:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+.conv-note { margin-top: 4px; font-size: 11.5px; line-height: 1.45; }
+
+.conv-list { display: flex; flex-direction: column; gap: 3px; margin: 12px 0 20px; }
+
+.conv-item {
+  text-align: left; width: 100%; display: block; cursor: pointer;
+  background: transparent; border: 1px solid transparent; border-radius: var(--r-sm);
+  padding: 8px 10px; transition: background .12s ease, border-color .12s ease;
+}
+.conv-item:hover { background: var(--surface); border-color: var(--line); }
+.conv-item:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
+/* The active thread — a hairline inset in brand, not a fill, so it reads as
+   "you are here" without competing with the answer beside it. */
+.conv-item.on {
+  background: var(--surface); border-color: var(--line);
+  box-shadow: inset 2px 0 0 var(--brand);
+}
+
+.conv-title {
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; font-size: 12.5px; line-height: 1.35; color: var(--body);
+}
+.conv-item:hover .conv-title { color: var(--ink); }
+.conv-item.on .conv-title { color: var(--ink); }
+
+.conv-meta {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 3px 6px; margin-top: 5px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .01em; color: var(--faint);
+}
+.conv-dot { width: 6px; height: 6px; border-radius: 99px; flex: 0 0 auto; }
+.conv-dot.local { background: var(--local); }
+.conv-dot.cloud { background: var(--egress); }
+.conv-posture.local { color: var(--local); }
+.conv-posture.cloud { color: var(--egress); }
+.conv-sep { color: var(--line); }
