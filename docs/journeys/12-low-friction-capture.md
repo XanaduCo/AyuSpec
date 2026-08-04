@@ -218,6 +218,8 @@ ten seconds, and hand me something back the instant I give you something."*
 
 - [Data capture strategy](../data-capture.md) — passive-before-manual, sub-10s logging, adherence as a
   product problem, interventions as highest-liability, time-boxed nutrition
+- [Companion (Hermes)](../companion.md) — the messaging channel that delivers these EMA prompts and
+  adherence checks between sessions, with the full backoff-ladder and non-response policy
 - [Experimentation & validation](../experimentation.md) — the n-of-1 loop these logs feed; the
   minimal-friction manual-capture requirement
 - [Evidence & hypotheses](../evidence.md) — the evidence/confidence labels the parse and interaction

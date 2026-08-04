@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useSession, useAttention } from '../state/store.js'
+import { useSession, useAttention, useExperiments } from '../state/store.js'
 import { useDrawer } from '../components/Drawer.jsx'
 import { useCapture } from '../components/Capture.jsx'
-import { anchor } from '../state/fixtures.js'
+import { anchor, daysBetween, CRITERIA } from '../state/fixtures.js'
+import { usePins, pin, unpin, PIN_CAP, PINNABLE, pinnableById, markerData } from '../state/pins.js'
+import '../styles/pins.css'
 
 // Now — the re-entry point the app did not have.
 //
@@ -22,6 +24,14 @@ import { anchor } from '../state/fixtures.js'
 //
 // Nothing here nags. Every item can be snoozed, snoozing leaves a trace instead
 // of deleting the item, and no functionality is gated behind clearing it.
+//
+// One section sits ABOVE those lists and is different in kind: pins. Everything
+// else on this page is the system's idea of what needs you; a pin is the user's
+// own declaration — "I am actively watching this." Explicit, finite (soft cap),
+// editable, and held to the same anti-dashboard contract: the card shows the
+// underlying signal and its trend vs. the relevant baseline, never a derived
+// score or a streak, and pins never reorder themselves. See docs/frontend.md
+// §"Pinned: user-declared attention"; state lives in ../state/pins.js.
 
 const KIND = {
   block: { glyph: '⨯', label: 'held', tone: 'block' },
@@ -67,6 +77,8 @@ export default function Now() {
         of things that changed, are due, or are waiting on a decision only you can make.
         Snoozing is a first-class answer.
       </p>
+
+      <PinnedSection />
 
       {decisions.length > 0 && (
         <Section title="Waiting on you" sub="Nothing below is blocked — the app works fine if you ignore all of it.">
@@ -189,5 +201,183 @@ function Item({ a, onRun, onSnooze, onDismiss }) {
         </div>
       </div>
     </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Pinned — user-declared attention. Cards keep the order they were pinned in;
+// the number shown is the number in the record, in mono, with its baseline.
+// ---------------------------------------------------------------------------
+
+const fmt = v => (Number.isInteger(v) ? String(v) : v.toFixed(1))
+
+function PinnedSection() {
+  const pinned = usePins()
+  const experiments = useExperiments()
+  const navigate = useNavigate()
+  const [picking, setPicking] = useState(false)
+  const [capTried, setCapTried] = useState(false)
+
+  const candidates = PINNABLE.filter(p => !pinned.includes(p.id))
+  const atCap = pinned.length >= PIN_CAP
+
+  const tryPin = id => {
+    if (pin(id)) setCapTried(false)
+    else setCapTried(true)
+  }
+
+  return (
+    <Section
+      title={`Pinned · ${pinned.length} of ${PIN_CAP}`}
+      sub="The one part of this page you put here yourself. A pin says “I am actively watching this” — no score on it, no streak, just the signal against its baseline. Pins keep the order you pinned them in, and pinning changes nothing but what renders here.">
+      {pinned.length === 0 && (
+        <p className="note" style={{ margin: '0 0 4px' }}>
+          Nothing pinned — a fine state. Pins are for things you are actively watching,
+          and there is no obligation to watch anything.
+        </p>
+      )}
+      <div className="pin-grid">
+        {pinned.map(id => {
+          const desc = pinnableById[id]
+          if (!desc) return null
+          return desc.type === 'experiment'
+            ? <ExperimentPin key={id} desc={desc} exp={experiments.find(e => e.id === id)} onGo={() => navigate('/experiments')} />
+            : <MarkerPin key={id} desc={desc} onGo={() => navigate('/explore')} />
+        })}
+      </div>
+      <div className="pin-add">
+        <button className="btn ghost sm" onClick={() => { setPicking(v => !v); setCapTried(false) }}>
+          {picking ? 'Close' : 'Pin something'}
+        </button>
+        {picking && (
+          <div className="pin-picker">
+            {capTried && atCap && (
+              <p className="pin-cap-note">
+                {PIN_CAP} pins is the cap. This section is a queue, not a wall — if everything
+                is pinned, nothing is being watched. Let one go first.
+              </p>
+            )}
+            {candidates.map(c => (
+              <div key={c.id} className="pin-cand">
+                <b>{c.pickLabel}</b>
+                <span className="why">{c.pickDetail}</span>
+                <button className="chip-link" onClick={() => tryPin(c.id)}>pin</button>
+              </div>
+            ))}
+            {candidates.length === 0 && (
+              <p className="note" style={{ margin: 0 }}>Everything pinnable in the demo is already pinned.</p>
+            )}
+          </div>
+        )}
+      </div>
+    </Section>
+  )
+}
+
+function ExperimentPin({ desc, exp, onGo }) {
+  if (!exp) return null
+  const title = desc.pickLabel.replace(/\s*\(.*\)$/, '')
+  const of = exp.adherence?.of ?? 30
+  const day = Math.min(daysBetween(exp.started, anchor) + 1, of)
+  const base = exp.baseline?.stats
+  const interv = exp.intervention?.stats
+  const crit = CRITERIA[exp.id]
+  const delta = base && interv ? interv.mean - base.mean : null
+  const closed = exp.status === 'complete'
+  const unit = exp.baseline?.unit || ''
+  return (
+    <div className="pin-card">
+      <div className="pin-head">
+        <span className="pin-type">experiment</span>
+        <span className="pin-name">{title}</span>
+        <button className="pin-unpin" onClick={() => unpin(desc.id)}>unpin</button>
+      </div>
+      {!closed && base && interv && (
+        <div className="pin-exp-rows">
+          <div className="pin-exp-row"><span className="k">Protocol</span><span className="v">day {day} of {of}</span></div>
+          {exp.adherence && (
+            <div className="pin-exp-row"><span className="k">Adherence</span><span className="v">{exp.adherence.done}/{of} days logged</span></div>
+          )}
+          <div className="pin-exp-row">
+            <span className="k">{exp.metrics?.[0]?.name || 'Primary metric'} · mean</span>
+            <span className="v">{fmt(base.mean)} → {fmt(interv.mean)} {unit} ({delta >= 0 ? '+' : '−'}{fmt(Math.abs(delta))})</span>
+          </div>
+          {crit && (
+            <div className="pin-exp-row"><span className="k">Pre-registered bar</span><span className="v">−{crit.threshold} {crit.unit}</span></div>
+          )}
+        </div>
+      )}
+      {closed && (
+        <div className="pin-done">
+          This experiment has closed — verdict: <b>{exp.verdict}</b>. The result now lives in
+          Experiments and in the record; a pin is for something still being watched. Let it go?
+          {' '}<button className="chip-link" onClick={() => unpin(desc.id)}>unpin it</button>
+        </div>
+      )}
+      <div className="pin-foot">
+        <button className="chip-link" onClick={onGo}>open in Experiments →</button>
+        {!closed && exp.confounders?.length > 0 && (
+          <span className="faint mono" style={{ fontSize: 11 }}>
+            {exp.confounders.length} confounder{exp.confounders.length > 1 ? 's' : ''} flagged
+          </span>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function MarkerPin({ desc, onGo }) {
+  const d = markerData(desc)
+  const compare = d.kind === 'lab' ? d.prior : d.baseline
+  const delta = compare != null ? d.latest - compare : null
+  const rangeText = d.low != null && d.high != null ? `ref ${d.low}–${d.high} ${d.unit}`
+    : d.high != null ? `ref ≤ ${d.high} ${d.unit}`
+      : d.low != null ? `ref ≥ ${d.low} ${d.unit}` : null
+  return (
+    <div className="pin-card">
+      <div className="pin-head">
+        <span className="pin-type">marker</span>
+        <span className="pin-name">{d.name}</span>
+        <button className="pin-unpin" onClick={() => unpin(desc.id)}>unpin</button>
+      </div>
+      <div className="pin-val num">
+        {fmt(d.latest)}<span className="u">{d.unit}</span>
+        {delta != null && (
+          <span className="delta">{delta >= 0 ? '+' : '−'}{fmt(Math.abs(delta))} {desc.baselineNote}</span>
+        )}
+        {d.flag !== 'ok' && <span className="pin-flag">{d.flag === 'high' ? 'above range' : 'below range'}</span>}
+      </div>
+      <Spark values={d.values} refHigh={d.high} />
+      <p className="pin-meta">
+        {d.spanLabel}
+        {rangeText ? <> · <span className="mono">{rangeText}</span></> : d.source ? <> · <span className="mono">{d.source}</span></> : null}
+      </p>
+      <div className="pin-foot">
+        <button className="chip-link" onClick={onGo}>open in Explore →</button>
+      </div>
+    </div>
+  )
+}
+
+// Hand-rolled sparkline, same visual language as the Timeline's: an ink line,
+// no fill, no axis. The dashed line is the as-reported reference limit — the
+// only annotation a pin card is allowed.
+function Spark({ values, refHigh }) {
+  if (!values || values.length < 2) return null
+  let min = Math.min(...values), max = Math.max(...values)
+  if (refHigh != null) { min = Math.min(min, refHigh); max = Math.max(max, refHigh) }
+  const rng = max - min || 1
+  const X = i => (i / (values.length - 1)) * 100
+  const Y = v => 27 - ((v - min) / rng) * 24
+  const dPath = values.map((v, i) => `${i === 0 ? 'M' : 'L'}${X(i).toFixed(2)},${Y(v).toFixed(2)}`).join(' ')
+  return (
+    <svg className="pin-spark" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden>
+      {refHigh != null && (
+        <line className="ref" x1="0" x2="100" y1={Y(refHigh).toFixed(2)} y2={Y(refHigh).toFixed(2)}
+          strokeWidth="1" strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />
+      )}
+      <path className="line" d={dPath} fill="none" strokeWidth="1.4"
+        vectorEffect="non-scaling-stroke" strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
   )
 }

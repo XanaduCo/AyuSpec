@@ -1,0 +1,231 @@
+/* Companion (Hermes) — the phone-thread walkthrough + the "why this message"
+   inspector. Reuses the app's tokens and privacy colour language: the phone is
+   a neutral surface; the ONLY places local-green / egress-amber appear are the
+   channel pills in the inspector, because channel is where egress lives. */
+
+.cmp-layout {
+  display: grid;
+  grid-template-columns: minmax(320px, 400px) 1fr;
+  gap: 22px;
+  margin-top: 22px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .cmp-layout { grid-template-columns: 1fr; }
+}
+
+/* — the phone — */
+.cmp-phone {
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.cmp-phone-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line2);
+  background: var(--raise);
+}
+.cmp-phone-head b { display: block; font-size: 14px; color: var(--ink); }
+.cmp-phone-head .mono { display: block; font-size: 10.5px; color: var(--faint); margin-top: 1px; }
+.cmp-avatar {
+  width: 30px; height: 30px; border-radius: 99px; flex: 0 0 auto;
+  display: grid; place-items: center;
+  background: var(--brand-soft); color: var(--brand-ink);
+  font-size: 16px;
+}
+.cmp-reset {
+  margin-left: auto; font-size: 11px; color: var(--faint);
+  background: none; border: 1px solid var(--line); border-radius: 99px;
+  padding: 3px 9px; cursor: pointer;
+}
+.cmp-reset:hover { color: var(--ink); border-color: var(--ink); }
+
+.cmp-thread {
+  padding: 14px 12px 8px;
+  display: flex; flex-direction: column; gap: 8px;
+  min-height: 320px;
+}
+
+.cmp-day {
+  text-align: center; font-size: 10.5px; color: var(--faint);
+  letter-spacing: .06em; text-transform: uppercase;
+  margin: 8px 0 2px;
+}
+
+/* messages */
+.cmp-msg {
+  max-width: 86%;
+  border-radius: 15px;
+  padding: 9px 12px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  position: relative;
+}
+.cmp-msg.hermes {
+  align-self: flex-start;
+  background: var(--raise);
+  border: 1px solid var(--line2);
+  border-bottom-left-radius: 5px;
+  color: var(--body);
+}
+.cmp-msg.hermes.has-meta { cursor: pointer; }
+.cmp-msg.hermes.has-meta:hover { border-color: var(--brand); }
+.cmp-msg.hermes.sel { border-color: var(--brand); box-shadow: 0 0 0 2px var(--brand-soft); }
+.cmp-msg.user {
+  align-self: flex-end;
+  background: var(--brand-soft);
+  color: var(--brand-ink);
+  border-bottom-right-radius: 5px;
+}
+.cmp-why {
+  display: block; margin-top: 5px;
+  font-size: 10px; color: var(--brand-ink); opacity: .75;
+}
+.cmp-chtag {
+  display: inline-block; font-size: 9.5px; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--egress);
+  background: var(--egress-soft); border-radius: 5px;
+  padding: 1px 6px; margin-bottom: 5px;
+}
+.cmp-subtext { font-size: 11.5px; color: var(--faint); margin-top: 5px; }
+
+/* system / ladder notes */
+.cmp-sys {
+  align-self: center; max-width: 92%;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  padding: 7px 11px;
+  background: var(--sunk);
+}
+.cmp-sys .mono { font-size: 10.5px; line-height: 1.55; color: var(--mute); display: block; }
+
+/* the digest rows inside a batched message */
+.cmp-digest { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+.cmp-digest-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  font-size: 12.5px; color: var(--ink);
+  border-top: 1px solid var(--line2); padding-top: 6px;
+}
+.cmp-digest-chips { display: flex; gap: 4px; }
+.cmp-minichip {
+  font-family: var(--mono); font-size: 10.5px;
+  border: 1px solid var(--line); border-radius: 99px;
+  padding: 1px 7px; color: var(--mute); background: var(--surface);
+}
+
+/* extraction echo chips */
+.cmp-extract { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+.cmp-extract-k {
+  flex-basis: 100%; font-size: 9.5px; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--faint);
+}
+.cmp-exchip {
+  display: inline-flex; flex-direction: column; gap: 1px;
+  border: 1px solid var(--line); border-radius: 9px;
+  padding: 5px 9px; background: var(--surface);
+}
+.cmp-exchip b { font-size: 12px; color: var(--ink); font-weight: 600; }
+.cmp-exchip i { font-style: normal; font-size: 9.5px; color: var(--faint); }
+.cmp-exchip.adherence { border-left: 3px solid var(--brand); }
+.cmp-exchip.confounder { border-left: 3px solid var(--cautions); }
+.cmp-exchip.subjective { border-left: 3px solid var(--adjusts); }
+
+/* the meal-photo placeholder — a styled div, no binary asset */
+.cmp-msg.user.photo { padding: 5px; background: var(--brand-soft); }
+.cmp-photo { display: flex; flex-direction: column; gap: 4px; }
+.cmp-photo-art {
+  width: 168px; height: 112px; border-radius: 11px; position: relative;
+  overflow: hidden;
+  background: linear-gradient(145deg, #E8DFCB, #D9CBAE 55%, #CBBB98);
+}
+.cmp-photo-art .bowl {
+  position: absolute; left: 22px; top: 26px; width: 124px; height: 76px;
+  border-radius: 50% 50% 46% 46%;
+  background: radial-gradient(circle at 40% 30%, #F5EFE2, #E2D6BE 70%);
+  box-shadow: inset 0 -10px 14px rgba(90, 70, 40, .25);
+}
+.cmp-photo-art .greens {
+  position: absolute; left: 44px; top: 34px; width: 46px; height: 26px;
+  border-radius: 40% 60% 55% 45%;
+  background: radial-gradient(circle at 40% 40%, #8FAE6B, #6D8F4E);
+}
+.cmp-photo-art .grain {
+  position: absolute; left: 88px; top: 40px; width: 44px; height: 24px;
+  border-radius: 55% 45% 50% 50%;
+  background: radial-gradient(circle at 50% 35%, #E9C98A, #CFA55C);
+}
+.cmp-photo-cap { font-size: 9.5px; color: var(--brand-ink); opacity: .8; padding: 0 4px 2px; }
+
+/* composer */
+.cmp-composer {
+  border-top: 1px solid var(--line2);
+  background: var(--raise);
+  padding: 10px 12px 12px;
+}
+.cmp-composer-k {
+  display: block; font-size: 9.5px; text-transform: uppercase;
+  letter-spacing: .09em; color: var(--faint); margin-bottom: 7px;
+}
+.cmp-composer.done { text-align: center; }
+.cmp-composer.done .mono { font-size: 11px; color: var(--faint); }
+.cmp-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.cmp-chip {
+  font-size: 13px; font-weight: 600;
+  border: 1px solid var(--line); border-radius: 99px;
+  background: var(--surface); color: var(--ink);
+  padding: 7px 14px; cursor: pointer;
+}
+.cmp-chip:hover { border-color: var(--brand); color: var(--brand); }
+.cmp-chip.send { border-color: var(--brand); color: var(--brand-ink); background: var(--brand-soft); }
+.cmp-chip.send:hover { filter: brightness(.98); }
+.cmp-chip.lapse { border-style: dashed; color: var(--mute); font-weight: 500; }
+.cmp-chip.lapse:hover { border-color: var(--mute); color: var(--ink); }
+
+/* — the inspector — */
+.cmp-side { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 12px; }
+.cmp-inspect-type {
+  font-family: var(--serif); font-weight: 500; font-size: 19px;
+  color: var(--ink); margin: 6px 0 12px;
+}
+.cmp-irow {
+  display: grid; grid-template-columns: 96px 1fr; gap: 10px;
+  padding: 9px 0; border-top: 1px solid var(--line2);
+  font-size: 13.5px; color: var(--body); line-height: 1.5;
+}
+.cmp-irow .k {
+  font-size: 10px; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--faint); padding-top: 3px;
+}
+.cmp-ref { color: var(--brand-ink); font-size: 12px; text-decoration: none; }
+.cmp-ref:hover { text-decoration: underline; }
+.cmp-transit { display: block; font-size: 11.5px; color: var(--faint); margin-top: 5px; }
+.cmp-inspect .pill { font-size: 11px; }
+
+.cmp-egress {
+  border: 1px solid var(--egress); background: var(--egress-soft);
+  border-radius: var(--r); padding: 10px 12px; margin: 6px 0;
+}
+.cmp-egress .k {
+  display: block; font-size: 10px; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--egress); margin-bottom: 6px;
+}
+.cmp-egress p { font-size: 12.5px; line-height: 1.55; color: var(--body); margin: 0 0 6px; }
+.cmp-egress p:last-child { margin: 0; }
+.cmp-egress .mono { font-size: 11.5px; }
+
+/* principles strip */
+.cmp-prow {
+  display: grid; grid-template-columns: 168px 1fr; gap: 12px;
+  padding: 10px 0; border-top: 1px solid var(--line2);
+  font-size: 13px; line-height: 1.55; color: var(--body);
+}
+.cmp-prow:first-of-type { margin-top: 8px; }
+.cmp-prow b { color: var(--ink); font-size: 13px; }
+@media (max-width: 640px) {
+  .cmp-prow, .cmp-irow { grid-template-columns: 1fr; gap: 2px; }
+}

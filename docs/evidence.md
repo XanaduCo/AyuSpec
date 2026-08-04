@@ -14,6 +14,13 @@ It serves user jobs #4 in the [vision](vision.md#what-users-want-to-do), and pro
 1. **Evidence grounding** — when the agent makes an external claim ("magnesium may improve sleep latency"), back it with a source and a strength rating, not a vibe.
 2. **Hypothesis formation** — combine the user's own data with the evidence base to propose *testable* hypotheses tied to the user's stated goals.
 
+## Two directions of travel
+
+Hypotheses arrive two ways, and both land in the same object:
+
+- **Agent-proposed** — the agent walks the [healthspan model](healthspan-model.md) against the user's goals and measured gaps, and proposes something worth testing. That is this page.
+- **User-brought** — the user turns up with a paper, a podcast claim, a friend's recommendation, or something they noticed about themselves, and asks what it is worth. That is [Evidence Intake](evidence-intake.md), which appraises the submission against this page's ladder and, if it holds up, drafts the [hypothesis object](#the-hypothesis-object) below.
+
 ## Evidence sources
 
 | Source | Content | Notes |
@@ -63,7 +70,7 @@ A hypothesis is a first-class, stored object:
 
 - [ ] What literature corpus can we ship and/or fetch within licensing constraints? (PubMed abstracts are open; full text mostly isn't.)
 - [ ] Is the evidence-strength ladder GRADE, a simplified 4-tier scale, or something calibrated to biohacker interventions specifically?
-- [ ] Should hypotheses be agent-proposed proactively, user-authored, or both?
+- [x] ~~Should hypotheses be agent-proposed proactively, user-authored, or both?~~ **Resolved: both, into one object.** The user-brought path is specced as [Evidence Intake](evidence-intake.md) — it appraises what the user submits and drafts the same [hypothesis object](#the-hypothesis-object), stamped with its `origin`. What remains open is *proactivity*: whether the agent surfaces its own proposals unprompted (see [Experimentation](experimentation.md#open-questions)).
 - [ ] How do we prevent the confident-but-wrong failure mode — an eloquent hypothesis with `EVIDENCE: NONE` that reads as authoritative?
 - [ ] Where do hypotheses live — Postgres, or FHIR (there's no clean R4 resource for "personal hypothesis")?
 - [ ] How is `confidence` calibrated and kept distinct from `evidence_strength`?

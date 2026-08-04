@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import EvidenceLabel from '../components/EvidenceLabel.jsx'
 import Modal from '../components/Modal.jsx'
 import { useDrawer } from '../components/Drawer.jsx'
@@ -7,6 +7,8 @@ import { useCapture } from '../components/Capture.jsx'
 import { VERDICTS, GOALS } from '../mock/experiments.js'
 import { useSession, useExperiments, stats } from '../state/store.js'
 import { CRITERIA, HYPOTHESIS_CANDIDATES, anchor } from '../state/fixtures.js'
+import { useIntakeHypotheses } from '../state/evidence.js'
+import '../styles/evidence.css'
 
 // Experiments — where a hunch becomes an n-of-1 with the overclaiming guardrails that
 // make a self-test mean something (experimentation.md).
@@ -51,6 +53,8 @@ export default function Experiments() {
         verdict is <b>inconclusive</b> and stops there. {running} running · {done} complete.
       </p>
 
+      <FromIntake onDesign={() => setDesigning(true)} />
+
       {groups.map(g => (
         <section key={g.goal} className="exp-group">
           <h3 className="exp-goal">{g.label}</h3>
@@ -65,6 +69,34 @@ export default function Experiments() {
       </p>
 
       {designing && <DesignFlow proposed={proposed} onClose={() => setDesigning(false)} />}
+    </div>
+  )
+}
+
+// Hypotheses the user brought in from outside and accepted in Evidence intake
+// (evidence-intake.md). They arrive here as a queue rather than as experiments:
+// accepting an appraisal says the claim is worth testing, not that a design
+// exists for it. The power check still has to be passed, and can still refuse.
+function FromIntake({ onDesign }) {
+  const rows = useIntakeHypotheses()
+  if (!rows.length) return null
+  return (
+    <div className="card ei-handoff">
+      <span className="eyebrow">from evidence intake · not yet designed</span>
+      {rows.map(r => (
+        <div key={r.id} className="ei-handoff-row">
+          <span className="ei-handoff-claim">
+            {r.hypothesis.statement}
+            <span className="faint"> · {r.source}</span>
+          </span>
+          <EvidenceLabel kind={r.strength} claim={r.hypothesis.statement} />
+          <button className="btn ghost sm" onClick={onDesign}>Pre-register →</button>
+        </div>
+      ))}
+      <p className="note" style={{ marginBottom: 0 }}>
+        Brought in by you rather than proposed by the agent — same object either way, stamped with
+        its origin. <Link to="/evidence">Back to the appraisal →</Link>
+      </p>
     </div>
   )
 }

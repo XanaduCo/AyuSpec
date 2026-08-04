@@ -11,6 +11,8 @@ const NAV = [
   { to: '/timeline', ic: '◷', label: 'Timeline' },
   { to: '/explore', ic: '◇', label: 'Explore' },
   { to: '/experiments', ic: '⁘', label: 'Experiments' },
+  { to: '/evidence', ic: '❖', label: 'Evidence' },
+  { to: '/companion', ic: '✉', label: 'Companion' },
   { to: '/profile', ic: '☺', label: 'Profile' },
   { grp: 'Data' },
   { to: '/data', ic: '⇲', label: 'Data sources' },

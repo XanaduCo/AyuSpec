@@ -34,7 +34,7 @@ These recur across the classes below and are the real product design:
 1. **Passive before manual.** Infer from streams that already exist before asking the user to log anything. Manual capture is a last resort, not a default.
 2. **Sub-10-second logging.** Anything the user must log manually gets a photo / one-tap / voice path. If it takes longer than ten seconds, adherence dies.
 3. **Time-boxed, hypothesis-linked capture.** High-friction, high-signal streams (CGM, nutrition) run as **experiment windows** tied to a [hypothesis](evidence.md) — never standing diaries. A CGM is "experiment mode," not always-on.
-4. **Adherence is a product problem, not a user virtue.** Assume users are undisciplined. Use EMA-style micro-prompts at contextually smart moments instead of relying on motivation.
+4. **Adherence is a product problem, not a user virtue.** Assume users are undisciplined. Use EMA-style micro-prompts at contextually smart moments instead of relying on motivation. The delivery mechanism for those prompts is [Hermes, the companion](companion.md) — purpose-bound, budgeted, and silent when nothing is running.
 5. **Confidence-graded interpretation.** Noisy inputs (consumer genomics, microbiome) are labeled as hypotheses; where methodology is unverifiable, say so rather than fake precision. Ties to [evidence strength labeling](evidence.md#strength-of-evidence-labeling).
 6. **Own the scores.** Where a vendor's AI scores are closed but raw metrics are open, recompute our own — don't depend on a black box.
 7. **The facilitation wedge.** For classes users can't self-serve (biomarkers, imaging), booking and logistics *are* the product — goal-linked test menus, lab/imaging partnerships, "re-baseline" bundles.
@@ -76,7 +76,7 @@ Very high value — blood markers generate hypotheses, and functional measures (
 
 The fastest-updating subjective signal, and often the outcome the user actually cares about. Easy to capture only for the disciplined — i.e. unreliable for most.
 
-**Fix:** EMA-style micro-prompts (1–2 questions) tied to active goals, fired at contextually smart moments. Treat adherence as a product problem. This is the manual-capture path referenced in [Experimentation](experimentation.md#capturing-the-inputs).
+**Fix:** EMA-style micro-prompts (1–2 questions) tied to active goals, fired at contextually smart moments. Treat adherence as a product problem. This is the manual-capture path referenced in [Experimentation](experimentation.md#capturing-the-inputs), delivered by [Hermes](companion.md) — which also handles the journal-type capture (free text, voice, photos) no sensor can reach.
 
 ### Psychographic & preference signal
 *What the person is worried about, how they communicate, what they weight when they decide, how much they trust the machine.*

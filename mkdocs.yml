@@ -84,12 +84,14 @@ nav:
     - Imaging (DICOM): ingestion/imaging.md
     - Genomics: ingestion/genomics.md
     - Data Capture Strategy: data-capture.md
+    - Companion (Hermes): companion.md
   - Storage & AI:
     - Storage: storage.md
     - AI & ML Layer: ai-ml.md
     - Model Providers: model-providers.md
     - Agent Loop: agent-loop.md
     - Evidence & Hypotheses: evidence.md
+    - Evidence Intake: evidence-intake.md
   - Healthspan & Health Literacy:
     - The Healthspan Model: healthspan-model.md
     - Health Literacy & Epistemics: epistemics.md

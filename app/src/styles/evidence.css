@@ -1,0 +1,107 @@
+/* Evidence intake. Reuses the app vocabulary — .card / .btn / .fl / .note / .ev
+   / .pill — and adds only what the staged appraisal needs. Colour discipline
+   holds: green/amber stay reserved for egress, evidence strength stays hue-free
+   (the .ev ramp), and the applicability axis is rendered with weight and border
+   rather than a third colour language. */
+
+.ei-page { max-width: 940px; }
+
+/* --- intake surface ------------------------------------------------------ */
+.ei-box { margin-top: 22px; }
+.ei-text { margin-top: 10px; resize: vertical; line-height: 1.5; font-size: 14.5px; }
+.ei-box-foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px;
+  flex-wrap: wrap; margin-top: 12px; }
+.ei-box-foot .note { max-width: 54ch; }
+.ei-or { margin: 26px 0 10px; }
+.ei-picks .cap-opt { align-items: flex-start; }
+.ei-picks .cap-tag { flex: 0 0 auto; white-space: nowrap; }
+
+/* --- the submission card ------------------------------------------------- */
+.ei-appraisal { margin-top: 18px; }
+.ei-back { margin-bottom: 12px; }
+.ei-sub-head { display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  flex-wrap: wrap; }
+.ei-types { display: flex; gap: 6px; flex-wrap: wrap; }
+.ei-type { font-size: 10.5px; letter-spacing: .05em; text-transform: uppercase; color: var(--brand-ink);
+  background: var(--brand-soft); border-radius: 5px; padding: 2px 7px; }
+.ei-claim { font-size: 17px; line-height: 1.45; color: var(--ink); margin: 12px 0 8px; }
+.ei-framing { font-size: 13.5px; color: var(--mute); margin: 0 0 14px; max-width: 74ch; }
+.ei-prov { border-top: 1px solid var(--line2); }
+.ei-prov-row { display: grid; grid-template-columns: 108px 1fr; gap: 12px; padding: 7px 0;
+  border-bottom: 1px solid var(--line2); font-size: 13px; color: var(--body); }
+.ei-prov-row .fl { margin-bottom: 0; }
+.ei-egress { margin-top: 14px; }
+
+/* --- stages -------------------------------------------------------------- */
+.ei-stages { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+.ei-stage { padding: 16px 18px; }
+.ei-stage-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ei-stage-head b { font-size: 15px; color: var(--ink); }
+.ei-stage-n { width: 22px; height: 22px; border-radius: 99px; background: var(--sunk);
+  color: var(--mute); font-size: 11.5px; display: inline-flex; align-items: center;
+  justify-content: center; flex: 0 0 auto; }
+.ei-run { margin-left: auto; font-size: 11px; }
+.ei-rows { margin-top: 12px; }
+.ei-row { display: grid; grid-template-columns: 128px 1fr; gap: 12px; padding: 6px 0;
+  border-top: 1px solid var(--line2); font-size: 13.5px; }
+.ei-row:first-child { border-top: 0; }
+.ei-row .fl { margin-bottom: 0; }
+.ei-v { color: var(--ink); }
+.ei-row.unk .ei-v { color: var(--mute); font-style: italic; }
+.ei-stage-note { max-width: 78ch; }
+.ei-next { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 4px 0 2px; }
+.ei-next .note { max-width: 46ch; }
+
+/* --- verdict ------------------------------------------------------------- */
+.ei-verdict { margin-top: 16px; border-left: 3px solid var(--brand); }
+.ei-axes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 12px; }
+@media (max-width: 820px) { .ei-axes { grid-template-columns: 1fr; } }
+.ei-axis { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.ei-axis .faint { font-size: 11.5px; }
+.ei-appl { font-family: var(--mono); font-size: 11.5px; letter-spacing: .04em; text-transform: uppercase;
+  border: 1px solid var(--line); border-radius: 6px; padding: 3px 9px; color: var(--mute); }
+.ei-appl.close { color: var(--ink); border-color: var(--ink); }
+.ei-appl.partial { color: var(--body); }
+.ei-appl.distant, .ei-appl.unknown { border-style: dashed; }
+.ei-narrative { font-size: 14.5px; line-height: 1.6; color: var(--body); max-width: 78ch;
+  margin: 18px 0 14px; }
+.ei-why { border-top: 1px solid var(--line2); }
+.ei-why-row { display: grid; grid-template-columns: 168px 1fr; gap: 14px; padding: 9px 0;
+  border-bottom: 1px solid var(--line2); font-size: 13.5px; color: var(--body); }
+.ei-why-row .fl { margin-bottom: 0; }
+
+/* --- offer & outcome ----------------------------------------------------- */
+.ei-offer { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 16px; }
+.ei-offer-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ei-offer-why { font-size: 13.5px; color: var(--body); }
+.ei-offer-actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0 10px; }
+
+.ei-created { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 16px; }
+.ei-created-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.ei-obj { border: 1px solid var(--line); border-radius: var(--r); background: var(--raise);
+  padding: 6px 14px; }
+.ei-obj-row { display: grid; grid-template-columns: 172px 1fr; gap: 14px; padding: 9px 0;
+  border-top: 1px solid var(--line2); font-size: 13.5px; color: var(--body); }
+.ei-obj-row:first-child { border-top: 0; }
+.ei-obj-row .fl { margin-bottom: 0; }
+.ei-filed-note { font-size: 13.5px; color: var(--body); max-width: 78ch; margin: 0; }
+
+/* --- the shelf ----------------------------------------------------------- */
+.ei-shelf { margin-top: 30px; border-top: 1px solid var(--line); padding-top: 18px; }
+.ei-shelf-h { font-size: 14px; color: var(--ink); margin: 0 0 10px; }
+.ei-shelf-row { display: flex; align-items: center; gap: 12px; padding: 10px 0;
+  border-bottom: 1px solid var(--line2); font-size: 13.5px; }
+.ei-shelf-claim { flex: 1; min-width: 0; color: var(--ink); }
+.ei-outcome { font-family: var(--mono); font-size: 10.5px; letter-spacing: .05em; text-transform: uppercase;
+  border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px; color: var(--mute);
+  flex: 0 0 auto; }
+.ei-outcome.hyp { color: var(--brand-ink); background: var(--brand-soft); border-color: transparent; }
+.ei-outcome.watch { color: var(--body); border-style: dashed; }
+.ei-foot { margin-top: 26px; max-width: 80ch; }
+
+/* --- the hand-off, rendered in Experiments ------------------------------- */
+.ei-handoff { border-left: 3px solid var(--brand); margin-bottom: 18px; }
+.ei-handoff-row { display: flex; align-items: center; gap: 12px; padding: 9px 0;
+  border-top: 1px solid var(--line2); font-size: 13.5px; }
+.ei-handoff-row:first-of-type { border-top: 0; }
+.ei-handoff-claim { flex: 1; min-width: 0; color: var(--ink); }
