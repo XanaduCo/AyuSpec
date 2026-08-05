@@ -25,7 +25,22 @@ import { specFor } from '../mock/retrieval.js'
 // --- why a record made the cut ---------------------------------------------
 // Hue-free by construction: these are epistemic labels, not privacy signals, so
 // they must never borrow green/amber (design-system.md, colour law).
+//
+// Reasons are per-question-shape (agent-loop.md → "The retrieval anchor"). The
+// first block is the change shape's set — movement, ranges, denominators. The
+// second is the intervention shape's, and it outranks movement on purpose: for
+// "should I take X?", what X *claims to move* matters more than what happened
+// to move, and a marker sitting flat at target is often the whole answer.
 export const REASONS = {
+  // --- intervention shape ---------------------------------------------------
+  safety: { glyph: '⚑', label: 'safety edge', weight: 14, pinned: true, desc: 'A locked contraindication or red-flag route from the health model. Cannot be evicted, overridden, or edited away.' },
+  interaction: { glyph: '⚕', label: 'checked against what you take', weight: 13, pinned: true, desc: 'An active medication or supplement the candidate could interact with. Filled before the budget is computed and never evicted — a budget that can drop the interaction check can produce an unsafe answer.' },
+  mechanism: { glyph: '⇥', label: 'what it claims to move', weight: 12, desc: 'A marker the candidate\'s cited edges target. Selected at its current value whether or not it moved — "already at target" is a finding, not a null.' },
+  comparator: { glyph: '⇄', label: 'same function, different option', weight: 11, desc: 'Another intervention with a cited edge to the same function. The frame is comparative by construction; one row is a recommendation wearing a table\'s clothes.' },
+  'in-flight': { glyph: '▸', label: 'already running', weight: 9, desc: 'An intervention already in motion — an experiment, a stack item, a training block.' },
+  preference: { glyph: '⚖', label: 'your stated weighting', weight: 7, desc: 'A preference-model attribute, retrieved only because a ranking was asked for. The ranking has to show its work.' },
+
+  // --- change shape ---------------------------------------------------------
   guideline: { glyph: '▤', label: 'guideline-cited', weight: 10, desc: 'A guideline the planner retrieved names this marker by code.' },
   unique: { glyph: '◆', label: 'only one of its kind', weight: 9, desc: 'The record contains exactly one measurement like this — there is nothing to compare or average it against.' },
   outlier: { glyph: '!', label: 'out of range', weight: 9, desc: 'Outside its reference range, or outside its own two-year history.' },
@@ -45,6 +60,13 @@ export const REASONS = {
 
 // --- why a record did not ---------------------------------------------------
 export const DROP_REASONS = {
+  // Intervention shape. Deliberately narrow and deliberately checkable: it is a
+  // claim about the graph, so it is falsifiable by pointing at an edge — which
+  // 'peripheral to the question' never was. Without it, an NMN answer drops
+  // ApoB (the most consequential thing in the record) under a label that is
+  // vague and, worse, not the actual reason.
+  'no-path': { label: 'no cited path', desc: 'Nothing connects this record to anything the candidate intervention claims to affect. The record may be significant — it is not significant to this question.' },
+
   superseded: { label: 'summarised instead', desc: 'A derived summary of this series was selected, so the raw rows are redundant.' },
   unchanged: { label: 'in range, unmoved', desc: 'Inside its reference range and within its own noise since the prior draw.' },
   'weak-match': { label: 'peripheral to the question', desc: 'Matched the concept net on one distant tag only.' },
@@ -152,6 +174,7 @@ export function assemble(question, { where = 'cloud', toggles = {} } = {}) {
       // A record the user explicitly toggled in outranks everything: they asked
       // for it, so if something has to be evicted it should not be that.
       score: pick.fromToggle ? 20 : scoreOf(pick.reasons || ['vector']),
+      pinned: (pick.reasons || []).some(r => REASONS[r]?.pinned),
       fromToggle: pick.fromToggle,
       resolvable: !unit.virtual,
     })
@@ -166,10 +189,19 @@ export function assemble(question, { where = 'cloud', toggles = {} } = {}) {
   const overhead = 1100 + (spec.guidelines || []).length * 46
   let used = overhead
   const kept = [], evicted = []
+  // Pinned slots — safety and interaction — are filled before the budget is
+  // computed and are not eligible for eviction. If the remainder does not fit,
+  // the answer narrows somewhere else. A budget that can evict the interaction
+  // check is a budget that can produce an unsafe answer.
   for (const s of selected) {
+    if (s.pinned) { used += s.tokens; kept.push(s) }
+  }
+  for (const s of selected) {
+    if (s.pinned) continue
     if (used + s.tokens <= budget.cap) { used += s.tokens; kept.push(s) }
     else evicted.push({ ...s, dropReason: 'budget' })
   }
+  kept.sort((a, b) => b.score - a.score || a.tokens - b.tokens)
   const requested = overhead + selected.reduce((a, s) => a + s.tokens, 0)
   selected = kept
 
@@ -215,12 +247,18 @@ export function assemble(question, { where = 'cloud', toggles = {} } = {}) {
   // 8 · relevance drops — computed, with a reason each ------------------------
   const selectedIds = new Set([...selected.map(s => s.id), ...evicted.map(s => s.id)])
   const aggregatedIds = new Set(aggregations.map(a => a.id))
+  // The default drop reason is the question shape's, not a global one. For an
+  // intervention question the honest answer to "why isn't ApoB here?" is that
+  // nothing connects it to what NMN claims to affect — not that it matched the
+  // concept net on one distant tag.
+  const defaultDrop = spec.shape === 'intervention' ? 'no-path' : 'weak-match'
   const dropped = []
   for (const x of cand) {
     if (selectedIds.has(x.id)) continue
     if (x.policy) continue // handled as policy, never as relevance
-    let reason = 'weak-match'
+    let reason = defaultDrop
     if (x.expensive && [...aggregatedIds].some(id => siblingOf(id, x.id))) reason = 'superseded'
+    else if (spec.shape === 'intervention') reason = 'no-path'
     else if (x.kind === 'lab' && x.flag === 'ok') reason = 'unchanged'
     else if ((x.to || x.date) < from) reason = 'stale'
     else if (x.kind === 'raw') reason = 'superseded'

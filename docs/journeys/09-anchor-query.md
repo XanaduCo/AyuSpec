@@ -48,7 +48,7 @@ This is the query the product is judged on. Ravi has labs every quarter, an Oura
 
 - **User intent here:** he asked a simple question and expects a simple answer.
 - **User does:** waits about a second.
-- **System does:** runs the [mechanistic pass](../agent-loop.md#stage-1-mechanistic-change-detection-no-model) — deterministic, no model — and finds **eleven markers that moved further than their own measurement noise**. It does not synthesise. The question named a window and no goal, so there is no basis on which to say which of the eleven matters, and a ranked list would assert an equivalence the data does not support. It returns a [clarifying turn](../agent-loop.md#the-clarifying-turn) instead: what it found, grouped by system with the reason each group earned its place, why a straight answer would be worse, and the choice.
+- **System does:** runs the [mechanistic pass](../context-assembly.md#stage-1-mechanistic-change-detection-no-model) — deterministic, no model — and finds **eleven markers that moved further than their own measurement noise**. It does not synthesise. The question named a window and no goal, so there is no basis on which to say which of the eleven matters, and a ranked list would assert an equivalence the data does not support. It returns a [clarifying turn](../agent-loop.md#the-clarifying-turn) instead: what it found, grouped by system with the reason each group earned its place, why a straight answer would be worse, and the choice.
     > Eleven markers moved more than their own measurement noise in that window. But "what changed" has no target, so I have no basis for saying which of the eleven matters to you — and a list would imply they matter equally. They don't.
     >
     > **Cardiac** — ApoB rose 88 → 95 mg/dL, crossing the < 90 threshold your family history makes relevant `(3 markers · △ change-point · ▤ guideline-cited · ! out of range)`
@@ -62,7 +62,7 @@ This is the query the product is judged on. Ravi has labs every quarter, an Oura
 
 - **User intent here:** *"the heart one."*
 - **User does:** taps **Cardiac**, which re-asks the question scoped: *"What changed in my cardiac markers?"*
-- **System does:** with a goal established, [salience](../agent-loop.md#stage-2-salience-model) is now defined, and the candidate sweep narrows from ~62,000 rows to a cardiac slice. This is the turn a reasoner earns — the previous one was arithmetic.
+- **System does:** with a goal established, [salience](../context-assembly.md#stage-2-salience-model) is now defined, and the candidate sweep narrows from ~62,000 rows to a cardiac slice. This is the turn a reasoner earns — the previous one was arithmetic.
 - **Value returned this step:** one tap converts a question that could not be answered well into one that can.
 - **Modality:** tap on a result card; the sharpened question appears in the thread as if he had typed it.
 - **UX constraints / laws:** the sharpened question is **visible and editable**, never an invisible rewrite — the user must be able to see what they are now asking. Clarifications do not stack: having asked once, the loop does not ask again in this conversation.

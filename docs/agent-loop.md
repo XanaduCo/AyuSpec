@@ -28,116 +28,63 @@ The agent loop is the core reasoning engine. It takes a user query, orchestrates
 User query
   │
   ▼
-Qwen: analyze query → plan tool calls
+Classify shape · resolve anchor · establish goal term
   │
   ▼
-Tool execution (parallel where possible)
+┌─ local planning loop — iterative, on-device, undisclosed ──────────┐
+│   tool execution (parallel where possible)                        │
+│   Stage 1 · mechanistic change detection — no model, noise-gated  │
+│            "what moved?" → candidates + kept/dropped reasons      │
+│   Stage 2 · salience — model, needs a goal term                   │
+│            "which of these matters, given what they came for?"    │
+└───────────────────────────────────────────────────────────────────┘
   │
   ▼
-Stage 1 · mechanistic change detection — no model, noise-floor gated
-  │        "what moved?"  → candidates + kept/dropped reasons
-  ▼
-Stage 2 · salience — model, needs a goal term
-  │        "which of these matters, given what they came for?"
-  ▼
-Stage 3 · budget · policy exclusions · PII gateway
+ScopeRecord emitted  ← the interface between planning and disclosure
   │
   ▼
-DeepSeek-R1: synthesize answer with evidence labeling
+Stage 3 · budget · policy exclusions · PII gateway · consent
   │
   ▼
-Format response (markdown, citations, labels)
+Reasoner: synthesize answer with evidence labeling
+  │
+  ├──▶ follow-up request? ──▶ local: granted, logged
+  │                          cloud: second egress event, review mode applies
+  ▼
+Format response (markdown, citations, labels, rounds + tokens that left)
   │
   ▼
-Audit log entry
+Audit log entry + call ledger rows
   │
   ▼
 Frontend display
 ```
 
+Everything inside the planning loop is specified in
+[Context Assembly](context-assembly.md); the stages are named here so the flow reads end to end.
+
 ## Context assembly
 
 Between "the user asked something" and "a model was given a prompt" sits the step that decides what
-the answer can possibly contain. It runs in **two stages, and the boundary between them is
-load-bearing**: a mechanistic pass that finds *what changed*, then a model pass that judges *what
-matters*. Collapsing the two is the failure mode — a model handed the raw store will find changes
-that aren't there, and a filter handed the salience job will rank by magnitude, which is not the
-same as importance.
+the answer can possibly contain — which question shape is in play, what the retrieval anchor is,
+which predicate tier each record arrives through, and what is disclosed about that boundary.
 
-### Stage 1 — mechanistic change detection (no model)
+**It is specified in full in [Context Assembly](context-assembly.md).** In summary:
 
-Deterministic, reproducible, cheap enough to run over the entire store. It answers exactly one
-question — *what moved?* — and is structurally incapable of answering *what matters?*
+- Retrieval is anchored on one of five **question shapes**, and the change shape's window anchor is
+  not a general retriever.
+- Records arrive through one of three **predicate tiers** — unconditional (policy), cited edge
+  (graph), or similarity (labelled `no cited edge`, cannot carry a claim alone).
+- Questions with parts they cannot be missing fill **slots**, not a ranked bag; safety and
+  interaction slots are pinned and never evicted.
+- Planning is an **iterative local loop**; it emits one declarative **scope record**, and that record
+  is what is disclosed, consented to, and sent.
+- The **reasoner may request more** mid-answer. Locally that is free; against a cloud destination it
+  is a second egress event under the user's review mode.
+- Transparency is of **the rule, not the omissions** — the predicate is disclosed completely,
+  exclusions are a labelled sample with counts.
 
-The gate that makes this stage useful is the **noise floor**. A delta becomes a candidate only if it
-exceeds the marker's own variability — `noise` and `min_useful_interval` from the
-[healthspan model](healthspan-model.md#measurement-quality-tiers), plus the assay's test–retest band.
-
-!!! warning "ApoB 4.6 → 4.5 mmol/L is not a change. It is the assay."
-    A model shown a table of deltas will narrate every row in it, because narrating rows is what
-    models do. So sub-noise movement must be discarded **before** any model sees it, not flagged as
-    weak afterwards. This is the single highest-leverage filter in the loop: most of what a 90-day
-    sweep surfaces is measurement noise wearing the costume of a finding.
-
-Each surviving candidate carries the reason it survived, and each rejection carries the reason it
-was dropped. The vocabulary is fixed, and hue-free by construction — these are epistemic labels, not
-privacy signals, and must never borrow the green/amber egress language:
-
-| Kept because | Meaning |
-|---|---|
-| `change-point` | Moved further than its own historical variability |
-| `out of range` | Outside its reference range, or outside its own two-year history |
-| `guideline-cited` | A retrieved guideline statement names this marker by code |
-| `only one of its kind` | The single measurement of its type — nothing to average against |
-| `disconfirms` | Argues *against* the emerging answer. Retrieving only confirming records is how a retriever lies |
-| `baseline` | Pulled from outside the window deliberately — a delta needs a denominator |
-| `measurement quality` | Two sources disagree; the higher-quality one is pulled so the answer can say which it quotes |
-| `co-moves` | Covaries with the metric in question above threshold |
-| `aggregated` | A large series summarised on the way in rather than sent row by row |
-| `coverage gap` | A hole in the data, retrieved because it changes what can be claimed |
-| `checked, unremarkable` | In range and unmoved — included so the answer can say it looked |
-
-| Dropped because | Meaning |
-|---|---|
-| `in range, unmoved` | Inside its reference range and within its own noise since the prior draw |
-| `summarised instead` | A derived summary was selected, so the raw rows are redundant |
-| `peripheral to the question` | Matched the concept net on one distant tag only |
-| `predates the window` | Newest value is older than the window the question implies |
-| `covered by a selection` | Another selected record already carries this information |
-
-Drops are surfaced, not silent. A user who cannot see what was excluded cannot tell a narrow answer
-from a complete one.
-
-### Stage 2 — salience (model)
-
-The candidate set goes to the model with one job: *which of these matters, given what this person is
-trying to do?* Its inputs are the candidates and their reasons, the user's goal, and standing
-context — conditions, medications, family history, active [experiments](experimentation.md), and the
-`Function → Marker` edges from the [healthspan model](healthspan-model.md) that say which markers
-proxy the thing the user actually cares about.
-
-!!! abstract "Salience is a function of change × goal. Without a goal term it is undefined."
-    Magnitude is not importance. A 30% HRV swing in someone tracking sleep debt and a 4 mg/dL ApoB
-    drift in someone with a father's MI at 62 are not comparable on size, and no amount of model
-    quality fixes a prompt that never said which one the person came for.
-
-### Stage 3 — budget, policy, and the gateway
-
-Selected records are ordered, then fitted to a token budget. The budget is deliberately **smaller
-for a cloud destination than a local one** — the cloud model's window is larger, so this is a policy
-limit, not a capability limit. Every token sent off-device is a token that left.
-
-Three exclusions are then applied and reported separately, because collapsing them is exactly the
-confusion the surface exists to prevent:
-
-| Kind | Rule | Shown as |
-|---|---|---|
-| **Relevance** | Not about this question | Neutral |
-| **Policy** | May not leave the device — genome by default (reversible, per-call opt-in), imaging pixels and raw source documents always (not reversible) | Red |
-| **Budget** | Did not fit | Neutral, with a token count |
-
-The [PII gateway](pii-gateway.md) then strips identifiers from what remains. That is a *transform*,
-not an omission — amber, because it left in altered form.
+The rest of this page covers what the loop does with the assembled context.
 
 ## The anchor workflow: "What changed in my last 90 days?"
 
@@ -273,10 +220,11 @@ The audit log is append-only and stored locally. It records *what the agent did*
 
 ## Open questions
 
-- [ ] **How is the goal term established when the user doesn't supply one?** Inferred from standing context, asked for without blocking, or offered as a sharpened re-ask alongside the literal answer? This is the largest open question in the loop — see the [anchor workflow](#the-anchor-workflow-what-changed-in-my-last-90-days).
-- [ ] What sets a marker's noise floor in practice — authored per-marker `noise` in the healthspan model, the assay's published test–retest band, or the user's own measured variance once enough draws exist?
-- [ ] Does the salience pass run on the tool-caller or the reasoner? It is cheap and structured, which argues for the former; it needs standing context and judgment, which argues for the latter.
+Retrieval-side questions — goal-term resolution, shape classification, predicate tiers, round caps —
+live in [Context Assembly](context-assembly.md#open-questions).
+
 - [ ] Should the agent have a memory of prior conversations? (e.g., "last week you asked about HRV — here's what changed since")
-- [ ] What is the max context window budget for a query? How to handle users with years of dense data?
-- [ ] How to handle tool failures gracefully — if `query_fhir` times out, does R1 proceed with partial context?
+- [ ] How to handle tool failures gracefully — if `query_clinical` times out, does the reasoner proceed with partial context, and how is that disclosed?
 - [ ] Should correlations be pre-computed on a schedule, or computed on demand?
+- [ ] Does the salience pass run on the tool-caller or the reasoner? It is cheap and structured, which argues for the former; it needs standing context and judgment, which argues for the latter.
+- [ ] What sets a marker's noise floor in practice — authored per-marker `noise` in the healthspan model, the assay's published test–retest band, or the user's own measured variance once enough draws exist?

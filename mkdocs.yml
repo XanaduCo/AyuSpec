@@ -90,6 +90,7 @@ nav:
     - AI & ML Layer: ai-ml.md
     - Model Providers: model-providers.md
     - Agent Loop: agent-loop.md
+    - Context Assembly: context-assembly.md
     - Evidence & Hypotheses: evidence.md
     - Evidence Intake: evidence-intake.md
   - Healthspan & Health Literacy:

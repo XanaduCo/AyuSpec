@@ -592,24 +592,66 @@ export const retrieval = {
   },
 
   // ---------------------------------------------------------------------------
+  // The worked example of the INTERVENTION shape (agent-loop.md → "Intervention
+  // questions"). Anchored on a graph node, not a window — a supplement's
+  // evidence base does not change because the user asked about 365 days — and
+  // assembled as SLOTS rather than a ranked bag, because this answer has parts
+  // it cannot be missing. The slot each pick fills is marked below.
   'Should I take NMN?': {
-    intent: 'Answer a supplement question from the evidence base, not from the record.',
-    tags: ['ageing', 'labs', 'metabolic', 'inflammation', 'nutrition', 'micronutrients'],
+    shape: 'intervention',
+    intent: 'Fill the comparison frame for a candidate intervention: what it claims to move, what competes with it, what it interacts with, and what the record could show.',
+    tags: ['ageing', 'labs', 'metabolic', 'glucose', 'inflammation', 'nutrition', 'micronutrients', 'meds', 'conditions', 'experiment'],
     windowDays: 365,
     plan: [
-      { tool: 'query_health_model', args: 'intervention=NMN → functions, markers', yields: '2 functions · 6 markers' },
+      { tool: 'query_health_model', args: 'intervention=NMN → functions, markers, evidence tier', yields: '2 functions · 6 markers · 4 cited edges' },
+      { tool: 'query_health_model', args: 'functions of NMN → all interventions with a cited edge', yields: '5 comparators across 3 evidence tiers' },
+      { tool: 'resolve_modifiers', args: 'profile=conditions+meds+stack, candidates=[NMN, …]', yields: '1 interaction flag · 0 locked safety edges' },
+      { tool: 'query_clinical', args: 'active medications and supplements', yields: '4 — one prescription, three OTC' },
+      { tool: 'query_clinical', args: 'markers NMN claims to move, current values', yields: '6 series — all already at or inside target' },
       { tool: 'search_guidelines', args: '"NMN nicotinamide mononucleotide human trials"', yields: '4 statements, all low-certainty' },
       { tool: 'rank_interventions', args: 'goal=healthspan, via preference model', yields: '6 candidates on 7 axes' },
-      { tool: 'query_clinical', args: 'markers NMN would move, from=2024-08-03', yields: '6 series — all already in range' },
     ],
     picks: [
-      { id: 'clock-disagreement', reasons: ['weak-signal'], note: 'the closest thing you have to an outcome NMN claims to affect — and it is a surrogate of a surrogate' },
-      { id: 'obs-crp', reasons: ['weak-signal'], note: 'already 0.8. There is no room for an effect to be visible' },
-      { id: 'obs-hba1c', reasons: ['weak-signal'] },
-      { id: 'obs-insulin', reasons: ['weak-signal'] },
+      // — slot: safety & interaction. Pinned: filled before the budget is
+      //   computed, never evicted. An answer that never saw the stack is unsafe
+      //   however well it scored.
+      { id: 'med-lisinopril', reasons: ['interaction'], note: 'the only prescription in the stack — an ACE inhibitor is the interaction surface that actually carries risk' },
+      { id: 'med-vitd', reasons: ['interaction', 'in-flight'], note: 'already supplementing' },
+      { id: 'med-omega3', reasons: ['interaction', 'in-flight'], note: 'already supplementing — and taken *for lipids*, which is the marker actually moving' },
+      { id: 'med-mag', reasons: ['interaction', 'in-flight'], note: 'already supplementing, and the one he adopted off his own n-of-1 — the precedent for how he evaluates a supplement' },
+      { id: 'cond-htn', reasons: ['interaction'], note: 'the condition the prescription is for' },
+
+      // — slot: target markers. Selected at current value WHETHER OR NOT they
+      //   moved. "Already at target" is the finding, not a null.
+      { id: 'obs-crp', reasons: ['mechanism'], note: 'already 0.8 mg/L. NMN claims to move inflammation; there is no room here for an effect to be visible' },
+      { id: 'obs-hba1c', reasons: ['mechanism'], note: '5.4% and flat for three years — the metabolic claim has no headroom either' },
+      { id: 'obs-insulin', reasons: ['mechanism'] },
+      { id: 'obs-homa-ir', reasons: ['mechanism'], note: 'the derived index the human NMN trials actually report' },
+      { id: 'obs-igf1', reasons: ['mechanism'], note: 'the ageing-axis marker with the least bad claim to being an outcome' },
+      { id: 'clock-disagreement', reasons: ['mechanism', 'quality'], note: 'the closest thing in the record to an outcome NMN claims to affect — and it is a surrogate of a surrogate, with the reliability analysis attached' },
+
+      // — slot: comparators. From the graph, not the store: these are nodes, not
+      //   records. A frame with one row is a recommendation wearing a table's
+      //   clothes, so the comparator slot is required, not opportunistic.
+      { id: 'exp-postmeal-walks', reasons: ['comparator', 'in-flight'], note: 'HIGH-evidence, free, and he is *already running it* as an n-of-1 — the strongest row in the frame is one he does not need to buy' },
+      { id: 'iv-resistance-training', reasons: ['comparator'], virtual: true, label: 'Resistance training 2×/wk (graph node)',
+        note: 'same function edges, HIGH tier, and nothing in the record says he is doing it' },
+      { id: 'iv-sleep-extension', reasons: ['comparator'], virtual: true, label: 'Sleep extension +30 min (graph node)',
+        note: 'MODERATE tier — and his REM is down 7 min/night, so unlike NMN this one has somewhere to move' },
+      { id: 'iv-apob-lowering', reasons: ['comparator'], virtual: true, label: 'ApoB-lowering (diet / statin — graph node)',
+        note: 'enters only because the goal resolved to healthspan generically. Scoped to metabolic function it has no path and drops' },
+
+      // — slot: preference weights. Present only because a ranking was asked
+      //   for; the ranking has to show its work.
+      { id: 'pref-model', reasons: ['preference'], virtual: true, label: 'Your stated weighting (evidence & long-term safety high · effort low)',
+        note: 'the weights that turn 7 axes into an order — quoted in the answer so the ranking is auditable rather than asserted' },
     ],
     aggregate: [],
-    guidelines: ['No human trial of NMN is powered for a clinical outcome; the human evidence is short-duration surrogate-marker work.'],
+    guidelines: [
+      'No human trial of NMN is powered for a clinical outcome; the human evidence is short-duration surrogate-marker work.',
+      'No NMN trial has enrolled participants whose target markers were already within range at baseline.',
+      'No pharmacokinetic interaction between NMN and ACE inhibitors is described — an absence of evidence, not a clearance.',
+    ],
     counterfactuals: {
       genome: { picks: [], noneRelevant: 'Nothing in your genome speaks to NMN. There is no reported NAD-salvage variant, and no pharmacogenomic guidance exists for a supplement with no trial base.' },
       widen: { days: 1095, label: '3 years', picks: [],
@@ -618,7 +660,9 @@ export const retrieval = {
         addendum: [p('Your niacin and tryptophan intake are both comfortably above requirement {{ev:src}}. That is not evidence for or against NMN; it just means the deficiency argument does not apply to you {{ev:inf}}.')] },
     },
     caveats: {
-      empty: 'This answer barely uses your record. Almost all of it is the evidence base — which is the shape of the question.',
+      empty: 'Most of this answer is the evidence base, not your record — which is the shape of the question. What your record contributes is mainly negative: the markers NMN claims to move are already where you would want them, so it has nowhere visible to work.',
+      quality: 'NMN claims edges to two functions — metabolic and biological ageing — and the question named neither. The comparator set was scoped to healthspan generically, which is why an ApoB-lowering row appears. Asked "should I take NMN for my HbA1c?", that row has no cited path and drops.',
+      coverage: 'Nothing in the record measures NAD+ or its metabolites. The pathway NMN acts on is not something you currently measure, so no result here could confirm or refute an effect.',
     },
   },
 }
