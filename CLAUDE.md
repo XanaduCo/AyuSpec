@@ -83,6 +83,7 @@ Maintainer burnout from keeping EHR/device connectors alive (vendor APIs break c
 - Agent loop: tool definitions, reasoning chain, evidence-assertion labeling
 - Healthspan model: bundled knowledge graph (systems → functions → interventions/markers, modifier resolution, measurement quality tiers)
 - Health literacy & epistemics: concept library, decision-point injection, comparison frames, preference model (no explicit onboarding module)
+- Behavioural flows: question ladder & epistemic question types, considered-preference ladder (formed, not found), framing engine with invariants, flow loop & stopping rule
 - PII gateway: local NER/regex, cloud escalation flow, audit log
 - Frontend/UI: local-only web app, chat interface, timeline view, doctor-packet generator
 - Federated analytics substrate: consent model, Flower/FLARE integration (Phase 2)

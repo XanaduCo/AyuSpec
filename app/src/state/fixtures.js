@@ -264,6 +264,14 @@ export const HYPOTHESIS_CANDIDATES = [
     metric: { name: 'Sleep-onset latency', unit: 'min', source: 'Oura (direct)', quality: 'moderate', minInterval: 14, noise: 'moderate' },
     threshold: 6,
   },
+  {
+    key: 'session-timing', goal: 'recovery',
+    statement: 'Moving threshold sessions before noon shrinks the next morning’s HRV dip.',
+    rationale: 'Your three lowest HRV mornings this window each followed an evening threshold session, and hard exercise close to sleep is a plausible mechanism — sympathetic tone carrying into the night. Timing is free to change and fully reversible, which makes it the cheapest causal test in the record.',
+    evidence: 'moderate', confidence: 0.55,
+    metric: { name: 'Morning-after HRV dip', unit: 'ms', source: 'Oura (overnight HRV)', quality: 'moderate', minInterval: 21, noise: 'moderate' },
+    threshold: 4,
+  },
 ]
 
 // ---------------------------------------------------------------------------
