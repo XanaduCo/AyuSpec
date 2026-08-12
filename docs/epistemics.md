@@ -1,7 +1,7 @@
 # Health Literacy & Epistemics
 
 !!! note "Status: draft"
-    Approach is decided (no onboarding module; inject at decision points). Concept list, authorship model, and the preference-elicitation flow are open. See [Open questions](#open-questions).
+    Approach is decided (no onboarding module; inject at decision points). Concept list and authorship model are open. The conversational behaviour these concepts serve — question formation, preference formation, framing — is specified in [Behavioural Flows](behavioural-flows.md). See [Open questions](#open-questions).
 
 ## Overview
 
@@ -17,7 +17,7 @@ Two hard constraints:
 ## Design principles
 
 - **Labels are the curriculum.** The [evidence labels](evidence.md#strength-of-evidence-labeling) the agent already emits are the entry points. Every `EVIDENCE: LOW` is a teachable moment with the user's live decision as the worked example.
-- **Not a people-pleaser.** The goal is that the user understands their health, not that every question is met with prose. Where a question cannot be answered well as asked, saying so — and saying *why* — is the more useful response. This is the half of the thesis the rest of this page does not cover: teaching people to **ask** better questions, not only to weigh the answers. It is executed by the agent loop's [clarifying turn](agent-loop.md#the-clarifying-turn), which must always carry what it found and why a straight answer would be worse, never a bare question back.
+- **Not a people-pleaser.** The goal is that the user understands their health, not that every question is met with prose. Where a question cannot be answered well as asked, saying so — and saying *why* — is the more useful response. This is the half of the thesis the rest of this page does not cover: teaching people to **ask** better questions, not only to weigh the answers. It is specified in [Behavioural Flows](behavioural-flows.md) and executed by the agent loop's [clarifying turn](agent-loop.md#the-clarifying-turn), which must always carry what it found and why a straight answer would be worse, never a bare question back.
 - **Just-in-time, not up-front.** A concept is surfaced the first time it's *load-bearing* for a decision the user is making — never as an abstract lesson.
 - **Self-retiring.** A [literacy profile](#the-literacy-profile) tracks what the user has engaged with. Once fluency is demonstrated, the system stops explaining and just uses the labels. Injection must never become nagging.
 - **Structure teaches.** The [comparison frame](#the-comparison-frame) does most of the pedagogy implicitly — fixed axes, side by side — without the system editorializing.
@@ -116,6 +116,7 @@ When — and only when — the user asks ayuOS to simplify, the multi-axis frame
 
 Rules:
 
+- **A preference is formed, not found.** Elicitation does not assume a stable "true preference" waiting to be measured; it helps the user build a *considered* one, tracked along the [considered-preference ladder](behavioural-flows.md#the-considered-preference-ladder) (immediate reaction → stated → understood → endorsed → behaviour-backed → meta-preference) with rung, provenance, and confidence. Preferences are provisional and revisable; values are never declared wrong.
 - **Elicited conversationally at first use**, a few questions in context — not a settings form, not an onboarding survey. Refined over time from choices the user actually makes (with consent).
 - **The ranking always shows its work:** "Walking ranked first because you weighted certainty and cost highly; NMN ranked lower on long-term unknowns, which you said you're cautious about." The transparency is itself education.
 - **Preferences are user-visible and editable** — a stored object in the `ayuos` schema, not an inferred shadow profile.
@@ -143,6 +144,7 @@ This component strengthens the wellness-information positioning: a system that t
 ## Relationship to other components
 
 - [Evidence & Hypotheses](evidence.md) — supplies the labels that serve as injection points; concepts explain the ladder. Directly addresses evidence.md's open question about the confident-but-wrong failure mode: an eloquent `EVIDENCE: NONE` hypothesis triggers the relevant concept.
+- [Behavioural Flows](behavioural-flows.md) — the conversational behaviour this page's concepts serve: the question ladder, the considered-preference ladder, the framing engine and its invariants.
 - [Agent Loop](agent-loop.md) — executes the injection policy; concept summaries and comparison frames are rendered in responses.
 - [Experimentation & Validation](experimentation.md) — the n-of-1 concept cluster teaches the methodology that component enforces; its guardrails against overclaiming and this component are two halves of the same stance.
 - [Frontend & UI](frontend.md) — tappable evidence labels, concept cards, the comparison view, quiz surface.

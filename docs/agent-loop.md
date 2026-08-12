@@ -139,7 +139,8 @@ allowed to say that the question as asked would produce a worse answer. ayuOS is
 people-pleaser; the goal is that the user understands their health, not that every utterance is
 met with prose.
 
-A clarifying turn has **three parts, and is incomplete without any of them**:
+A clarifying turn is rungs 1–3 of the [question ladder](behavioural-flows.md#the-question-ladder)
+executed in a single turn. It has **three parts, and is incomplete without any of them**:
 
 | Part | What it does | Why it is required |
 |---|---|---|
@@ -188,8 +189,9 @@ Worked example, on the anchor question:
     Where the goal *is* inferable with confidence from standing context — family history,
     conditions, an active experiment — the loop may proceed without asking, but must state the
     assumption it made. Inferring silently trades one invisible choice for another. The precise
-    shape of both paths is specified in question formation (planned); this note records the
-    constraint set they must satisfy.
+    shape of both paths is specified in [Behavioural Flows](behavioural-flows.md) — the question
+    ladder and the four-part answer contract; this note records the constraint set they must
+    satisfy.
 
 ## Evidence labeling in the prompt
 
