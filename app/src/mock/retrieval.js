@@ -665,6 +665,255 @@ export const retrieval = {
       coverage: 'Nothing in the record measures NAD+ or its metabolites. The pathway NMN acts on is not something you currently measure, so no result here could confirm or refute an effect.',
     },
   },
+
+  // ---------------------------------------------------------------------------
+  // --- behavioural-flows showcase conversations ------------------------------
+  // Compact specs for the three seeded multi-turn threads (see
+  // state/conversations.js). Each question gets a real trace so the context
+  // strip stays honest across a conversation, not just on its first turn.
+
+  // Conversation 1 · sleep-score sharpening
+  'Is my sleep score bad?': {
+    intent: 'Sharpen a vague composite-score question into a baseline-relative one.',
+    tags: ['sleep', 'recovery', 'hrv', 'training', 'quality'],
+    windowDays: 90,
+    plan: [
+      { tool: 'get_time_series', args: 'sleep stages + score, from=2025-05-05', yields: '90 nights · 9 fields' },
+      { tool: 'get_trend', args: 'score, total, per-stage vs. six-month baseline', yields: '1 delta past noise floor (REM)' },
+      { tool: 'search_records', args: '"travel OR training block", k=6', yields: '2 hits' },
+    ],
+    picks: [
+      { id: 'sleep-summary', reasons: ['aggregate'], note: 'the stage split — where the composite score’s movement actually lives' },
+      { id: 'obs-rem', reasons: ['change'], note: '−7 min/night since early May while total sleep held; the one component past its noise floor' },
+      { id: 'obs-hrv', reasons: ['correlation'], note: 'drifting down across the same window — recovery signals read together' },
+      { id: 'block-summary', reasons: ['correlation'], note: 'the training ramp that overlaps the decline' },
+      { id: 'obs-rhr', reasons: ['weak-signal'], note: 'flat — included so the answer can say it looked' },
+    ],
+    aggregate: [{ id: 'sleep-summary', method: '1,092 nights → stage means, both windows' }],
+    guidelines: ['No clinical threshold exists for a vendor sleep score — stated rather than silently omitted.'],
+    counterfactuals: {},
+    caveats: {
+      quality: 'The "sleep score" is a vendor composite with no published error model. This answer reads its components, not the composite.',
+    },
+  },
+
+  'Is the REM drop real, or is it my ring?': {
+    intent: 'Validate one signal: noise floor, persistence, measurement context, second instrument.',
+    tags: ['sleep', 'quality', 'coverage', 'recovery'],
+    windowDays: 120,
+    plan: [
+      { tool: 'get_time_series', args: 'REM minutes, weekly means, from=2025-04-05', yields: '17 weekly rows' },
+      { tool: 'search_records', args: '"firmware OR device OR sync", k=6', yields: '1 hit — the Whoop sync failure' },
+      { tool: 'get_trend', args: 'REM vs. per-night noise (±16 min)', yields: 'shift present in 10 of last 12 weekly means' },
+    ],
+    picks: [
+      { id: 'obs-rem', reasons: ['change'], note: 'the signal under validation — persistent across weekly means, not one bad stretch' },
+      { id: 'sleep-summary', reasons: ['aggregate', 'baseline'] },
+      { id: 'whoop-gap', reasons: ['coverage'], virtual: true, label: 'Whoop sync failure (stale since 2025-08-01)',
+        note: 'the second instrument is missing for the newest nights — a hole in the corroboration, named rather than hidden' },
+      { id: 'obs-hrv', reasons: ['corroborate'], note: 'an independent signal bending the same way in the same window' },
+    ],
+    aggregate: [{ id: 'sleep-summary', method: '121 nights → weekly stage means' }],
+    guidelines: ['Consumer sleep-staging agrees with polysomnography on roughly 60–80% of epochs — trends are more trustworthy than absolute minutes.'],
+    counterfactuals: {},
+    caveats: {
+      coverage: 'Whoop has been stale since August 1, so the most recent nights are single-source. Persistence within Oura against its own baseline is what carries the claim.',
+    },
+  },
+
+  'What would make the REM drop worth acting on?': {
+    intent: 'Turn a validated signal into explicit action thresholds anchored to function.',
+    tags: ['sleep', 'recovery', 'hrv', 'training', 'fitness'],
+    windowDays: 120,
+    plan: [
+      { tool: 'get_trend', args: 'REM, HRV, RHR — joint read', yields: '2 moving, 1 flat' },
+      { tool: 'query_health_model', args: 'function=recovery → markers, reversible levers', yields: '3 cited edges' },
+      { tool: 'get_correlations', args: 'REM vs. block weekly load', yields: '1 pair above threshold' },
+    ],
+    picks: [
+      { id: 'obs-rem', reasons: ['change'] },
+      { id: 'obs-hrv', reasons: ['correlation'], note: 'the signal that would mark "spreading" if it keeps drifting' },
+      { id: 'obs-rhr', reasons: ['contradiction'], note: 'flat — the strongest argument against a systemic problem, kept visible' },
+      { id: 'block-summary', reasons: ['correlation', 'change'], note: 'the reversible exposure the action thresholds hang on' },
+    ],
+    aggregate: [],
+    guidelines: ['No guideline defines an actionable REM-minutes threshold — the decision anchors to function, not a cutoff.'],
+    counterfactuals: {},
+    caveats: {},
+  },
+
+  // Conversation 2 · repeat-CAC decision
+  'A friend my age just got a stent — should I repeat my calcium scan?': {
+    intent: 'Decompose a screening decision into its hidden questions before framing any of them.',
+    tags: ['cardiac', 'imaging', 'lipids', 'family', 'screening', 'quality'],
+    windowDays: 730,
+    plan: [
+      { tool: 'query_clinical', args: 'type=ImagingStudy, code=CAC', yields: '1 study (2024-11) + impression' },
+      { tool: 'get_trend', args: 'ApoB, Lp(a) since the scan date', yields: '2 trends; 1 rising' },
+      { tool: 'search_guidelines', args: '"CAC 0 repeat interval" + "risk enhancers"', yields: '4 statements' },
+      { tool: 'query_health_model', args: 'decision=repeat-imaging → benefits, harms, alternatives', yields: '3 cited edges' },
+    ],
+    picks: [
+      // The CAC study itself is a hard pixel exclusion and appears under policy;
+      // what reaches the model is the extracted Agatston score (same pattern as
+      // the cardiac re-ask above).
+      { id: 'ev-cac', reasons: ['unique', 'quality'], virtual: true, label: 'CAC Agatston 0 (extracted impression)',
+        note: 'the baseline the whole question compares against — a 0, nine months old' },
+      { id: 'obs-apob', reasons: ['change', 'guideline'], note: 'what has actually moved since the scan' },
+      { id: 'obs-lpa', reasons: ['outlier', 'guideline'], note: 'the risk enhancer the scan cannot see' },
+      { id: 'fh-father-cad', reasons: ['guideline'], note: 'what moves the targets, and part of why the friend’s story resonates' },
+      { id: 'obs-ldl', reasons: ['corroborate'] },
+      { id: 'note-cardiology-2025-02', reasons: ['vector'], note: 'the last clinician conversation about this territory' },
+    ],
+    aggregate: [],
+    guidelines: [
+      'SCCT: after a CAC of 0, repeat imaging is generally considered at 3–5 years for risk reassessment.',
+      'CAC 0 confers a low near-term event rate but does not exclude non-calcified plaque.',
+    ],
+    counterfactuals: {},
+    caveats: {
+      pixelsExcluded: 'The CAC study’s pixel data never leaves the device; what the reasoner saw was the extracted Agatston score of 0.',
+    },
+  },
+
+  'What would a repeat scan actually buy me?': {
+    intent: 'Price one screening decision in natural frequencies — benefits and harms on the same page.',
+    tags: ['cardiac', 'imaging', 'screening', 'lipids', 'family'],
+    windowDays: 730,
+    plan: [
+      { tool: 'search_guidelines', args: '"CAC 0 conversion rate" + "CT incidental findings" + dose', yields: '5 statements' },
+      { tool: 'query_clinical', args: 'CAC study + lipid trend since scan', yields: '1 study · 2 trends' },
+      { tool: 'query_health_model', args: 'test → what each result changes downstream', yields: '2 decision paths, 1 shared endpoint' },
+    ],
+    picks: [
+      { id: 'ev-cac', reasons: ['baseline', 'quality'], virtual: true, label: 'CAC Agatston 0 (extracted impression)',
+        note: 'the denominator’s anchor: a 0 nine months ago' },
+      { id: 'obs-apob', reasons: ['change', 'guideline'], note: 'the marker that makes the statin conversation live regardless of scan result' },
+      { id: 'obs-lpa', reasons: ['outlier'], note: 'raises the conversion prior; invisible to the scan itself' },
+      { id: 'fh-father-cad', reasons: ['guideline'] },
+    ],
+    aggregate: [],
+    guidelines: [
+      'MESA-derived: with risk factors, conversion from CAC 0 runs roughly 5–10% per year; near-term event rates with CAC 0 stay low.',
+      'A CAC scan delivers ~1 mSv; incidental findings on chest CT trigger follow-up in a meaningful minority of scans.',
+      'SCCT: repeat interval after CAC 0 is 3–5 years.',
+    ],
+    counterfactuals: {},
+    caveats: {
+      screening: 'The frequencies quoted are population estimates applied to a profile like his — they carry cohort uncertainty and are labelled as such in the answer.',
+    },
+  },
+
+  'Honestly, I just want the reassurance. Scans are cheap.': {
+    intent: 'Surface a stated-vs-meta-preference conflict as a question, not a verdict.',
+    tags: ['cardiac', 'screening', 'imaging'],
+    windowDays: 730,
+    plan: [
+      { tool: 'query_health_model', args: 'decision=repeat-imaging → information value per result', yields: '2 paths, 1 shared endpoint' },
+      { tool: 'search_records', args: 'preference model: decision style', yields: '1 stored weighting' },
+    ],
+    picks: [
+      { id: 'ev-cac', reasons: ['baseline'], virtual: true, label: 'CAC Agatston 0 (extracted impression)' },
+      { id: 'obs-apob', reasons: ['contradiction'], note: 'the thing the reassurance would not actually check — soft plaque tracks the particle number, not the calcium' },
+      { id: 'pref-decision-style', reasons: ['preference'], virtual: true, label: 'Your stated weighting (settled evidence & long-term safety high)',
+        note: 'retrieved because the turn is about the conflict between this and what was just said — quoted so the conflict is auditable' },
+    ],
+    aggregate: [],
+    guidelines: [],
+    counterfactuals: {},
+    caveats: {},
+  },
+
+  'Evidence first — if it changes nothing before 2027, I can wait.': {
+    intent: 'Record a decision surface — direction, shift conditions, confidence — not a verdict.',
+    tags: ['cardiac', 'lipids', 'family', 'screening'],
+    windowDays: 730,
+    plan: [
+      { tool: 'query_clinical', args: 'ApoB series + CAC + family history — the surface’s inputs', yields: '3 records' },
+      { tool: 'search_records', args: 'preference model: update at rung=understood', yields: '1 stored object, provenance=this conversation' },
+    ],
+    picks: [
+      { id: 'obs-apob', reasons: ['change', 'guideline'], note: 'shift condition (a): two more rising draws reopens the question' },
+      { id: 'ev-cac', reasons: ['baseline'], virtual: true, label: 'CAC Agatston 0 (extracted impression)' },
+      { id: 'fh-father-cad', reasons: ['guideline'] },
+      { id: 'pref-decision-style', reasons: ['preference'], virtual: true, label: 'Considered preference — recorded at rung: understood',
+        note: 'stored with provenance and moderate confidence; editable, and expected to move with the next draw' },
+    ],
+    aggregate: [],
+    guidelines: ['SCCT: repeat interval after CAC 0 is 3–5 years.'],
+    counterfactuals: {},
+    caveats: {},
+  },
+
+  // Conversation 3 · evening sessions vs. HRV
+  'Evening training is tanking my HRV — pretty clear cause and effect, right?': {
+    intent: 'Hold a causal claim to what observational personal data can support.',
+    tags: ['hrv', 'recovery', 'training', 'activity', 'sleep', 'coverage'],
+    windowDays: 120,
+    plan: [
+      { tool: 'get_time_series', args: 'HRV daily, from=2025-04-05', yields: '121 points' },
+      { tool: 'get_correlations', args: 'weekly load vs. HRV, lag 0–7 days', yields: '1 pair, r = −0.41 at lag 2' },
+      { tool: 'search_records', args: '"travel OR illness OR alcohol", k=8', yields: '4 hits incl. a 9-day data gap' },
+    ],
+    picks: [
+      { id: 'obs-hrv', reasons: ['change'], note: 'the subject of the claim — 46 → 42 ms across the window' },
+      { id: 'block-summary', reasons: ['correlation', 'change'], note: 'volume up 28% over the same weeks — the rival explanation' },
+      { id: 'obs-strain', reasons: ['correlation'] },
+      { id: 'act-gap', reasons: ['coverage'], virtual: true, label: '9-day Garmin gap (2025-04-12 → 04-20)',
+        note: 'the travel week — correlations across it are computed on unequal data' },
+      { id: 'obs-rhr', reasons: ['weak-signal'], note: 'flat, which argues against a systemic recovery problem' },
+    ],
+    aggregate: [{ id: 'block-summary', method: '78 activities → 17 weekly rows → 6 numbers' }],
+    guidelines: ['No guideline applies — HRV has no clinical threshold. Stated rather than silently omitted.'],
+    counterfactuals: {},
+    caveats: {
+      coverage: 'Nine days of Garmin data are missing mid-window. The load side of the correlation has a hole in it.',
+    },
+  },
+
+  'Every hard evening session is followed by a bad morning. What else could it be?': {
+    intent: 'Run the counterfactual the record supports and check confounders one at a time.',
+    tags: ['hrv', 'training', 'activity', 'recovery', 'coverage', 'quality'],
+    windowDays: 120,
+    plan: [
+      { tool: 'get_time_series', args: 'threshold sessions split by start time', yields: '19 sessions: 13 evening, 6 morning' },
+      { tool: 'get_correlations', args: 'next-morning HRV by session timing', yields: '3 conditional means' },
+      { tool: 'search_records', args: '"illness OR alcohol OR firmware", k=8', yields: '1 device-provenance hit, 0 illness' },
+    ],
+    picks: [
+      { id: 'obs-hrv', reasons: ['change'] },
+      { id: 'session-splits', reasons: ['aggregate', 'quality'], virtual: true, label: 'Threshold sessions split by start time (19 sessions)',
+        note: 'the counterfactual’s raw material — thin on the morning side, and the answer says so' },
+      { id: 'act-gap', reasons: ['coverage'], virtual: true, label: '9-day Garmin gap (2025-04-12 → 04-20)' },
+      { id: 'lab-vendor-switch', reasons: ['quality'], note: 'checked and cleared — the vendor switch touched assays, not wearables' },
+    ],
+    aggregate: [{ id: 'obs-hrv', method: 'daily → conditional means by prior-day session type' }],
+    guidelines: [],
+    counterfactuals: {},
+    caveats: {
+      coverage: 'Alcohol is logged too patchily to clear or convict as a confounder. An unlogged confounder is not an absent one, and the answer carries that.',
+    },
+  },
+
+  'OK — how do we actually find out?': {
+    intent: 'Hand the question off to a small reversible n-of-1 with a pre-registered bar.',
+    tags: ['hrv', 'training', 'recovery', 'experiment'],
+    windowDays: 120,
+    plan: [
+      { tool: 'get_time_series', args: 'morning-after HRV, trailing 14 days — the baseline window', yields: '14 points' },
+      { tool: 'query_health_model', args: 'exposure=session timing → reversibility, risk', yields: 'reversible · no safety edge' },
+    ],
+    picks: [
+      { id: 'obs-hrv', reasons: ['baseline'], note: 'the outcome metric — its trailing 14 days become the pre-registered baseline' },
+      { id: 'block-summary', reasons: ['change'], note: 'the held variable: same sessions, same weekly load, only the clock moves' },
+    ],
+    aggregate: [],
+    guidelines: [],
+    counterfactuals: {},
+    caveats: {
+      design: 'A three-week single-switch design cannot blind the subject and inherits the season as a slow confounder. It can still separate timing from load — which is the only question on the table.',
+    },
+  },
 }
 
 // A question with no authored spec still gets a real trace: the concept net is

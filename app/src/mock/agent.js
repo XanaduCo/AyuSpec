@@ -282,6 +282,155 @@ export const answers = {
       { kind: 'sources', text: 'Records referenced:', cites: ['obs-apob', 'img-cac', 'obs-hrv', 'med-lisinopril'] },
     ],
   },
+  // --- behavioural-flows showcase (docs/behavioural-flows.md) ----------------
+  // Three seeded conversations exercise the conversational spec: question
+  // sharpening + signal validation, considered-preference formation on a
+  // screening decision, and the correlation→causation boundary handed off to a
+  // reversible n-of-1. Every answer here carries the four-part contract —
+  // what the data says / what it cannot yet say / why it matters to the goal /
+  // the next question most likely to change the action — and never more than
+  // one concept card per response.
+
+  // Conversation 1 · question sharpening & signal validation (local reasoner)
+  'Is my sleep score bad?': {
+    cloud: false,
+    tools: ['get_time_series', 'get_trend', 'search_records'],
+    blocks: [
+      { kind: 'lead', text: 'Not by the number — but the number is answering a different question than the one worth asking.' },
+      { kind: 'p', text: 'Your sleep score has averaged **82 over the last two weeks against 85 for your six-month baseline** {{cite:sleep-summary}} {{ev:src}}. That dip sits inside the score’s normal week-to-week wobble, so as asked, the answer is "no" {{ev:inf}}. But the score is a composite the vendor invents — total time, stages, restlessness and timing folded into one number — and composites are where changes go to hide.' },
+      { kind: 'p', text: 'Unfolded, one component is genuinely moving: **REM is down about 7 minutes a night since early May, while total sleep has held steady** {{cite:obs-rem}} {{ev:src}}. That is a twelve-week pattern, not a bad night — single nights swing ±16 minutes, so only a sustained shift like this clears the stage data’s own noise {{ev:inf}}.' },
+      { kind: 'p', text: 'So the sharper question than "is my score bad": has your sleep changed against your **own** baseline, is the change likely real rather than device noise, and does it connect to something you care about? On the first two: yes, and probably. On the third: the same window holds your **HRV drift (46 → 42 ms)** {{cite:obs-hrv}} and the training block’s ramp {{cite:block-summary}} — three recovery signals bending together says more than any score {{ev:inf}}.' },
+      { kind: 'p', text: 'What this cannot yet say is *why*. The next question most likely to change what you do: whether the REM decline tracks your evening sessions, your travel weeks, or neither — and whether it is even real, which is worth checking before interpreting it. Ask either and I’ll bring what the record has.' },
+    ],
+  },
+
+  'Is the REM drop real, or is it my ring?': {
+    cloud: false,
+    tools: ['get_time_series', 'search_records'],
+    blocks: [
+      { kind: 'lead', text: 'The right first suspicion — and mostly answerable from your own record.' },
+      { kind: 'p', text: 'Checked in order, cheapest first. **Measurement context:** no firmware update is logged in the window, and the ring’s wear pattern is unchanged {{ev:src}}. **Persistence:** the drop shows in ten of the last twelve weekly means — a sustained shift, not one bad stretch {{cite:obs-rem}} {{ev:src}}. **Baseline:** it is measured against your own six months, a window long enough to hold your normal variability {{ev:inf}}.' },
+      { kind: 'p', text: 'What weakens the check: your second instrument is missing. **Whoop has been stale since August 1** — a sync failure, logged as an error — so the most recent nights are single-source {{ev:src}}. And even with both running, they would not have settled this cleanly:' },
+      { kind: 'concept', concept: 'measurement-quality',
+        text: 'Oura and Whoop don’t measure REM — each infers it from movement, heart rate and temperature through its own model, and the same night routinely scores differently on the two. Agreement between them would mean "both models moved", not "your physiology moved"; disagreement wouldn’t make the change false. What makes this drop credible is persistence within one instrument against its own baseline.' },
+      { kind: 'p', text: 'What it cannot yet say: the absolute minutes. Consumer sleep-staging agrees with a sleep-lab polysomnogram on roughly 60–80% of epochs, so "7 minutes" carries real uncertainty even when the direction is trustworthy {{ev:guide}}. Why it matters to your goal: REM is one of the three recovery signals bending together this window. The next question worth asking is what would make this worth acting on rather than watching — and your record already holds the candidates: the block’s ramp {{cite:block-summary}} and the April travel week {{ev:src}}.' },
+    ],
+  },
+
+  'What would make the REM drop worth acting on?': {
+    cloud: false,
+    tools: ['get_time_series', 'get_trend', 'query_health_model'],
+    actions: [
+      { kind: 'experiment', propose: 'session-timing', label: 'Test session timing' },
+    ],
+    blocks: [
+      { kind: 'lead', text: 'Three things — and none of them is "the score gets worse".' },
+      { kind: 'p', text: '**If it outlasts the block.** The decline started the same month the aerobic block ramped {{cite:block-summary}} {{ev:src}}, and hard evening sessions are a plausible, reversible suppressor of deep and REM sleep {{ev:inf}}. If REM recovers when the block tapers, the 7 minutes were the price of the training — a cost you were paying knowingly.' },
+      { kind: 'p', text: '**If it spreads.** Right now this is one stage of one signal. Resting heart rate is flat {{cite:obs-rhr}}, which is reassuring {{ev:src}}. If HRV keeps drifting {{cite:obs-hrv}}, resting HR joins in, or daytime energy and session quality bend, the same 7 minutes reads differently {{ev:inf}}.' },
+      { kind: 'p', text: '**If it starts costing a function you value.** There is no clinical threshold for REM minutes to cross {{ev:none}} — no guideline turns 7 minutes into a diagnosis. The reason to care is the goal you’ve stated: training capacity and recovery. A number can wait; a function that degrades is the thing worth responding to.' },
+      { kind: 'p', text: 'What the record cannot do is separate those by watching — the block, the season and the schedule move together. The next question most likely to change what you do is the first one, and it is testable: hold the load, move the hard sessions earlier, and score morning recovery against a bar set in advance. Cheap, reversible, and it converts a worry into a result either way.' },
+    ],
+  },
+
+  // Conversation 2 · a considered preference, not a mined one (cloud reasoner)
+  'A friend my age just got a stent — should I repeat my calcium scan?': {
+    cloud: true,
+    tools: ['query_clinical', 'get_trend', 'search_guidelines', 'query_health_model'],
+    blocks: [
+      { kind: 'lead', text: 'That lands close — a friend, your age, your sport. Let me separate what his story changes for you from what it doesn’t.' },
+      { kind: 'p', text: 'Hidden inside "should I repeat the scan" are four different questions: how likely your arteries have changed since the last scan; how likely a repeat is to **change what you and your doctor actually do**; what the scan costs in radiation, money and follow-up; and how you weigh reassurance against acting on soft signals. They have different answers, so they’re worth keeping apart.' },
+      { kind: 'p', text: 'What your record says: your **CAC was 0 in November 2024** {{cite:img-cac}} — no detectable calcified plaque {{ev:src}}. Since that scan, **ApoB has gone 88 → 95 mg/dL** {{cite:obs-apob}}, continuing a two-year climb past the < 90 target your family history makes relevant {{cite:fh-father-cad}} {{ev:guide}}. And **Lp(a) sits elevated at 76 nmol/L** {{cite:obs-lpa}} — a lifelong risk enhancer the scan cannot see {{ev:src}}.' },
+      { kind: 'p', text: 'One check before any numbers, because your friend’s story is doing real work in this question. A vivid case from someone like you *feels* like evidence about your own risk — and it is genuine evidence that this disease exists in fit men your age; that weight doesn’t get dismissed here. What the story cannot carry is a **rate**: one stent among the men you run with says almost nothing about the chance your arteries changed in nine months {{ev:inf}}. Keep the story — it’s why you’re asking a good question early. Just don’t let it stand in for the denominator.' },
+      { kind: 'p', text: 'What this cannot yet say: whether a scan today would read anything but 0 — and the more decisive question, whether *either* result would change a decision you aren’t already facing on ApoB alone. That second question is the one most likely to settle this. Ask and I’ll lay the numbers out.' },
+    ],
+  },
+
+  'What would a repeat scan actually buy me?': {
+    cloud: true,
+    tools: ['search_guidelines', 'query_health_model', 'query_clinical'],
+    blocks: [
+      { kind: 'lead', text: 'Less than it feels like it would — and the shortfall is worth seeing as counts, not percentages.' },
+      { kind: 'p', text: 'Take **1,000 men in their mid-forties with a CAC of 0** and a profile like yours — rising ApoB, elevated Lp(a), a father with CAD at 62 {{cite:fh-father-cad}}. Over the **next three years**, roughly **200–300 of them convert to a score above zero**, and **fewer than 10 have a cardiac event** in that window — the zero is precisely why the near-term number is that low {{ev:guide}} {{ev:inf}}. Nine months after your scan, you are early in that curve, not late.' },
+      { kind: 'concept', concept: 'base-rates',
+        text: 'What a test is worth depends on what you’d do differently with each result. A second 0 mostly repeats what you know — and cannot rule out the soft, non-calcified plaque that a rising ApoB builds first. A score above 0 would sharpen the statin conversation — but that conversation is already on the table from the ApoB trend and family history alone. When both results lead to the same next step, the test buys mostly feelings, not decisions.' },
+      { kind: 'p', text: 'Both columns of the ledger, since a fair frame shows harms with benefits. Harms: about **1 mSv of radiation** — a few months of background exposure {{ev:guide}}; roughly **$100–200** out of pocket; and the quiet one, **incidental findings** — chest CTs surface something unexpected in a meaningful minority of scans, and some of those start follow-up cascades of their own {{ev:guide}}. Benefits: genuine reclassification power once conversion is actually likely — the guideline interval for a CAC of 0 is **3–5 years**, so late 2027 at the earliest {{ev:guide}} — and reassurance, which is worth something real to a person even when it changes no decision {{ev:inf}}.' },
+      { kind: 'frame', caption: 'Same fixed axes as every frame. The system fills the cells and stops — no ranking unless you ask it to simplify.',
+        cols: ['Option', 'Evidence', 'What it can change', 'Harms', 'Cost', 'Reversible'],
+        rows: [
+          { cells: ['Repeat CAC now (9 months after a 0)', { ev: 'low' }, 'Little — both results lead to the same ApoB conversation', '~1 mSv · incidentals', '~$150', 'n/a'] },
+          { cells: ['Repeat at the guideline interval (2027–29)', { ev: 'guide' }, 'Reclassifies risk when conversion is plausible', 'Same, deferred', '~$150', 'n/a'] },
+          { cells: ['No repeat — steer by quarterly ApoB', { ev: 'moderate' }, 'Tracks the particle number that moves first', 'None', 'Already ordered', 'Yes'] },
+        ] },
+      { kind: 'p', text: 'The invariants, stated so the frame stays honest: baseline — your own 0, nine months old; denominator — 1,000 men like you; horizon — three years; and what would change the arithmetic — a symptom, a new family event, or ApoB continuing to climb {{ev:inf}}. What no number here can weigh is how much the reassurance itself is worth to you. That part is yours, and it’s still open.' },
+    ],
+  },
+
+  'Honestly, I just want the reassurance. Scans are cheap.': {
+    cloud: true,
+    tools: ['query_health_model'],
+    blocks: [
+      { kind: 'lead', text: 'That’s a legitimate thing to want — and it sits at an angle to something else you’ve told me.' },
+      { kind: 'p', text: 'Two statements of yours now pull in different directions. Today: *"I just want the reassurance."* On file, from how you’ve made every other call in this record: *settled evidence and long-term safety outweigh everything, and you don’t act on soft signals — you read the derivation before you trust a number* {{ev:inf}}. Neither is wrong; values don’t get graded here. But they disagree about this scan, and which one governs it is yours to say, not mine to infer.' },
+      { kind: 'p', text: 'Worth carrying into that choice: the reassurance a second 0 offers is **partly false reassurance**. The scan cannot see non-calcified plaque — which is what a rising ApoB builds first — so it would quiet the fear without checking the thing the fear is about {{cite:img-cac}} {{ev:inf}}.' },
+      { kind: 'p', text: 'So one question back, because it does more work than any number so far: **is this scan for your arteries, or for the week after your friend’s stent?** Both are real needs. They just have different best responses — and only one of them costs a scan.' },
+    ],
+  },
+
+  'Evidence first — if it changes nothing before 2027, I can wait.': {
+    cloud: true,
+    tools: ['query_health_model'],
+    actions: [
+      { kind: 'share', domains: ['cardiac'], label: 'Add to a doctor packet' },
+    ],
+    blocks: [
+      { kind: 'lead', text: 'Noted — and here is the shape of where you’ve landed, so you can check it against yourself.' },
+      { kind: 'p', text: 'Your considered preference, as I currently model it: **it favours waiting for the guideline interval and steering by quarterly ApoB in the meantime — but it shifts if (a) ApoB keeps rising through the next two draws, (b) anything symptomatic appears, or (c) a therapy arrives that a scan result would actually gate**, such as Lp(a)-directed treatment reaching the clinic {{ev:inf}}. I hold that model with **moderate confidence** — your tolerance for waiting seems to depend more on the trend staying explicable than on the raw probabilities.' },
+      { kind: 'p', text: 'To be precise about what that is: a model of where your thinking currently stands — **not a recommendation, and not a claim to have found your "true" preference**. It is stored as provisional, at the *understood* rung of the preference ladder, with this conversation as its provenance — visible and editable like everything else about you, including the day after your next draw {{ev:src}}.' },
+      { kind: 'p', text: 'Separate from the scan question: the ApoB trend and family history {{cite:obs-apob}} {{cite:fh-father-cad}} are already the makings of a doctor packet. That conversation is available whichever way the scan decision goes — and it is the one your record has been earning for two years.' },
+    ],
+  },
+
+  // Conversation 3 · correlation → causation → a reversible experiment (cloud)
+  'Evening training is tanking my HRV — pretty clear cause and effect, right?': {
+    cloud: true,
+    tools: ['get_time_series', 'get_correlations', 'search_records'],
+    blocks: [
+      { kind: 'lead', text: 'The pattern is real. The word "tanking" is carrying more than the data can lift.' },
+      { kind: 'p', text: 'What the data says: your **three lowest HRV mornings this window each followed a threshold session that started after 19:00** {{cite:obs-hrv}} {{ev:src}}. Across the same window HRV drifted **46 → 42 ms** while weekly training load rose about 28% {{cite:block-summary}} {{ev:src}}, and load does co-move with next-morning HRV: r = −0.41 at a two-day lag {{ev:src}}.' },
+      { kind: 'p', text: 'What it cannot yet say: **your data show that these happened together. They do not yet show that one caused the other** {{ev:inf}}. Three other things moved across the same weeks — total volume (up 28%, at every hour of the day), the season (warmer nights), and an April travel week that took Garmin offline for nine days, so any correlation across it is computed on unequal data {{ev:src}}.' },
+      { kind: 'p', text: 'Why the difference matters to your goal: if evening **timing** is the cause, you keep the whole block and buy back recovery by moving the clock — the cheapest fix on the table. If total **load** is the cause, moving sessions changes nothing and the block itself is the cost {{ev:inf}}.' },
+      { kind: 'p', text: 'The next question most likely to change what you do: what would these mornings look like if timing were *not* the cause? Your record can partly answer that already — ask, and I’ll run the comparison it supports.' },
+    ],
+  },
+
+  'Every hard evening session is followed by a bad morning. What else could it be?': {
+    cloud: true,
+    tools: ['get_time_series', 'get_correlations', 'search_records'],
+    blocks: [
+      { kind: 'lead', text: 'Here is the counterfactual, run against what you already have.' },
+      { kind: 'p', text: '**If evening timing were the main cause**, morning sessions of similar load should be followed by near-normal HRV. The window holds 19 threshold sessions: 13 evening, 6 morning-or-midday {{ev:src}}. Next-morning HRV averaged **39 ms after evening sessions, 43 ms after morning ones, 44 ms after easy days** {{ev:inf}}. The direction supports your hunch — but six morning sessions is a thin comparison, and they cluster in the cooler early weeks, so timing is still tangled with season and with where in the block you were.' },
+      { kind: 'p', text: 'Confounders, taken one at a time: **illness** — nothing logged in the window {{ev:src}}; **alcohol** — your log carries it too patchily to clear it, and an unlogged confounder is not an absent one {{ev:src}}; **travel** — the April week is a real hole in the exposure data {{ev:src}}; **device change** — none: same ring, same firmware, and the January lab-vendor switch touched assays, not wearables {{cite:lab-vendor-switch}} {{ev:src}}.' },
+      { kind: 'concept', concept: 'regression-to-the-mean',
+        text: 'One quieter distortion: you tend to open the app on the low mornings — the state is what sends you to look. Sampling your worst days makes any pattern near them look tighter than it is, and the morning after a worst-morning was always likely to be better regardless of what you change. The fix is deciding in advance which mornings count — which is exactly what a pre-registered window does.' },
+      { kind: 'p', text: 'Net: the hypothesis survived every check it could be put to — plausible, directionally supported, unproven {{ev:inf}}. Watching longer will not untangle timing from load and season; they move together in the life you actually live. What remains is the version of the question only a deliberate change can answer — and it is a small one.' },
+    ],
+  },
+
+  'OK — how do we actually find out?': {
+    cloud: true,
+    tools: ['query_health_model', 'get_time_series'],
+    actions: [
+      { kind: 'experiment', propose: 'session-timing', label: 'Pre-register the timing experiment' },
+    ],
+    blocks: [
+      { kind: 'lead', text: 'With the smallest reversible change that separates timing from load — designed before you see another morning.' },
+      { kind: 'p', text: 'The design: for **three weeks, keep the block exactly as planned — same sessions, same weekly load — and move every threshold session before noon.** One variable moves; everything that would otherwise confound it is held {{ev:inf}}. Fully reversible: week four, your evenings come back if you want them.' },
+      { kind: 'p', text: '**Pre-registered before day one**, so the bar cannot drift once results arrive: the baseline is your last 14 days of morning-after readings {{cite:obs-hrv}}; success is the morning-after HRV dip shrinking by **≥ 4 ms** against that baseline; the check-in is **day 21**. Stopping rules, set now: illness or unplanned travel pauses the clock rather than polluting the window, and if the block’s load itself changes, the run is void — that would be a different experiment {{ev:inf}}.' },
+      { kind: 'concept', concept: 'n-of-1',
+        text: 'This is the rare health question where you can run the decisive study on yourself: you schedule the exposure, the outcome is already measured every morning, and the change costs nothing but calendar friction. The discipline — one variable, a locked bar, a fixed horizon — is what separates a finding from a story.' },
+      { kind: 'p', text: '**What would support the hypothesis:** the dip shrinks past the bar while load stays on plan — timing was doing real work, and you own a free lever. **What would weaken it:** mornings look the same as the evening weeks did — the cost lives in the load itself, and the honest next question becomes whether the block’s remaining weeks are worth their recovery price. Either result is a finding; the run is scored against the bar above, not against how it feels {{ev:inf}}.' },
+    ],
+  },
 }
 
 export const defaultAnswer = {
