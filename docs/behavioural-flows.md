@@ -397,6 +397,10 @@ And the conclusion never claims to have found her "actual preference":
 
 A decision surface with a stated confidence — not a mined preference, and not a recommendation.
 
+Beyond this sketch, two full conversations — different patients, different profiles, the same
+invariants — are worked end-to-end in [Behavioural Flows · Transcripts](behavioural-flows-transcripts.md);
+a third (a statin decision, ten exchanges) is seeded in the demo's Ask history.
+
 ## Relationship to other components
 
 - [Agent Loop](agent-loop.md) — the clarifying turn is rung 1–3 of the question ladder executed in a single turn; this page is the "question formation" spec that loop referenced as planned.
