@@ -668,7 +668,7 @@ export const retrieval = {
 
   // ---------------------------------------------------------------------------
   // --- behavioural-flows showcase conversations ------------------------------
-  // Compact specs for the three seeded multi-turn threads (see
+  // Compact specs for the four seeded multi-turn threads (see
   // state/conversations.js). Each question gets a real trace so the context
   // strip stays honest across a conversation, not just on its first turn.
 
@@ -913,6 +913,249 @@ export const retrieval = {
     caveats: {
       design: 'A three-week single-switch design cannot blind the subject and inherits the season as a slow confounder. It can still separate timing from load — which is the only question on the table.',
     },
+  },
+
+  // Conversation 4 · the statin decision (local reasoner, genome in scope)
+  'My doctor wants me on a statin. My calcium score was zero — why does a guy in the best shape of his life need a heart disease pill?': {
+    intent: 'Separate the fitness record from the risk record before the question can be answered.',
+    tags: ['lipids', 'cardiac', 'fitness', 'imaging', 'family', 'genomics', 'guideline'],
+    windowDays: 730,
+    plan: [
+      { tool: 'get_trend', args: 'ApoB, all draws since 2023-05', yields: '9 draws — a rise at every one' },
+      { tool: 'query_clinical', args: 'type=ImagingStudy, code=CAC', yields: '1 study (2024-11) + impression' },
+      { tool: 'search_guidelines', args: '"ApoB target family history" + "CAC 0 statin deferral"', yields: '4 statements' },
+      { tool: 'get_time_series', args: 'VO₂max est., RHR — the fitness he is arguing from', yields: '2 series' },
+    ],
+    picks: [
+      { id: 'obs-apob', reasons: ['change', 'guideline'], note: 'the series the question is actually about — risen at all nine draws, past the < 90 target' },
+      { id: 'ev-cac', reasons: ['contradiction', 'quality'], virtual: true, label: 'CAC Agatston 0 (extracted impression)',
+        note: 'the reassuring datum, retrieved with its blind spot named: it cannot see non-calcified plaque' },
+      { id: 'obs-lpa', reasons: ['outlier', 'guideline'], note: 'the lifelong enhancer no statin lowers — which raises, not lowers, the stakes of the movable load' },
+      { id: 'fh-father-cad', reasons: ['guideline'] },
+      { id: 'vo2-2025-06-14', reasons: ['contradiction'], note: 'retrieved because the question equates fitness with low risk — the record holds both, moving in opposite directions' },
+      { id: 'obs-rhr', reasons: ['corroborate'] },
+    ],
+    aggregate: [],
+    guidelines: [
+      'ApoB < 90 mg/dL with a first-degree family history of premature CAD.',
+      'CAC scores calcified plaque only; a rising ApoB builds non-calcified plaque first.',
+    ],
+    counterfactuals: {},
+    caveats: {
+      local: 'This thread runs on the local reasoner with the genome in scope — the pharmacogenomics it leans on never leave the device.',
+      pixelsExcluded: 'The CAC study’s pixel data stays local under the hard exclusion; the reasoner saw the extracted Agatston score.',
+    },
+  },
+
+  'Wait — Lp(a)? A genetic problem the pill doesn’t even fix? And muscle is my real worry. A guy in my running club quit his statin because he couldn’t train.': {
+    intent: 'Answer two fears at once: what Lp(a) changes about the logic, and what the genome says about the muscle story.',
+    tags: ['lipids', 'genomics', 'cardiac', 'quality', 'guideline'],
+    windowDays: 730,
+    plan: [
+      { tool: 'query_clinical', args: 'Lp(a) + ApoB, latest draw', yields: '2 results' },
+      { tool: 'get_genomic_variants', args: 'genes=[LPA, SLCO1B1]', yields: '2 annotated findings' },
+      { tool: 'search_guidelines', args: '"statin muscle symptoms blinded" + "CPIC SLCO1B1"', yields: '4 statements' },
+    ],
+    picks: [
+      { id: 'pgx-slco1b1', reasons: ['unique', 'guideline'], note: 'the record’s answer to the running-club story — agent-specific, actionable, and checkable' },
+      { id: 'gen-lpa', reasons: ['corroborate'], note: 'genotype and phenotype agree — the Lp(a) level is real and lifelong, not a lab artefact' },
+      { id: 'obs-lpa', reasons: ['outlier'] },
+      { id: 'obs-apob', reasons: ['baseline'], note: 'the movable load the fixed load makes more valuable' },
+    ],
+    aggregate: [],
+    guidelines: [
+      'CPIC: SLCO1B1 decreased function — increased simvastatin myopathy risk; rosuvastatin or pravastatin preferred.',
+      'Blinded-trial excess of muscle symptoms ≈ 1%; open-label reports run 10–30% (SAMSON, StatinWISE).',
+    ],
+    counterfactuals: {},
+    caveats: {},
+  },
+
+  '90% of the pain showed up on placebo? So my friend imagined it? And you skipped the diabetes thing — I read statins raise it 10%.': {
+    intent: 'Hold the nocebo distinction without dismissing the pain, and convert a relative risk into an absolute one.',
+    tags: ['metabolic', 'glucose', 'labs', 'guideline', 'quality'],
+    windowDays: 1095,
+    plan: [
+      { tool: 'query_clinical', args: 'codes=[HbA1c, insulin, HOMA-IR], all draws', yields: '3 series, all flat and in range' },
+      { tool: 'search_guidelines', args: '"statin new-onset diabetes absolute" + "SAMSON funding"', yields: '3 statements' },
+    ],
+    picks: [
+      { id: 'obs-hba1c', reasons: ['contradiction'], note: 'flat at 5.4% for three years — the personal fact that resizes the population risk' },
+      { id: 'obs-insulin', reasons: ['corroborate'] },
+      { id: 'obs-homa-ir', reasons: ['corroborate'] },
+    ],
+    aggregate: [],
+    guidelines: [
+      'New-onset diabetes ≈ 1 extra case per 250–500 treated over 4–5 years, concentrated in people already near the diabetic threshold.',
+      'SAMSON and StatinWISE were publicly funded — no industry sponsor.',
+    ],
+    counterfactuals: {},
+    caveats: {},
+  },
+
+  'If I’m the rare real case, how fast does it reverse? And why can’t I just diet my way out of this?': {
+    intent: 'Price the two levers honestly: a reversibility timeline for the drug, a headroom ceiling for the diet.',
+    tags: ['lipids', 'nutrition', 'guideline', 'experiment', 'coverage'],
+    windowDays: 730,
+    plan: [
+      { tool: 'search_guidelines', args: '"statin symptom washout" + "dietary ApoB effect size"', yields: '4 statements' },
+      { tool: 'query_clinical', args: 'nutrition coverage + dietary pattern, trailing 90d', yields: '88% of days logged, Mediterranean-leaning' },
+    ],
+    picks: [
+      { id: 'obs-apob', reasons: ['change', 'baseline'], note: 'the 95 both levers are priced against' },
+      { id: 'diet-baseline', reasons: ['coverage', 'baseline'], virtual: true, label: 'Nutrition log — 88% coverage, Mediterranean-leaning',
+        note: 'the fact that puts his dietary headroom at the low end of the published range — he is not starting from a bad diet' },
+      { id: 'pgx-slco1b1', reasons: ['quality'], note: 'why the realistic worst case is agent-switching measured in weeks, not a lost season' },
+    ],
+    aggregate: [],
+    guidelines: [
+      'Dietary change moves ApoB ~5–15%; highly adherent portfolio-style ~20–30%; a moderate-intensity statin ~30–40%.',
+      'Common statin muscle symptoms typically resolve within days to weeks of stopping.',
+    ],
+    counterfactuals: {},
+    caveats: {},
+  },
+
+  'Sketch the diet experiment. But honestly — is it informative, or am I just buying six weeks of feeling like I did something?': {
+    intent: 'Pre-register a six-week diet experiment so the result cannot be renegotiated after it lands.',
+    tags: ['experiment', 'lipids', 'nutrition', 'labs', 'quality'],
+    windowDays: 90,
+    plan: [
+      { tool: 'get_trend', args: 'ApoB within-person variation → smallest real difference', yields: '±6–8% band from 95' },
+      { tool: 'query_health_model', args: 'intervention=soluble fibre → ApoB edge', yields: '1 cited edge, MODERATE tier' },
+      { tool: 'search_records', args: 'training block schedule — the held variable', yields: '1 hit' },
+    ],
+    picks: [
+      { id: 'obs-apob', reasons: ['baseline'], note: 'the 95 the pre-registered bar is set against' },
+      { id: 'block-summary', reasons: ['quality'], note: 'held steady for the six weeks so only one variable moves' },
+      { id: 'exp-postmeal-walks', reasons: ['experiment', 'in-flight'], note: 'the precedent — he already runs pre-registered n-of-1s, so this is his own method pointed at a new lever' },
+      { id: 'exp-fibre-criteria', reasons: ['experiment'], virtual: true, label: 'Pre-registered readings (≤ 85 · 86–90 · > 90)',
+        note: 'locked before the draw; the guard against the self-negotiation he named himself' },
+    ],
+    aggregate: [],
+    guidelines: ['Within-person ApoB variation ≈ 6–8% — from 95, results above ~88 are indistinguishable from no effect.'],
+    counterfactuals: {},
+    caveats: {
+      design: 'Six weeks tests the fast levers (fibre, saturated fat). It cannot test weight-mediated effects, which move on a slower clock — the criteria only claim what the window can support.',
+    },
+  },
+
+  'Lock it in. But nobody starts a statin and stops. Is there data on decades, or just five-year trials? My dad’s been on one since his stent and I can’t tell it’s done anything.': {
+    intent: 'Answer the decades question with the layered evidence that exists — and name each layer’s weakness.',
+    tags: ['guideline', 'cardiac', 'lipids', 'genomics', 'family', 'meds'],
+    windowDays: 1095,
+    plan: [
+      { tool: 'search_guidelines', args: '"statin legacy follow-up 20 year" + "mendelian randomisation LDL"', yields: '5 statements' },
+      { tool: 'query_clinical', args: 'active prescriptions — the re-decision framing', yields: '1: lisinopril, renewed yearly since 2022' },
+    ],
+    picks: [
+      { id: 'gen-lpa', reasons: ['corroborate'], note: 'the cumulative-exposure argument he already accepts — same logic, sign flipped' },
+      { id: 'med-lisinopril', reasons: ['corroborate'], note: 'proof in his own record that a daily preventive pill is a yearly re-decision, not a sentence' },
+      { id: 'fh-father-cad', reasons: ['corroborate'], note: 'the counterfactual he cannot see: the father’s statin era has no visible receipt precisely when it works' },
+    ],
+    aggregate: [],
+    guidelines: [
+      'Trial cohorts followed ~20 years post-randomisation show persistent benefit and no late harm signal (WOSCOPS).',
+      'Mendelian randomisation: lifelong genetically low LDL yields roughly 3× the per-mg/dL risk reduction of five-year trials — risk tracks cumulative exposure (LDL-years).',
+    ],
+    counterfactuals: {},
+    caveats: {},
+  },
+
+  'He’s 74 and still gardening — that’s the receipt, isn’t it. One more: is red yeast rice anything, or just an unregulated statin with extra steps?': {
+    intent: 'Resolve a "natural alternative" to its actual pharmacology, against his genome.',
+    tags: ['meds', 'genomics', 'quality', 'guideline'],
+    windowDays: 730,
+    plan: [
+      { tool: 'search_guidelines', args: '"red yeast rice monacolin K" + "citrinin contamination"', yields: '3 statements' },
+      { tool: 'query_health_model', args: 'intervention=red-yeast-rice → resolves to lovastatin node', yields: '1 identity edge' },
+    ],
+    picks: [
+      { id: 'iv-ryr', reasons: ['comparator'], virtual: true, label: 'Red yeast rice (graph node — monacolin K ≡ lovastatin)',
+        note: 'not a third option: the graph resolves it to the statin class his genome flags, minus the dose label' },
+      { id: 'pgx-slco1b1', reasons: ['guideline'], note: 'lovastatin shares the lipophilic class the variant flags — the "natural" route is the worst-matched one' },
+    ],
+    aggregate: [],
+    guidelines: [
+      'Monacolin K is chemically identical to lovastatin.',
+      'Tested products range from ~0 to prescription-dose monacolin between brands and batches; citrinin contamination occurs.',
+    ],
+    counterfactuals: {},
+    caveats: {},
+  },
+
+  'Should I redo the calcium scan before the follow-up — or is that me shopping for another zero?': {
+    intent: 'Re-read the recorded scan surface under a live statin decision, and price the repeat’s information value.',
+    tags: ['imaging', 'cardiac', 'screening', 'lipids', 'family', 'guideline'],
+    windowDays: 730,
+    plan: [
+      { tool: 'search_records', args: 'preference model: CAC decision surface (2025-08-01)', yields: '1 stored surface, rung understood' },
+      { tool: 'search_guidelines', args: '"CAC 0 statin deferral" + "conversion with risk enhancers"', yields: '3 statements' },
+      { tool: 'query_clinical', args: 'the four enhancers the scan cannot see', yields: '4 records' },
+    ],
+    picks: [
+      { id: 'pref-decision-style', reasons: ['preference'], virtual: true, label: 'Recorded decision surface (2025-08-01) — wait; steer by quarterly ApoB',
+        note: 'read back to him verbatim, shift conditions and all — the surface is his, editable, and one of its conditions just went live' },
+      { id: 'ev-cac', reasons: ['baseline'], virtual: true, label: 'CAC Agatston 0 (extracted impression)' },
+      { id: 'obs-lpa', reasons: ['guideline'], note: 'enhancer the scan cannot see, 1 of 4' },
+      { id: 'obs-apob', reasons: ['change', 'guideline'], note: 'enhancer 2 — and the reason a repeat zero cannot carry the first zero’s weight' },
+      { id: 'fh-father-cad', reasons: ['guideline'], note: 'enhancer 3; ancestry is the fourth and lives in the profile, not a record' },
+    ],
+    aggregate: [],
+    guidelines: [
+      'Some guidance uses CAC 0 to defer statins at borderline risk; risk enhancers argue the reverse.',
+      'Conversion from CAC 0 with risk factors runs ≈ 5–10% per year.',
+    ],
+    counterfactuals: {},
+    caveats: {
+      pixelsExcluded: 'The CAC study’s pixel data never leaves the device; the reasoner saw the extracted Agatston score of 0.',
+    },
+  },
+
+  'Real talk — a pill at 45 feels like the opening scene of becoming my dad. Build me the packet for the follow-up.': {
+    intent: 'File the fear where it belongs, ask one coherence question, and assemble the packet.',
+    tags: ['cardiac', 'lipids', 'genomics', 'meds', 'metabolic', 'family', 'imaging'],
+    windowDays: 1095,
+    plan: [
+      { tool: 'query_clinical', args: 'packet contents: lipid trend, genome flags, metabolic baseline, CAC', yields: '7 records + 1 pending slot' },
+      { tool: 'query_health_model', args: 'statin decision → clinician-routed questions', yields: '6 queued questions' },
+    ],
+    picks: [
+      { id: 'obs-apob', reasons: ['change', 'guideline'] },
+      { id: 'obs-lpa', reasons: ['outlier', 'guideline'] },
+      { id: 'gen-lpa', reasons: ['corroborate'] },
+      { id: 'pgx-slco1b1', reasons: ['unique', 'guideline'], note: 'the packet’s highest-value row — it changes which statin the six-week conversation is about' },
+      { id: 'obs-hba1c', reasons: ['contradiction'], note: 'the diabetes-risk conversation, pre-armed with his own flat three-year line' },
+      { id: 'ev-cac', reasons: ['baseline'], virtual: true, label: 'CAC Agatston 0 (extracted impression)' },
+      { id: 'med-lisinopril', reasons: ['unique'], note: 'the coherence probe — three years of a daily preventive pill that never touched his identity' },
+      { id: 'fh-father-cad', reasons: ['guideline'], note: 'the fear’s referent, filed as history rather than argued with' },
+    ],
+    aggregate: [],
+    guidelines: ['CPIC SLCO1B1 guidance travels with the packet so the prescriber sees it before an agent is chosen.'],
+    counterfactuals: {},
+    caveats: {
+      local: 'The packet is assembled locally. Nothing leaves the device until he explicitly shares it.',
+    },
+  },
+
+  'The lisinopril question got me. Run the experiment, redraw, walk in with the packet — that’s the plan.': {
+    intent: 'Store the statin decision surface — direction, shift conditions, rung, confidence — as data he owns.',
+    tags: ['cardiac', 'lipids', 'experiment', 'labs'],
+    windowDays: 90,
+    plan: [
+      { tool: 'search_records', args: 'preference model: write statin surface, rung=understood→endorsed', yields: '1 stored object, provenance=this conversation' },
+      { tool: 'get_trend', args: 'week-six draw scheduled against the follow-up', yields: '1 pending measurement' },
+    ],
+    picks: [
+      { id: 'pref-statin-surface', reasons: ['preference'], virtual: true, label: 'Considered decision surface — statin (rung: understood → endorsed)',
+        note: 'stored with provenance and moderate confidence, and expected to move with the week-six draw — a model of him, not a verdict' },
+      { id: 'obs-apob', reasons: ['baseline'], note: 'shift condition (a): a diet draw at or below 85 reopens the question from the other side' },
+      { id: 'exp-fibre-criteria', reasons: ['experiment', 'in-flight'], virtual: true, label: 'Diet experiment (pre-registered, week-six draw)' },
+    ],
+    aggregate: [],
+    guidelines: [],
+    counterfactuals: {},
+    caveats: {},
   },
 }
 

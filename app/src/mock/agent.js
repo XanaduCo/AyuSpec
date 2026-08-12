@@ -283,13 +283,14 @@ export const answers = {
     ],
   },
   // --- behavioural-flows showcase (docs/behavioural-flows.md) ----------------
-  // Three seeded conversations exercise the conversational spec: question
+  // Four seeded conversations exercise the conversational spec: question
   // sharpening + signal validation, considered-preference formation on a
-  // screening decision, and the correlation→causation boundary handed off to a
-  // reversible n-of-1. Every answer here carries the four-part contract —
-  // what the data says / what it cannot yet say / why it matters to the goal /
-  // the next question most likely to change the action — and never more than
-  // one concept card per response.
+  // screening decision, the correlation→causation boundary handed off to a
+  // reversible n-of-1, and a full-depth therapy decision (the statin thread)
+  // that runs the whole flow loop across ten exchanges. Every answer here
+  // carries the four-part contract — what the data says / what it cannot yet
+  // say / why it matters to the goal / the next question most likely to change
+  // the action — and never more than one concept card per response.
 
   // Conversation 1 · question sharpening & signal validation (local reasoner)
   'Is my sleep score bad?': {
@@ -429,6 +430,146 @@ export const answers = {
       { kind: 'concept', concept: 'n-of-1',
         text: 'This is the rare health question where you can run the decisive study on yourself: you schedule the exposure, the outcome is already measured every morning, and the change costs nothing but calendar friction. The discipline — one variable, a locked bar, a fixed horizon — is what separates a finding from a story.' },
       { kind: 'p', text: '**What would support the hypothesis:** the dip shrinks past the bar while load stays on plan — timing was doing real work, and you own a free lever. **What would weaken it:** mornings look the same as the evening weeks did — the cost lives in the load itself, and the honest next question becomes whether the block’s remaining weeks are worth their recovery price. Either result is a finding; the run is scored against the bar above, not against how it feels {{ev:inf}}.' },
+    ],
+  },
+
+  // Conversation 4 · a therapy decision at full depth (local reasoner)
+  // The longest seeded thread — ten exchanges, produced by running a simulated
+  // user (who knew nothing of the spec) against an agent bound to it, then
+  // edited down. It exercises what the shorter threads can't: several distinct
+  // fears surfacing across turns rather than at once, one bias check per turn
+  // (availability → the running-club story; relative→absolute → the diabetes
+  // number; the lisinopril coherence probe), a pre-registered hand-off to
+  // Experimentation mid-conversation, and a decision surface stored at the end.
+  // Local on purpose: the thread leans on his genome throughout, and the
+  // pharmacogenomics never leave the device.
+  'My doctor wants me on a statin. My calcium score was zero — why does a guy in the best shape of his life need a heart disease pill?': {
+    cloud: false,
+    tools: ['get_trend', 'query_clinical', 'search_guidelines', 'get_genomic_variants'],
+    blocks: [
+      { kind: 'lead', text: 'Straight answer: your doctor isn’t looking at your fitness. He’s looking at a different line than the one you feel.' },
+      { kind: 'p', text: 'The fitness part of the record is genuinely excellent — **metabolic-cart VO₂max 47.8 and climbing** {{cite:vo2-2025-06-14}}, resting HR 54 {{cite:obs-rhr}} {{ev:src}}. The statin conversation is about a different series: **ApoB has risen at every one of nine draws since May 2023 — 72 → 95 mg/dL** {{cite:obs-apob}}, now past the < 90 target your family history sets {{cite:fh-father-cad}} {{ev:guide}}. Add **Lp(a) at 76 nmol/L** {{cite:obs-lpa}} — genetic, lifelong, and not something any statin lowers {{ev:src}}. Plaque and fitness run on separate channels, and in your record they point in opposite directions {{ev:inf}}.' },
+      { kind: 'p', text: 'The calcium zero is real and it matters {{cite:img-cac}}. But that scan sees only *calcified* plaque, and a rising ApoB builds soft plaque first — the kind that calcifies later. A 21-month-old zero says "nothing far along yet." It cannot say "nothing starting" {{ev:inf}}.' },
+      { kind: 'p', text: 'What your data cannot say is whether to treat — that is the six-week decision, and it belongs to you and your doctor {{ev:none}}. What I can do is put absolute numbers on the three harms you read about, from blinded trials rather than forums — the gap between those two sources is unusually large. Which is carrying the most weight tonight: muscle, brain fog, or diabetes?' },
+      { kind: 'sources', text: 'Records behind this answer:', cites: ['obs-apob', 'obs-lpa', 'img-cac', 'fh-father-cad', 'vo2-2025-06-14'] },
+    ],
+  },
+
+  'Wait — Lp(a)? A genetic problem the pill doesn’t even fix? And muscle is my real worry. A guy in my running club quit his statin because he couldn’t train.': {
+    cloud: false,
+    tools: ['query_clinical', 'get_genomic_variants', 'search_guidelines'],
+    blocks: [
+      { kind: 'lead', text: 'Two separate things — and the Lp(a) point cuts the opposite way from how it landed.' },
+      { kind: 'p', text: 'ApoB is the total count of artery-damaging particles: 95 as of August 1 {{cite:obs-apob}}. Lp(a) is one stubborn slice of that total — 76 nmol/L, set by your genes (your **LPA rs3798220** variant explains it {{cite:gen-lpa}}), and no, statins don’t touch it {{ev:src}}. What a statin does is cut the rest, hard — 30–40% at moderate doses {{ev:guide}}. So the pill isn’t *for* the Lp(a). The Lp(a) is why the rest matters more for you than for most people: a fixed load you can’t lower makes the load you *can* lower do double duty {{ev:inf}}.' },
+      { kind: 'p', text: 'On muscle — your friend’s story is real, and I won’t argue with it. One thing worth separating: in open-label use, 10–30% of people report muscle pain. In blinded trials, where nobody knows pill from placebo, the excess over placebo is about **1 in 100** {{ev:guide}}. In SAMSON, people who had quit statins over pain took placebo months without knowing — and reported about 90% of the same pain {{ev:guide}}. The nightmare is common; the drug causing it is rare. That is a population fact, not a promise about you {{ev:inf}}.' },
+      { kind: 'p', text: 'And your record says something a forum can’t: you carry **SLCO1B1 \\*1/\\*5** {{cite:pgx-slco1b1}} — elevated myopathy risk *specifically on simvastatin*; rosuvastatin and pravastatin don’t carry that flag for you {{ev:guide}}. Your friend’s outcome ran on his genetics and, likely, his statin. Yours would run on yours — and yours come with a legible warning label about which one to avoid.' },
+    ],
+  },
+
+  '90% of the pain showed up on placebo? So my friend imagined it? And you skipped the diabetes thing — I read statins raise it 10%.': {
+    cloud: false,
+    tools: ['query_clinical', 'search_guidelines'],
+    blocks: [
+      { kind: 'lead', text: 'Not in his head — in his body, really hurting, really unable to run. What the blinded data question is the molecule, not the man.' },
+      { kind: 'p', text: 'SAMSON’s finding is that the *pain* is real while the *cause* is usually not the statin: the same tablets minus the drug produced almost the same symptoms {{ev:guide}}. The distinction matters practically — pain from expectation responds to blinding and structure; pain from the drug responds only to stopping it. Both are exits. Nobody is trapped {{ev:inf}}.' },
+      { kind: 'concept', concept: 'placebo-effect',
+        text: 'Expectation-generated pain runs on the same nerves as any other pain — "90% on placebo" is not an accusation of imagining it. It means the tablet’s chemistry was rarely the difference. Isolating that is exactly what a blinded comparison is for.' },
+      { kind: 'p', text: 'On funding — fair instinct, and here it has an answer: SAMSON and StatinWISE were publicly funded, no industry sponsor {{ev:src}}. The big efficacy meta-analyses do pool industry trials, so keep your scepticism pointed there if anywhere. Though note the incentive argument cuts both ways: the diabetes number you’re citing came out of those same trials {{ev:inf}}.' },
+      { kind: 'p', text: 'Which brings me to it. The "10% increase" is relative. In absolute terms: roughly **1 extra case of diabetes per 250–500 people treated for 4–5 years**, landing almost entirely in people already near the diabetic threshold {{ev:guide}}. Your HbA1c is **5.4% and has been flat for three years** {{cite:obs-hba1c}}; fasting insulin and HOMA-IR are normal {{ev:src}}. Family history matters, but your own three-year line is the better witness here, and it is quiet {{ev:inf}}.' },
+    ],
+  },
+
+  'If I’m the rare real case, how fast does it reverse? And why can’t I just diet my way out of this?': {
+    cloud: false,
+    tools: ['search_guidelines', 'query_clinical', 'query_health_model'],
+    blocks: [
+      { kind: 'lead', text: 'Fair — I owed you that number.' },
+      { kind: 'p', text: 'For the common form of statin muscle symptoms, stopping resolves them typically within **days to a few weeks**; most people are clear inside a month {{ev:guide}}. Two weeks is a better estimate than two months. The serious, slow-to-reverse myopathy is the rare thing your SLCO1B1 flag exists to help avoid {{cite:pgx-slco1b1}} — dose- and agent-linked, which is why the flag names simvastatin {{ev:guide}}. So the realistic worst case reads: notice symptoms, stop or switch, lose part of a training cycle — not a season {{ev:inf}}. What nobody can give you is a personal guarantee, which is why tracking matters more than forecasting.' },
+      { kind: 'p', text: 'On diet — you’re right that you never ran that experiment, and I won’t pretend you did. The ceiling: realistic sustained change moves ApoB **5–15%**; aggressive portfolio-style eating with very high adherence, **20–30%** {{ev:guide}}. Your diet is already Mediterranean-leaning at 88% logging coverage {{ev:src}}, so your remaining headroom is likely the low end. From 95, a strong 10% gets you to ~86 — under target, barely, with the trend still pointed up underneath {{ev:inf}}.' },
+      { kind: 'frame', caption: 'The same fixed axes as every frame. The cells are filled and nothing is ranked.',
+        cols: ['Option', 'Evidence', 'Effect on ApoB', 'Risk', 'Reversible', 'Effort'],
+        rows: [
+          { cells: ['Tighten diet hard (fibre, sat-fat)', { ev: 'moderate' }, '−5–15%, from a good baseline', 'None', 'Yes', 'Daily habit'] },
+          { cells: ['Moderate statin (discuss w/ MD)', { ev: 'high' }, '−30–40%', 'Low, genome-matched', 'Yes — washes out in weeks', 'Daily pill'] },
+          { cells: ['Both', { ev: 'high' }, 'Additive', 'Low', 'Yes', 'Both habits'] },
+        ] },
+      { kind: 'p', text: 'Those first two aren’t mutually exclusive, and six weeks is enough time to learn something real about the diet lever before the follow-up. Want the experiment sketched properly — with the bar set before you see the number?' },
+    ],
+  },
+
+  'Sketch the diet experiment. But honestly — is it informative, or am I just buying six weeks of feeling like I did something?': {
+    cloud: false,
+    tools: ['get_trend', 'query_health_model', 'search_records'],
+    actions: [
+      { kind: 'experiment', propose: 'fibre', label: 'Pre-register the diet experiment' },
+    ],
+    blocks: [
+      { kind: 'lead', text: 'It’s informative if — and only if — you pre-register what each result means before you see it. That’s the guard against the thing you just named.' },
+      { kind: 'p', text: 'The sketch: hold the training block steady so one variable moves {{cite:block-summary}}. Six weeks of saturated fat down hard and **15 g/day added soluble fibre**, everything else as-is — your logging makes adherence verifiable rather than vibes {{ev:src}}. Redraw ApoB at week six: same lab, fasted, same time of day. One measurement note before any criteria: ApoB bounces 6–8% within a person, so from 95, anything above ~88 is indistinguishable from no effect {{ev:guide}}.' },
+      { kind: 'p', text: 'Pre-registered readings, locked now: **≤ 85** — real dietary headroom exists, and how far it goes becomes a live question. **86–90** — marginal, at the edge of the assay’s noise. **> 90** — your diet was already near its floor, and "I never tried" has been replaced with evidence {{ev:inf}}. Whatever it reads, the number can’t be renegotiated by the version of you looking at it in six weeks.' },
+      { kind: 'concept', concept: 'n-of-1',
+        text: 'The run is scored against a bar set before the result exists — that is the entire discipline. A criterion chosen afterwards always agrees with whoever chose it.' },
+      { kind: 'p', text: 'And be clear-eyed about what it can’t answer: the Lp(a) and the two-year climb exist in every branch {{cite:obs-lpa}}. Even the best result hands your doctor a sharper question, not a resolved one — *is 85-and-holding enough margin, given Lp(a) at 76?* But that is a real conversation with a real number in it {{ev:inf}}.' },
+    ],
+  },
+
+  'Lock it in. But nobody starts a statin and stops. Is there data on decades, or just five-year trials? My dad’s been on one since his stent and I can’t tell it’s done anything.': {
+    cloud: false,
+    tools: ['search_guidelines', 'get_genomic_variants', 'query_clinical'],
+    blocks: [
+      { kind: 'lead', text: 'Locked — it’ll sit on your timeline next to the post-meal-walks trial. The forever question, honestly: nobody has run a 40-year randomised trial, and nobody ever will.' },
+      { kind: 'p', text: 'What exists is layered. Trials run about five years; their cohorts have been followed for up to twenty after — WOSCOPS is the cleanest — with the benefit persisting and no late harm signal emerging {{ev:guide}}. Statins have been in mass use since 1987, so rare-harm surveillance now spans nearly four decades. That is weaker than a trial, and worth saying so {{ev:inf}}.' },
+      { kind: 'concept', concept: 'hierarchy-of-evidence',
+        text: 'The decades question is answered by three instruments, none sufficient alone: five-year trials, twenty-year cohort follow-ups, and people born with LDL-lowering variants. The genetic one is the only instrument that covers the horizon the trials can’t — and it is observational, so it borrows credibility from the other two agreeing with it.' },
+      { kind: 'p', text: 'That genetic evidence is the strongest long-horizon signal, and you’re the right reader for it: people born with lifelong-low LDL show far larger risk reductions per mg/dL than five-year trials do — because plaque tracks *cumulative* exposure. LDL-years, like pack-years {{ev:guide}}. You already believe this argument: it is the same logic that makes your Lp(a) matter {{cite:gen-lpa}} — a lifelong exposure raising risk and a lifelong exposure lowering it are the same curve with the sign flipped {{ev:inf}}. It is also why "start at 45 versus 55" is a real question rather than the same question later.' },
+      { kind: 'p', text: 'And "forever" isn’t the commitment on the table — it’s a yearly re-decision that is fully reversible. As for your dad: prevention’s cruelty is that a heart attack that never happened leaves no receipt. Refills are what success looks like from the inside {{ev:inf}}.' },
+    ],
+  },
+
+  'He’s 74 and still gardening — that’s the receipt, isn’t it. One more: is red yeast rice anything, or just an unregulated statin with extra steps?': {
+    cloud: false,
+    tools: ['search_guidelines', 'query_health_model', 'get_genomic_variants'],
+    blocks: [
+      { kind: 'lead', text: 'That’s the receipt. And notice what you just did — re-read a piece of evidence you’d held one way for years. That’s the update working, not me winning.' },
+      { kind: 'p', text: 'Red yeast rice: your instinct is right, and the *why* is worth having. Its active compound, monacolin K, is chemically identical to lovastatin — not statin-like, the same molecule {{ev:guide}}. So "natural statin, no pharma" is really "statin, no dose label, no quality control." Independent testing finds monacolin content varying from nearly nothing to prescription-level doses between brands and between batches, plus occasional contamination with citrinin, a kidney toxin {{ev:guide}}.' },
+      { kind: 'p', text: 'The part specific to you: lovastatin sits in the same lipophilic family as simvastatin — the family your **SLCO1B1 variant flags for myopathy risk** {{cite:pgx-slco1b1}} {{ev:guide}}. The "natural" route would be an *unknown* dose of a statin from the *worst-matched* chemical class for your genome, with no monitoring. The pharmacogenomics that let you dodge the nightmare scenario by name only work when you know what and how much you’re taking {{ev:inf}}. Whatever you decide about statins, this door isn’t a third option — it’s the same door, unlit.' },
+    ],
+  },
+
+  'Should I redo the calcium scan before the follow-up — or is that me shopping for another zero?': {
+    cloud: false,
+    tools: ['search_records', 'search_guidelines', 'query_clinical'],
+    blocks: [
+      { kind: 'lead', text: 'You answered most of this a week ago — let me read your own decision surface back before adding anything.' },
+      { kind: 'p', text: 'Recorded August 1, at rung *understood*, moderate confidence: you favour waiting for the guideline scan interval and steering by quarterly ApoB, with three shift conditions — ApoB still rising through the next two draws, anything symptomatic, or a therapy arriving that a scan result would gate {{ev:src}}. What has genuinely changed since: that third condition is arguably live, because a statin decision is now on the table, and some guidance does use a calcium zero to defer statins in borderline-risk people {{ev:guide}}.' },
+      { kind: 'p', text: 'But run the information value for *your* case. A repeat zero can’t carry the weight the first one did — you hold four risk enhancers the scan cannot see: Lp(a) 76 {{cite:obs-lpa}}, the unbroken ApoB climb {{cite:obs-apob}}, your father at 62 {{cite:fh-father-cad}}, South Asian ancestry {{ev:guide}}. With those, conversion from zero runs maybe 5–10% a year {{ev:guide}}. And a nonzero would only push in the direction everything else already points. The scan is asymmetric for you: one result changes little, the other confirms what’s known {{ev:inf}}.' },
+      { kind: 'p', text: 'Which leaves the motive you named yourself, and I won’t grade it — wanting to feel like a healthy person is legitimate. But a test you’ve pre-decided to believe in only one direction isn’t measurement any more {{ev:inf}}. It reads better as a question for the follow-up than as a scan bought before it.' },
+    ],
+  },
+
+  'Real talk — a pill at 45 feels like the opening scene of becoming my dad. Build me the packet for the follow-up.': {
+    cloud: false,
+    tools: ['query_clinical', 'get_genomic_variants', 'query_health_model'],
+    actions: [
+      { kind: 'share', domains: ['cardiac'], label: 'Build the doctor packet' },
+    ],
+    blocks: [
+      { kind: 'lead', text: 'That fear is a data point — it’s filed under values rather than labs, and that layer gets equal standing here.' },
+      { kind: 'p', text: 'Hold it next to the record for one moment. Your dad started his statin at 62, *after* the stent — the pill arrived as damage control. What’s on your table at 45 is the reverse scene: nine ApoB draws {{cite:obs-apob}}, a genome {{cite:pgx-slco1b1}}, a calcium scan he never had {{cite:img-cac}}, and seventeen years he didn’t get. Whichever way you decide, you are not in his movie — you’re deciding with information that didn’t exist for him {{ev:inf}}.' },
+      { kind: 'p', text: 'One gentle question, not an argument: you’ve taken lisinopril every morning for three years {{cite:med-lisinopril}} without it touching your identity. What makes this pill different? You don’t owe me the answer — it might be worth knowing before the follow-up.' },
+      { kind: 'p', text: 'The packet will hold: the ApoB trajectory with the < 90 target flagged {{cite:obs-apob}}; Lp(a) 76 with the rs3798220 note {{cite:gen-lpa}}; the **SLCO1B1 \\*1/\\*5 flag with its CPIC guidance** — rosuvastatin or pravastatin preferred, simvastatin avoided {{cite:pgx-slco1b1}} {{ev:guide}}; your metabolic baseline for the diabetes conversation {{cite:obs-hba1c}}; the CAC context {{cite:img-cac}}; and a slot for the week-six draw. Questions queued: agent choice given the genome, starting dose and target, recheck cadence, whether the Lp(a) changes intensity, a symptom protocol with a baseline CK, and the rescan timing {{ev:inf}}.' },
+      { kind: 'sources', text: 'Records behind this answer:',
+        cites: ['obs-apob', 'obs-lpa', 'gen-lpa', 'pgx-slco1b1', 'img-cac', 'med-lisinopril', 'fh-father-cad'] },
+    ],
+  },
+
+  'The lisinopril question got me. Run the experiment, redraw, walk in with the packet — that’s the plan.': {
+    cloud: false,
+    tools: ['search_records', 'get_trend'],
+    blocks: [
+      { kind: 'lead', text: 'Then here is the model I’m storing — a model of you, editable like everything else in your preference layer, and not a recommendation.' },
+      { kind: 'p', text: 'Direction: open to a structured, reversible trial of a genome-matched agent, contingent on the week-six draw and the follow-up conversation — evidence weighted over identity, a weighting you arrived at tonight rather than one I assigned {{ev:inf}}. It shifts if the diet draw comes back at or below 85, if a pre-registered trial produces symptoms that persist under blinding, or if your metabolic markers move. Rung: *understood*, edging toward *endorsed* — it survived the action-versus-inaction comparison and the lisinopril mirror. My confidence in the model: **moderate**; its newest parts are hours old {{ev:src}}.' },
+      { kind: 'p', text: 'For the record, success here was never you agreeing to anything. It was the question sharpening — from *why does a fit guy need a heart pill* to *what’s my dietary headroom, and which molecule fits my genome*. It did. See you at the draw.' },
     ],
   },
 }
