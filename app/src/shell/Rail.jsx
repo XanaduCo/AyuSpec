@@ -12,7 +12,7 @@ const NAV = [
   { to: '/explore', ic: '◇', label: 'Explore' },
   { to: '/experiments', ic: '⁘', label: 'Experiments' },
   { to: '/evidence', ic: '❖', label: 'Evidence' },
-  { to: '/companion', ic: '✉', label: 'Companion' },
+  { to: '/companion', ic: '✉', label: 'AyuBot' },
   { to: '/profile', ic: '☺', label: 'Profile' },
   { grp: 'Data' },
   { to: '/data', ic: '⇲', label: 'Data sources' },

@@ -1,4 +1,4 @@
-// The scripted Hermes thread for the Companion view, plus the per-message
+// The scripted AyuBot thread for the Companion view, plus the per-message
 // inspector metadata. Everything here is deterministic and hand-written — the
 // thread is a *script* the reviewer steps through by tapping the same chips a
 // real user would, not a simulation.
@@ -49,7 +49,7 @@ const SMS_BRIDGE = {
 // ---------------------------------------------------------------------------
 // The beats. `messages` render when the beat becomes current; `interaction`
 // is what the reviewer does; `replies[choice]` is appended after they do it.
-// Hermes messages carry `meta` for the "why this message" inspector.
+// AyuBot messages carry `meta` for the "why this message" inspector.
 // ---------------------------------------------------------------------------
 
 export const beats = [
@@ -59,7 +59,7 @@ export const beats = [
     divider: 'Thu Jul 17 · day 12 of 30',
     messages: [
       {
-        id: 'm-conf', from: 'hermes',
+        id: 'm-conf', from: 'ayubot',
         text: 'Your watch jumped two time zones overnight — travelling? If so I can flag this week as a confounder for the walk experiment, so the analysis reads it honestly.',
         meta: {
           type: 'Confounder capture',
@@ -96,7 +96,7 @@ export const beats = [
     divider: 'Wed Jul 23 · day 18 of 30',
     messages: [
       {
-        id: 'm-adh', from: 'hermes',
+        id: 'm-adh', from: 'ayubot',
         text: 'Walk after dinner yesterday? Your watch didn’t catch one in the evening window. — logging adherence for the post-meal-walk experiment, day 18 of 30.',
         meta: {
           type: 'Adherence check',
@@ -199,7 +199,7 @@ export const beats = [
     divider: 'Fri Jul 25 · day 20 of 30',
     messages: [
       {
-        id: 'm-sms', from: 'hermes', channelTag: 'via SMS bridge',
+        id: 'm-sms', from: 'ayubot', channelTag: 'via SMS bridge',
         text: 'Adherence check ready · tap to log',
         subtext: 'Opens the local surface — the question and your answer never ride the bridge.',
         meta: {
@@ -229,7 +229,7 @@ export const beats = [
     divider: 'Sat Jul 26 · day 21 of 30',
     messages: [
       {
-        id: 'm-adh2', from: 'hermes',
+        id: 'm-adh2', from: 'ayubot',
         text: 'Walk after dinner? — day 21 of 30.',
         meta: {
           type: 'Adherence check',
@@ -257,7 +257,7 @@ export const beats = [
     id: 'b-batch',
     messages: [
       {
-        id: 'm-batch', from: 'hermes',
+        id: 'm-batch', from: 'ayubot',
         text: 'End-of-day digest — two open items, one tap each. No rush; unanswered items close as not-recorded at midnight.',
         digest: [
           { label: 'Walk today (day 21)?', chips: ['✓', '✗'] },
@@ -290,7 +290,7 @@ export const beats = [
     divider: 'Fri Aug 1 · day 27 of 30',
     messages: [
       {
-        id: 'm-weekly', from: 'hermes',
+        id: 'm-weekly', from: 'ayubot',
         text: 'Weekly summary — the only message you’ll get at this cadence. Mark the week if you like, or leave it blank; blank stays blank in the record.',
         digest: [
           { label: 'Walks this week, roughly?', chips: ['mostly yes', 'mixed', 'mostly no', 'leave blank'] },
@@ -337,7 +337,7 @@ export const beats = [
     ] },
     replies: {
       resume: { user: 'resume', ack: 'Resumed — next check tomorrow after dinner. The muted stretch stays in the record as not_recorded; nothing was backfilled.' },
-      stay: { sys: 'Thread stays dormant. No active prompts → Hermes is silent. Silence is the default state, not a failure state.' },
+      stay: { sys: 'Thread stays dormant. No active prompts → AyuBot is silent. Silence is the default state, not a failure state.' },
     },
     ackLands: 'thread state',
   },
@@ -345,7 +345,7 @@ export const beats = [
 
 // The principles strip rendered beside the phone — the rules in force, short.
 export const principles = [
-  { k: 'Silent without purpose', v: 'Every message names the experiment, goal, or schedule that authorizes it. No streaks, no “we miss you” — no active experiment means no messages.' },
+  { k: 'Silent without purpose', v: 'Every message names the goal, experiment, or schedule that authorizes it. No streaks, no “we miss you” — no active goal, no experiment, nothing due means no messages.' },
   { k: 'Budgeted & sub-10s', v: '3 messages/day cap, quiet hours, one question at a time, answerable in a tap. Overflow batches; it never spills.' },
   { k: 'Backoff ladder', v: 'Non-answer steps down: skip → end-of-day batch → weekly → dormant. Volume only ever decreases; answering steps it back up.' },
   { k: 'Missing ≠ imputed', v: 'An unanswered check is recorded as not_recorded and degrades the experiment’s confidence honestly. Never assumed either way.' },

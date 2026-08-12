@@ -1,4 +1,4 @@
-/* Companion (Hermes) — the phone-thread walkthrough + the "why this message"
+/* Companion (AyuBot) — the phone-thread walkthrough + the "why this message"
    inspector. Reuses the app's tokens and privacy colour language: the phone is
    a neutral surface; the ONLY places local-green / egress-amber appear are the
    channel pills in the inspector, because channel is where egress lives. */
@@ -66,16 +66,16 @@
   line-height: 1.5;
   position: relative;
 }
-.cmp-msg.hermes {
+.cmp-msg.ayubot {
   align-self: flex-start;
   background: var(--raise);
   border: 1px solid var(--line2);
   border-bottom-left-radius: 5px;
   color: var(--body);
 }
-.cmp-msg.hermes.has-meta { cursor: pointer; }
-.cmp-msg.hermes.has-meta:hover { border-color: var(--brand); }
-.cmp-msg.hermes.sel { border-color: var(--brand); box-shadow: 0 0 0 2px var(--brand-soft); }
+.cmp-msg.ayubot.has-meta { cursor: pointer; }
+.cmp-msg.ayubot.has-meta:hover { border-color: var(--brand); }
+.cmp-msg.ayubot.sel { border-color: var(--brand); box-shadow: 0 0 0 2px var(--brand-soft); }
 .cmp-msg.user {
   align-self: flex-end;
   background: var(--brand-soft);

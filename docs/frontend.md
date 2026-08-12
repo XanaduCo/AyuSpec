@@ -3,6 +3,7 @@
 ## Principles
 
 - **Local-first web app.** Self-hosted, it is served by a local process at `localhost` and needs no internet connection to use. The managed tier serves the same app over HTTPS; there is no separate cloud UI.
+- **Fully capable, but not the everyday surface.** Every capability of ayuOS is reachable from the web app; nothing is gated to mobile. The expected primary surface for everyday interaction, though, is the [Companion App](companion-app.md) — the phone hosts the conversation thread with [AyuBot](ayubot.md), the check-ins, and the notifications. The web app is where deep work happens: the Timeline, the call ledger, the doctor packet, experiment design.
 - **Telemetry is off by default.** No analytics, crash reporting, or usage metrics are collected unless you opt in — in any tier. When enabled, it covers app diagnostics only, never health data.
 - **Fast to the first question.** The primary interaction is a chat input. The user should be able to ask a question within seconds of opening the app.
 - **The current posture is always on screen.** The user never has to open settings to learn whether a cloud model is in the loop.

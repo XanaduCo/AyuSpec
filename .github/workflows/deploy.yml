@@ -32,7 +32,9 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-          cache-dependency-path: app/package-lock.json
+          cache-dependency-path: |
+            app/package-lock.json
+            appdemo/package-lock.json
 
       - run: pip install -r requirements.txt
 
@@ -48,6 +50,14 @@ jobs:
       # --strict fails if it is missing.
       - name: Build demo app
         working-directory: app
+        run: |
+          npm ci
+          npm run build
+
+      # Builds the Companion-app demo to docs/appdemo/index.html, served by
+      # MkDocs at /appdemo/. Same contract as the main demo above.
+      - name: Build companion demo app
+        working-directory: appdemo
         run: |
           npm ci
           npm run build

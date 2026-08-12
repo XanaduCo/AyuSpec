@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom'
 import { beats, principles, EXPERIMENT } from '../mock/companion.js'
 import '../styles/companion.css'
 
-// Companion (Hermes) — the messaging companion, shown as the thing it is: a
-// phone thread you can step through, beside an inspector that answers the
-// question every other messaging bot hopes you never ask — *why did this
-// message exist?*
+// Companion (AyuBot) — the background agent's messaging surface, shown as the
+// thing it is: a phone thread you can step through, beside an inspector that
+// answers the question every other messaging bot hopes you never ask — *why
+// did this message exist?*
 //
 // The left panel is a scripted conversation spanning a compressed fortnight of
 // Ravi's running post-meal-walk experiment. The reviewer advances it by tapping
@@ -14,9 +14,9 @@ import '../styles/companion.css'
 // free-text journal line that comes back as graded extractions with an edit
 // affordance, a non-response stretch where the backoff ladder visibly steps
 // down (skip → end-of-day batch → weekly), and a mute by one word. Nothing
-// here is generated or random — the script is the spec (companion.md), acted out.
+// here is generated or random — the script is the spec (ayubot.md), acted out.
 //
-// The right panel is the "why this message" inspector for whichever Hermes
+// The right panel is the "why this message" inspector for whichever AyuBot
 // bubble is selected: trigger, the purpose ref that authorizes it (always an
 // experiment, goal, or schedule the user opted into — or it cannot be sent),
 // the budget state at send time, the channel with its egress path (local push
@@ -26,11 +26,11 @@ import '../styles/companion.css'
 // backoff ladder, missing ≠ imputed — because the demo's job is to make the
 // restraint legible, not just the messages.
 
-// One Hermes bubble. Selecting it drives the inspector.
-function HermesMsg({ msg, selected, onSelect }) {
+// One AyuBot bubble. Selecting it drives the inspector.
+function AyuBotMsg({ msg, selected, onSelect }) {
   return (
     <div
-      className={`cmp-msg hermes ${selected ? 'sel' : ''} ${msg.meta ? 'has-meta' : ''}`}
+      className={`cmp-msg ayubot ${selected ? 'sel' : ''} ${msg.meta ? 'has-meta' : ''}`}
       onClick={() => msg.meta && onSelect(msg)}
     >
       {msg.channelTag && <span className="cmp-chtag mono">{msg.channelTag}</span>}
@@ -92,7 +92,7 @@ function buildThread(choices) {
   for (let i = 0; i <= upTo; i++) {
     const beat = beats[i]
     if (beat.divider) items.push({ kind: 'divider', key: `d-${beat.id}`, text: beat.divider })
-    beat.messages.forEach(m => items.push({ kind: 'hermes', key: m.id, msg: m }))
+    beat.messages.forEach(m => items.push({ kind: 'ayubot', key: m.id, msg: m }))
 
     const choice = choices[i]
     if (choice === undefined) break // this beat is current — its interaction renders below
@@ -107,9 +107,9 @@ function buildThread(choices) {
     if (reply.sys) items.push({ kind: 'sys', key: `s-${beat.id}`, text: reply.sys })
     if (reply.ack) {
       items.push({
-        kind: 'hermes', key: `a-${beat.id}`,
+        kind: 'ayubot', key: `a-${beat.id}`,
         msg: {
-          id: `a-${beat.id}`, from: 'hermes', text: reply.ack,
+          id: `a-${beat.id}`, from: 'ayubot', text: reply.ack,
           extraction: reply.extraction,
           meta: beat.ackMeta, // often undefined — plain acks aren't inspectable
         },
@@ -125,7 +125,7 @@ function Composer({ beat, onChoose, done }) {
   if (done) {
     return (
       <div className="cmp-composer done">
-        <span className="mono">end of script — no active prompts, Hermes is silent</span>
+        <span className="mono">end of script — no active prompts, AyuBot is silent</span>
       </div>
     )
   }
@@ -168,7 +168,7 @@ function Inspector({ msg }) {
       <div className="card cmp-inspect">
         <span className="eyebrow">Why this message</span>
         <p className="note" style={{ marginTop: 8 }}>
-          Tap any Hermes message in the thread to see its trigger, the purpose that
+          Tap any AyuBot message in the thread to see its trigger, the purpose that
           authorizes it, its budget accounting, its channel and egress path, and where
           the reply landed in the record.
         </p>
@@ -239,7 +239,7 @@ export default function Companion() {
   const { items, current } = useMemo(() => buildThread(choices), [choices])
 
   // Selection: explicit tap wins; otherwise the latest inspectable message.
-  const inspectable = items.filter(i => i.kind === 'hermes' && i.msg.meta)
+  const inspectable = items.filter(i => i.kind === 'ayubot' && i.msg.meta)
   const selected =
     inspectable.find(i => i.msg.id === selectedId) || inspectable[inspectable.length - 1]
 
@@ -255,13 +255,16 @@ export default function Companion() {
 
   return (
     <div className="page cmp-page">
-      <p className="eyebrow">Companion · Hermes · scripted walkthrough</p>
-      <div className="lede">A companion that wants your data complete — not your attention.</div>
+      <p className="eyebrow">AyuBot · scripted walkthrough</p>
+      <div className="lede">A background agent that wants your goals served — not your attention.</div>
       <p className="muted" style={{ marginTop: 8, maxWidth: '72ch' }}>
-        Hermes does two things: targeted adherence recording for running experiments, and
-        journal-type capture no sensor can reach. Step through a compressed fortnight of
-        Ravi’s <Link to="/experiments">post-meal-walk experiment</Link> below — tap the reply
-        chips to advance, tap any Hermes message to see why it was allowed to exist. In this
+        AyuBot is ayuOS’s background agent: it reasons over your record between sessions —
+        same agent loop, same model roles — and starts a conversation only with purpose: a
+        goal-relevant change, a question that fills a gap in what ayuOS knows about your
+        goals, an adherence check, a due date. This walkthrough shows the messaging
+        discipline across a compressed fortnight of
+        Ravi’s <Link to="/experiments">post-meal-walk experiment</Link> — tap the reply
+        chips to advance, tap any AyuBot message to see why it was allowed to exist. In this
         self-hosted configuration the default channel never leaves the local network; the one
         bridged SMS ping is labeled, minimized, and ledgered.
       </p>
@@ -270,9 +273,9 @@ export default function Companion() {
         {/* left — the phone */}
         <div className="cmp-phone">
           <div className="cmp-phone-head">
-            <span className="cmp-avatar" aria-hidden="true">☿</span>
+            <span className="cmp-avatar" aria-hidden="true">✦</span>
             <div>
-              <b>Hermes</b>
+              <b>AyuBot</b>
               <span className="mono">{EXPERIMENT.label} · week {EXPERIMENT.week} · {EXPERIMENT.adherence.done}/{EXPERIMENT.adherence.of} recorded</span>
             </div>
             <button className="cmp-reset mono" onClick={reset} title="Restart the script">↺ restart</button>
@@ -283,7 +286,7 @@ export default function Companion() {
               if (it.kind === 'sys') return <SysNote key={it.key} text={it.text} />
               if (it.kind === 'user') return <UserMsg key={it.key} msg={it.msg} />
               return (
-                <HermesMsg
+                <AyuBotMsg
                   key={it.key} msg={it.msg}
                   selected={selected?.msg.id === it.msg.id}
                   onSelect={m => setSelectedId(m.id)}
@@ -307,7 +310,7 @@ export default function Companion() {
               </div>
             ))}
             <p className="note" style={{ marginBottom: 0 }}>
-              Full spec: <code>docs/companion.md</code> — the message taxonomy, the outbound-message
+              Full spec: <code>docs/ayubot.md</code> — the message taxonomy, the outbound-message
               contract, and the channel/egress tiers with their fallbacks.
             </p>
           </div>
