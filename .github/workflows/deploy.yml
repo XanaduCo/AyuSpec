@@ -34,7 +34,7 @@ jobs:
           cache: npm
           cache-dependency-path: |
             app/package-lock.json
-            appdemo/package-lock.json
+            mobiledemo/package-lock.json
 
       - run: pip install -r requirements.txt
 
@@ -54,10 +54,10 @@ jobs:
           npm ci
           npm run build
 
-      # Builds the Companion-app demo to docs/appdemo/index.html, served by
-      # MkDocs at /appdemo/. Same contract as the main demo above.
+      # Builds the Companion-app demo to docs/mobiledemo/index.html, served by
+      # MkDocs at /mobiledemo/. Same contract as the main demo above.
       - name: Build companion demo app
-        working-directory: appdemo
+        working-directory: mobiledemo
         run: |
           npm ci
           npm run build

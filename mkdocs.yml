@@ -49,7 +49,7 @@ nav:
     - Tiers & Fallbacks: tiers.md
     - Architecture Overview: architecture.md
   - Demo: demo/index.html
-  - Companion Demo: appdemo/index.html
+  - Companion Demo: mobiledemo/index.html
   - User Journeys:
     - Overview: journeys/index.md
     - "Getting in":

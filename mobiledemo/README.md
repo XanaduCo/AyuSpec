@@ -9,5 +9,5 @@ settings. All data is mocked and deterministic; taps update shared state within 
 
 Run locally: `npm install && npm run dev`.
 
-`npm run build` emits to `../docs/appdemo/`, which MkDocs serves at `/appdemo/`
+`npm run build` emits to `../docs/mobiledemo/`, which MkDocs serves at `/mobiledemo/`
 (see `.github/workflows/deploy.yml`). This is separate from `app/`, the desktop web-app demo.

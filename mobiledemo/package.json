@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "ayuOS Companion — UI-only demo of the adaptive plan loop (mocked data). Builds to ../docs/appdemo, served by MkDocs at /appdemo/.",
+  "description": "ayuOS Companion — UI-only demo of the adaptive plan loop (mocked data). Builds to ../docs/mobiledemo, served by MkDocs at /mobiledemo/.",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
