@@ -19,8 +19,9 @@
 
 import { addDays, daysBetween } from '../mock/rng.js'
 import { anchor } from '../mock/persona.js'
-import { candidates, unitById, toTokens, indexedRowsExGenome, units } from './store.js'
+import { candidates, sweep, unitById, toTokens, indexedRowsExGenome, units } from './store.js'
 import { specFor } from '../mock/retrieval.js'
+import { guestStore } from '../mock/guests.js'
 
 // --- why a record made the cut ---------------------------------------------
 // Hue-free by construction: these are epistemic labels, not privacy signals, so
@@ -127,6 +128,11 @@ export function assemble(question, { where = 'cloud', toggles = {} } = {}) {
   const spec = specFor(question)
   const cf = spec.counterfactuals || {}
 
+  // Guest threads (the seeded Maya/Dev conversations) assemble against that
+  // persona's own miniature store — same math, their records, their counts.
+  const guest = spec.guest ? guestStore(spec.guest) : null
+  const lookup = guest ? guest.unitById : unitById
+
   // 1 · the window ------------------------------------------------------------
   const windowDays = toggles.widen && cf.widen ? cf.widen.days : spec.windowDays
   const from = addDays(anchor, -windowDays)
@@ -134,7 +140,9 @@ export function assemble(question, { where = 'cloud', toggles = {} } = {}) {
     : windowDays >= 365 ? `${Math.round(windowDays / 365)} year${windowDays >= 700 ? 's' : ''}` : `${windowDays} days`
 
   // 2 · candidate sweep — mechanical, no model involved -----------------------
-  const cand = candidates({ tags: spec.tags, from, to: anchor })
+  const cand = guest
+    ? sweep(guest.units, { tags: spec.tags, from, to: anchor })
+    : candidates({ tags: spec.tags, from, to: anchor })
   const consideredRows = cand.reduce((a, x) => a + x.rows, 0)
 
   // 3 · what the genome's status is under this posture ------------------------
@@ -160,7 +168,7 @@ export function assemble(question, { where = 'cloud', toggles = {} } = {}) {
   for (const pick of picks) {
     if (seen.has(pick.id)) continue
     seen.add(pick.id)
-    const unit = pick.virtual ? virtualUnit(pick, spec) : unitById[pick.id]
+    const unit = pick.virtual ? virtualUnit(pick, spec) : lookup[pick.id]
     if (!unit) continue
     // A genomic pick under a cloud reasoner without opt-in never becomes a
     // selection — it is a policy item, handled below.
@@ -207,7 +215,7 @@ export function assemble(question, { where = 'cloud', toggles = {} } = {}) {
 
   // 6 · aggregation ledger ----------------------------------------------------
   const aggregations = (spec.aggregate || []).map(a => {
-    const unit = unitById[a.id]
+    const unit = lookup[a.id]
     if (!unit) return null
     const sent = selected.find(s => s.id === a.id)
     const outBytes = sent?.mode === 'full' ? unit.rawBytes : unit.summaryBytes
@@ -344,7 +352,7 @@ export function assemble(question, { where = 'cloud', toggles = {} } = {}) {
   }
 
   // 12 · the toggles themselves ----------------------------------------------
-  const rawUnit = cf.raw?.unitId ? unitById[cf.raw.unitId] : null
+  const rawUnit = cf.raw?.unitId ? lookup[cf.raw.unitId] : null
   const counterfactuals = [
     cf.genome && {
       key: 'genome',
@@ -382,7 +390,8 @@ export function assemble(question, { where = 'cloud', toggles = {} } = {}) {
     guidelines: spec.guidelines || [],
     considered: {
       units: cand.length, rows: consideredRows,
-      indexRows: indexedRowsExGenome, indexUnits: units.length,
+      indexRows: guest ? guest.indexRows : indexedRowsExGenome,
+      indexUnits: guest ? guest.indexUnits : units.length,
     },
     selected, evicted, aggregations, policy, dropped, dropGroups, gateway,
     budget: {

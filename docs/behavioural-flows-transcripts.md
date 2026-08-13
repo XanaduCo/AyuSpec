@@ -2,10 +2,11 @@
 
 !!! note "Status: reference material"
     Two full conversation transcripts that exercise [Behavioural Flows](behavioural-flows.md)
-    against patients with very different profiles. They complement the demo's seeded threads
-    (all anchored to Ravi's record — see the statin conversation there for the third patient):
-    together the three show the same spec producing three different-*feeling* conversations,
-    which is the point of the framing engine.
+    against patients with very different profiles. Both are also seeded in the demo's Ask
+    history as **guest threads** — read-only conversations from other patients' instances, each
+    assembling against its own miniature store — alongside Ravi's statin thread for the third
+    patient. Together the three show the same spec producing three different-*feeling*
+    conversations, which is the point of the framing engine.
 
 ## How these were produced
 
@@ -26,7 +27,7 @@ What to look for across both — and against the demo's statin thread:
 - **Nobody is told what to do.** All three conversations end in a recorded plan or decision
   surface the patient authored, not a recommendation.
 - **The conversations end at different lengths** because the stopping rule, not a script, decides:
-  the statin thread ran ten exchanges; these two closed themselves at seven.
+  the statin thread ran ten exchanges; these two closed themselves at six.
 
 ---
 
@@ -405,7 +406,7 @@ success metric.
 | **Proportionate action** | Pre-registered diet experiment + doctor packet | Zero-effort absorption fix + one draw, four questions | $70 test with self-authored thresholds |
 | **Clinician hand-off** | Six-week statin decision, armed | Endocrinologist re-engaged after 18 months, armed | None needed — below that threshold |
 | **Close** | Decision surface, rung *understood → endorsed* | Recorded plan + escalation condition | Decision surface, moderate-to-high confidence |
-| **Turns** | 20 | 14 | 14 |
+| **Turns** | 20 | 12 | 12 |
 
 The same spec, the same invariants, three conversations that feel nothing alike — and none of
 them ends in advice.

@@ -398,8 +398,10 @@ And the conclusion never claims to have found her "actual preference":
 A decision surface with a stated confidence — not a mined preference, and not a recommendation.
 
 Beyond this sketch, two full conversations — different patients, different profiles, the same
-invariants — are worked end-to-end in [Behavioural Flows · Transcripts](behavioural-flows-transcripts.md);
-a third (a statin decision, ten exchanges) is seeded in the demo's Ask history.
+invariants — are worked end-to-end in [Behavioural Flows · Transcripts](behavioural-flows-transcripts.md).
+All three live conversations are seeded in the demo's Ask history: a statin decision on the
+primary persona's own record, and the two transcript threads as read-only guest conversations
+from other patients' instances.
 
 ## Relationship to other components
 

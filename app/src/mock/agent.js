@@ -572,6 +572,163 @@ export const answers = {
       { kind: 'p', text: 'For the record, success here was never you agreeing to anything. It was the question sharpening — from *why does a fit guy need a heart pill* to *what’s my dietary headroom, and which molecule fits my genome*. It did. See you at the draw.' },
     ],
   },
+
+  // --- guest thread · Maya (docs/behavioural-flows-transcripts.md) -----------
+  // A different patient, a different register: meaning first, turns under ~160
+  // words, plans capped at two steps. Her instance runs everything local, so
+  // `guest` pins the trace to a local destination regardless of Ravi's header.
+  'It’s 3pm and my brain shut off again. My ring says my sleep is fine, which makes it worse. What is going on with me? And don’t tell me my labs are normal.': {
+    guest: 'maya',
+    cloud: false,
+    tools: ['get_time_series', 'get_trend', 'search_records'],
+    blocks: [
+      { kind: 'lead', text: 'You’re not imagining it — and your ring actually backs you up.' },
+      { kind: 'p', text: 'Sleep is averaging **7h20 with solid efficiency, steady for months** {{cite:maya-sleep-summary}} {{ev:src}}. By your own data, sleep is largely ruled out as the culprit. And your crashes aren’t random: seven logs in three weeks, **all landing between about 1:40 and 3pm** {{cite:maya-energy-logs}} {{ev:src}}. That’s a pattern, not a mood {{ev:inf}}.' },
+      { kind: 'p', text: 'Now, about "your labs are normal." Normal means the population range — not *your* range. Two years ago your TSH was **1.6** on this same dose. Last draw: **3.8** {{cite:maya-tsh-series}} {{ev:src}}. Every value inside the lab’s lines, but for someone on treatment, more than doubling from your own baseline is a real signal — the kind "normal" quietly hides {{ev:inf}}.' },
+      { kind: 'p', text: 'What the numbers can’t yet say is *why* it’s drifting. But that hands you a sharper question than "why am I tired" — and I have a couple of candidates when you want them.' },
+    ],
+  },
+
+  'It doubled and nobody said anything?? Is this the Hashimoto’s getting worse? That’s the thing I don’t let myself google at 2am.': {
+    guest: 'maya',
+    cloud: false,
+    tools: ['query_clinical', 'get_trend', 'search_records'],
+    blocks: [
+      { kind: 'lead', text: 'You’re not crazy — the drift is right there in your own numbers. Let’s take the 2am fear first.' },
+      { kind: 'p', text: 'The marker that tracks the autoimmune attack itself — your **TPO antibodies — has been roughly stable across three measurements** {{cite:maya-tpo}} {{ev:src}}. If the Hashimoto’s were speeding up, that’s where I’d expect movement. It’s not proof, but your data does not look like a disease accelerating {{ev:inf}}.' },
+      { kind: 'p', text: 'Two more ordinary candidates fit better. First: your morning logs show **coffee within about fifteen minutes of your pill most days** {{cite:maya-intake-log}} {{ev:src}} — and coffee measurably cuts levothyroxine absorption {{ev:guide}}. Same dose swallowed, less of it arriving. Second: your **ferritin is 22** {{cite:maya-ferritin}} — inside the range, but below 30 is linked to exactly this kind of fatigue in women {{ev:guide}}.' },
+      { kind: 'p', text: 'Candidates, not verdicts {{ev:inf}}. But notice your question just sharpened: not "why am I tired" — *is my dose actually getting in, and is low iron riding along?*' },
+    ],
+  },
+
+  'The coffee thing is real?? And since we’re here — I’ve got a tab open for a thyroid glandular supplement. Wouldn’t a natural boost cover the gap?': {
+    guest: 'maya',
+    cloud: false,
+    tools: ['search_guidelines', 'query_health_model'],
+    blocks: [
+      { kind: 'lead', text: 'Real and well-documented — and the fix costs nothing.' },
+      { kind: 'p', text: 'Coffee that close to the pill measurably blunts absorption {{ev:guide}}. Not half, most likely, but enough that a drifting TSH on an unchanged dose is exactly what it can look like {{ev:inf}}. The fix: **water with the pill, coffee thirty to sixty minutes later** {{cite:maya-med-levo}}. Six years of nobody mentioning it is maddening — and it may also be your cheapest lever.' },
+      { kind: 'p', text: 'On the glandular — your instinct that something thyroid-shaped is off looks right. **The bottle is the wrong instrument, though.** Independent testing keeps finding actual T3/T4 hormone in those supplements, unlabeled, in amounts that vary bottle to bottle {{ev:guide}}. On top of levothyroxine that’s a second hormone dose nobody’s measuring or adjusting — and chronic excess carries real risks, heart-rhythm problems and bone loss among them {{ev:guide}}.' },
+      { kind: 'p', text: 'If the problem is your dose not arriving, the fix that matches it is making *that* dose arrive {{ev:inf}}. The choice stays yours — I just want it made with the label filled in.' },
+    ],
+  },
+
+  'Tab closed. Mostly. Now be honest about the 30-day gluten elimination every Hashimoto’s podcast swears by.': {
+    guest: 'maya',
+    cloud: false,
+    tools: ['search_guidelines', 'query_clinical', 'query_health_model'],
+    blocks: [
+      { kind: 'lead', text: 'Honest answer: not a wrong instrument like the glandular — but the evidence is much thinner than the podcasts make it sound.' },
+      { kind: 'concept', concept: 'hierarchy-of-evidence',
+        text: 'The gluten-Hashimoto’s trials are small and mixed; the clearest benefit is in confirmed celiac disease. The podcast stories are people who genuinely felt better — that’s real, it’s just a story, not a probability.' },
+      { kind: 'p', text: 'And here’s the interesting gap: **your record has no celiac test in it** {{ev:src}}. That test is the thing that would turn this from a podcast question into a real one {{ev:inf}}.' },
+      { kind: 'p', text: 'Two practical problems for you specifically. Thirty days of reading every label is exactly the kind of babysitting that eats your energy. And you’re on **day 12 of the ashwagandha run** {{cite:maya-exp-ashwagandha}} — start a second change now and neither one can get credit for anything {{ev:inf}}. So the low-effort version: coffee timing starts tomorrow, and a celiac check simply rides along on your next blood draw.' },
+    ],
+  },
+
+  'A draw means facing the endocrinologist I’ve been dodging for a year and a half. If I go, give me the receipts. And is the ashwagandha even doing anything?': {
+    guest: 'maya',
+    cloud: false,
+    tools: ['get_trend', 'query_clinical', 'search_records'],
+    blocks: [
+      { kind: 'lead', text: 'Done — I’ll build the packet. It leads with the one picture that changes the room.' },
+      { kind: 'p', text: 'Your TSH plotted against your own treated baseline — **1.6, 2.1, 3.8 — same dose throughout, every point stamped "normal"** {{cite:maya-tsh-series}} {{ev:src}}. Then the coffee-timing question {{cite:maya-intake-log}}, ferritin at 22 with the fatigue evidence {{cite:maya-ferritin}} {{ev:guide}}, and a requested add-on: celiac serology on the same draw. One vial, four answers.' },
+      { kind: 'p', text: 'The ashwagandha: nine days left, and your energy logs show the crashes **still landing in the same afternoon window** {{cite:maya-energy-logs}} {{ev:src}} — no visible shift yet. Let it finish cleanly rather than judge it early {{ev:inf}}. It goes in the packet too, because ashwagandha can nudge thyroid hormone levels {{ev:guide}}, and your endo should know that when she reads the TSH.' },
+      { kind: 'p', text: 'One choice that’s genuinely yours: draw soon and it’s a baseline, or give the coffee fix six weeks and the draw shows whether it worked. Either is defensible {{ev:inf}}. You’re not walking in with a feeling this time — you’re walking in with a chart.' },
+      { kind: 'sources', text: 'Records behind this answer:', cites: ['maya-tsh-series', 'maya-intake-log', 'maya-ferritin', 'maya-exp-ashwagandha', 'maya-energy-logs'] },
+    ],
+  },
+
+  'Six weeks then: coffee fix tomorrow, the ashwagandha finishes its run, then the draw. And the antibodies being stable did more for my 2am brain than any appointment ever has.': {
+    guest: 'maya',
+    cloud: false,
+    tools: ['search_records'],
+    blocks: [
+      { kind: 'lead', text: 'Recorded, all of it.' },
+      { kind: 'p', text: 'Coffee fix from tomorrow morning {{cite:maya-med-levo}}, the ashwagandha finishes its nine days and gets its verdict {{cite:maya-exp-ashwagandha}}, and the draw — TSH, free T4, ferritin, celiac — lands in about six weeks, when it can actually show whether the fix worked {{ev:src}}. The packet’s built and waiting for the appointment.' },
+      { kind: 'p', text: 'Only thing that moves the timeline up: if the crashes get worse instead of holding steady, or anything new shows up — then we don’t wait, we go {{ev:inf}}.' },
+      { kind: 'p', text: 'It was never a folder of vibes. It was data nobody had plotted for you {{cite:maya-tsh-series}}. Enjoy the coffee — 3pm is officially the correct time for it.' },
+    ],
+  },
+
+  // --- guest thread · Dev (docs/behavioural-flows-transcripts.md) -------------
+  // The measure-before-intervening register: mechanism separated from outcome,
+  // conflicts of interest named in every direction, and the decision criterion
+  // authored by the user and audited rather than assigned.
+  'Every longevity podcast says plant omega-3 barely converts and my brain needs algae oil. You have my data — real physiology or supplement funnel?': {
+    guest: 'dev',
+    cloud: false,
+    tools: ['query_clinical', 'get_trend', 'search_guidelines'],
+    blocks: [
+      { kind: 'lead', text: 'Both, partly — and your record lets me be specific.' },
+      { kind: 'p', text: 'The physiology is real: ALA→EPA conversion runs roughly **5–8%**, ALA→DHA **well under 1%** in most studies {{ev:guide}}. The podcasts aren’t wrong about the mechanism. Your logged intake is actually strong: **flax ~5 mornings a week plus walnuts ~4×/week ≈ 4–5 g ALA on logged days** — about 3× the adequate-intake figure — plus ~75 mg DHA per egg most days {{cite:dev-diet-log}} {{ev:src}}. More flax wouldn’t move DHA either way; the conversion enzyme is the bottleneck, not the input {{ev:guide}}.' },
+      { kind: 'p', text: 'Here’s what your record cannot say: **nothing in it has ever measured your omega-3 status.** No omega-3 index, no fatty-acid panel {{ev:src}}. So every claim about *your* levels — podcast or supplement label — is an extrapolation from population averages (vegetarians typically test ~3.5–4.5% vs omnivores ~4–6% {{ev:guide}}). "The mechanism is real" and "your levels are low" are different claims; only the first is established {{ev:inf}}.' },
+      { kind: 'p', text: 'A dried-blood-spot omega-3 index test runs about $50–80, at home {{ev:src}}. Before debating the supplement at all — want to work out what result would actually change your decision?' },
+    ],
+  },
+
+  'Before I spend $70 — wasn’t the omega-3 index invented by the people selling omega-3s? And are my eggs already giving me actual DHA?': {
+    guest: 'dev',
+    cloud: false,
+    tools: ['search_guidelines'],
+    blocks: [
+      { kind: 'lead', text: 'Your instinct is aimed at the right people but the wrong claim.' },
+      { kind: 'p', text: 'The measurement itself is sound: RBC EPA+DHA as a fraction of total fatty acids is reproducible, stable over ~120 days of red-cell life, and rises predictably with intake {{ev:guide}}. As an *assay*, it’s real chemistry. What’s contaminated is the **8% target**: it derives from fish-eating cohorts and from researchers who commercialised the test {{ev:guide}}. The number you’d get is trustworthy; the line someone draws on it is where the money enters {{ev:inf}}.' },
+      { kind: 'concept', concept: 'surrogate-endpoints',
+        text: 'The honest chain has two links of different strength: supplementation raises the index (near-certain), and a raised index improves outcomes (uncertain — VITAL, 25,000 adults at 1 g/day, was null for major cardiovascular events and for cognition). The index is a surrogate, not an outcome.' },
+      { kind: 'p', text: 'And the conflicts run every direction — test-sellers, supplement-sellers, podcasts with algae-oil sponsors, and the null side too {{ev:inf}}. Eggs: yes — **~75 mg DHA each, direct, no conversion needed** {{cite:dev-diet-log}} {{ev:src}}. Modest against the 250–500 mg/day trial doses, but not zero, and already in your baseline. The $70 wouldn’t tell you what to do; it would tell you where you’re starting from.' },
+    ],
+  },
+
+  'VITAL was null for cognition? Is there any chain where someone like me supplements and an actual outcome improves — not a blood number?': {
+    guest: 'dev',
+    cloud: false,
+    tools: ['search_guidelines', 'query_clinical'],
+    blocks: [
+      { kind: 'lead', text: 'Straight answer: no.' },
+      { kind: 'p', text: 'There is no trial where healthy midlife adults — vegetarian or otherwise — supplemented DHA and a cognitive outcome improved {{ev:none}}. VITAL’s cognition substudies were null {{ev:guide}}; the DHA-brain link in adults rests on observational data. "Brain-critical" is developmental biology — prenatal, infant — stretched to midlife without the evidence making the jump {{ev:inf}}.' },
+      { kind: 'concept', concept: 'confounding',
+        text: 'The people with high omega-3 indices also eat fish, exercise, and are richer. And vegetarians as a population have *lower* cardiovascular event rates than omnivores despite lower indices — whatever the index costs the dietary pattern, the pattern more than repays it. The podcasts skip this entirely.' },
+      { kind: 'p', text: 'The closest thing to a real chain: VITAL’s low-fish-intake subgroup showed a modest cardiovascular signal — hypothesis-generating, not proof {{ev:low}}. REDUCE-IT was positive but used 4 g/day pharmaceutical EPA in statin-treated high-risk patients; you are not in that room {{ev:guide}}.' },
+      { kind: 'p', text: 'And your own numbers say your absolute stakes are small: **ApoB 78, hs-CRP 0.6** {{cite:dev-lipids}}, resting HR 58 {{cite:dev-garmin}}, no family history before 75 {{cite:dev-fh}} {{ev:src}}. A low-baseline-risk person buys little absolute benefit from *any* cardiovascular intervention {{ev:inf}}. As for 37 years of quiet worry — nothing in your record supports it. The brain claim is precisely where the evidence is thinnest.' },
+    ],
+  },
+
+  'B12 I supplement without drama because deficiency causes named damage — is that the difference? And doesn’t my genome change how badly I convert?': {
+    guest: 'dev',
+    cloud: false,
+    tools: ['query_clinical', 'get_genomic_variants', 'search_guidelines'],
+    blocks: [
+      { kind: 'lead', text: 'Yes — that’s exactly the difference, and it’s why your B12 habit is coherent rather than hypocritical.' },
+      { kind: 'p', text: 'The B12 chain is complete at every link: no reliable intake on a lacto-ovo diet → measurable deficiency → *named* outcomes → supplementation prevents them {{cite:dev-supplements}} {{ev:guide}}. Omega-3 has the first links — conversion is genuinely inefficient, vegetarian indices genuinely run lower — and then the chain stops before the outcome {{ev:inf}}. You applied a bar; B12 cleared it. Omega-3, on current evidence, doesn’t clear it as cleanly. That’s not a diet verdict, it’s a data inventory.' },
+      { kind: 'p', text: 'The genome, honestly labeled: you carry the **derived FADS1/FADS2 haplotype (rs174546 and linked variants)** {{cite:dev-genome-fads}}, common in South Asian ancestry and associated with *more* efficient ALA→EPA/DHA conversion — direction favourable for your pattern, effect size modest, evidence quality low-to-moderate {{ev:low}}. It nudges the prior that your index sits at the better end of the vegetarian range; it does not replace measuring {{ev:inf}}.' },
+      { kind: 'p', text: 'Which leaves one live question, and it’s yours, not mine: is there a number the $70 test could return that would change what you do?' },
+    ],
+  },
+
+  'If I test sub-3% I add algae oil; 4%+ I keep the flax. Sanity-check my thresholds — am I inventing a cutoff the same way the 8% people did?': {
+    guest: 'dev',
+    cloud: false,
+    tools: ['search_guidelines', 'query_health_model'],
+    blocks: [
+      { kind: 'lead', text: 'Your cutoff is invented, but not the way theirs was — and the difference matters.' },
+      { kind: 'p', text: 'The 8% target smuggles in an outcome claim — *above this, protected* — that no trial supports {{ev:none}}. Yours is a distributional rule: if you’re an outlier *within your own reference class*, cheap insurance wins under asymmetric cost. That claims nothing about outcomes, which is exactly why it’s honest {{ev:inf}}. Pre-registering it before seeing the number is the right move too — the same discipline that keeps you from rationalizing after the fact.' },
+      { kind: 'concept', concept: 'measurement-quality',
+        text: 'A single dried-blood-spot has real noise — assay plus biological variability — so the lines are bands: a 2.9 and a 3.2 are not meaningfully different values, and a result near a boundary is worth a retest before acting on it.' },
+      { kind: 'p', text: 'One more engineering note: you’ve specified two regions and left **3–4% undefined** — which is where a vegetarian with your flax intake {{cite:dev-diet-log}} and favourable FADS haplotype {{cite:dev-genome-fads}} is most likely to land {{ev:inf}}. And whatever you choose there is reversible and checkable: 250–500 mg/day algae DHA (~$10–25/month) typically moves the index over 4–6 months, so test → change → retest is a clean n-of-1 {{ev:guide}}. What’s your default in the gap — supplement or sit tight?' },
+    ],
+  },
+
+  'Gap default: sit tight. Order the test, thresholds pre-registered. The B12 stays because that chain actually reaches the end.': {
+    guest: 'dev',
+    cloud: false,
+    tools: ['search_records'],
+    blocks: [
+      { kind: 'lead', text: 'Recorded as pre-registered.' },
+      { kind: 'p', text: 'Order the dried-blood-spot omega-3 index (~$70). **Below 3%** — retest first if within noise of the line — add 250–500 mg/day algae DHA and re-measure at 6 months. **At 3% or above**, no change: flax stays {{cite:dev-diet-log}}, wallet stays closed. B12 and vitamin D continue as-is {{cite:dev-supplements}} {{ev:src}}.' },
+      { kind: 'p', text: 'Your decision surface, as I’ve modeled it: you intervene when you’re an outlier within your own reference class and the fix is cheap, reversible, and diet-compatible; you don’t pay monthly to move a surrogate that hasn’t earned an outcome {{ev:inf}}. It would shift if outcome-level trial evidence in people like you appeared, or if your baseline risk rose {{cite:dev-lipids}}. **Moderate-to-high confidence** — it matches three years of your own behaviour, B12 included. That’s a model of you, not advice. Good experiment.' },
+    ],
+  },
 }
 
 export const defaultAnswer = {
@@ -655,4 +812,6 @@ export function ask(question) {
 }
 
 // Questions offered in the "history" sidebar beyond the suggested chips.
-export const libraryQuestions = Object.keys(answers)
+// Guest-thread questions are excluded: they belong to other personas' seeded
+// instances and are not askable from Ravi's.
+export const libraryQuestions = Object.keys(answers).filter(q => !answers[q].guest)

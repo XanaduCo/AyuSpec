@@ -37,12 +37,68 @@ export const POSTURE_TIP = {
 // unshifted to the front, so this ordering is the one the user sees.
 export const SEED_CONVERSATIONS = [
   // --- behavioural-flows showcase threads (docs/behavioural-flows.md) --------
-  // Four multi-turn conversations that put the conversational spec on screen:
-  // question sharpening + signal validation; a considered preference formed on
-  // a screening decision; the correlation→causation boundary handed off to a
-  // reversible n-of-1; and a full-depth therapy decision. Same fixture shape as
-  // everything else — each turn's answer is the canned one a live ask would
-  // resolve to.
+  // Six multi-turn conversations put the conversational spec on screen. Four
+  // are Ravi's: question sharpening + signal validation; a considered
+  // preference on a screening decision; correlation→causation handed off to a
+  // reversible n-of-1; and a full-depth therapy decision. Two are GUEST
+  // threads seeded from other patients' instances (`persona` field; see
+  // mock/guests.js and docs/behavioural-flows-transcripts.md) — the same spec
+  // producing a different-feeling conversation for a different person, which
+  // one persona cannot demonstrate alone. Guest threads are read-only and
+  // assemble against their own miniature stores.
+  {
+    id: 'conv-seed-maya-fatigue',
+    persona: 'maya',
+    title: 'It’s 3pm and my brain shut off again. What is going on with me?',
+    at: 'Aug 3',
+    seeded: true,
+    // Maya's register: meaning first, short turns, never more than two steps.
+    // The load-bearing move is personal-baseline framing — three "normal" TSH
+    // values that doubled against her own treated baseline. Her 2am fear is
+    // answered before the candidates are ranked, the glandular tab gets its
+    // label filled in without a scolding, and the close records a plan with an
+    // explicit escalation condition.
+    messages: [
+      me('It’s 3pm and my brain shut off again. My ring says my sleep is fine, which makes it worse. What is going on with me? And don’t tell me my labs are normal.'),
+      ai('It’s 3pm and my brain shut off again. My ring says my sleep is fine, which makes it worse. What is going on with me? And don’t tell me my labs are normal.'),
+      me('It doubled and nobody said anything?? Is this the Hashimoto’s getting worse? That’s the thing I don’t let myself google at 2am.'),
+      ai('It doubled and nobody said anything?? Is this the Hashimoto’s getting worse? That’s the thing I don’t let myself google at 2am.'),
+      me('The coffee thing is real?? And since we’re here — I’ve got a tab open for a thyroid glandular supplement. Wouldn’t a natural boost cover the gap?'),
+      ai('The coffee thing is real?? And since we’re here — I’ve got a tab open for a thyroid glandular supplement. Wouldn’t a natural boost cover the gap?'),
+      me('Tab closed. Mostly. Now be honest about the 30-day gluten elimination every Hashimoto’s podcast swears by.'),
+      ai('Tab closed. Mostly. Now be honest about the 30-day gluten elimination every Hashimoto’s podcast swears by.'),
+      me('A draw means facing the endocrinologist I’ve been dodging for a year and a half. If I go, give me the receipts. And is the ashwagandha even doing anything?'),
+      ai('A draw means facing the endocrinologist I’ve been dodging for a year and a half. If I go, give me the receipts. And is the ashwagandha even doing anything?'),
+      me('Six weeks then: coffee fix tomorrow, the ashwagandha finishes its run, then the draw. And the antibodies being stable did more for my 2am brain than any appointment ever has.'),
+      ai('Six weeks then: coffee fix tomorrow, the ashwagandha finishes its run, then the draw. And the antibodies being stable did more for my 2am brain than any appointment ever has.'),
+    ],
+  },
+  {
+    id: 'conv-seed-dev-omega3',
+    persona: 'dev',
+    title: 'Plant omega-3 barely converts and my brain needs algae oil — real physiology or supplement funnel?',
+    at: 'Aug 3',
+    seeded: true,
+    // Dev's register: measure before intervening. Mechanism separated from
+    // outcome, the index audited (assay vs. the target painted on it), his
+    // follow-the-money instinct validated then aimed, and the decision
+    // criterion authored by him and audited rather than assigned. Ends on a
+    // pre-registered test with a stored decision surface.
+    messages: [
+      me('Every longevity podcast says plant omega-3 barely converts and my brain needs algae oil. You have my data — real physiology or supplement funnel?'),
+      ai('Every longevity podcast says plant omega-3 barely converts and my brain needs algae oil. You have my data — real physiology or supplement funnel?'),
+      me('Before I spend $70 — wasn’t the omega-3 index invented by the people selling omega-3s? And are my eggs already giving me actual DHA?'),
+      ai('Before I spend $70 — wasn’t the omega-3 index invented by the people selling omega-3s? And are my eggs already giving me actual DHA?'),
+      me('VITAL was null for cognition? Is there any chain where someone like me supplements and an actual outcome improves — not a blood number?'),
+      ai('VITAL was null for cognition? Is there any chain where someone like me supplements and an actual outcome improves — not a blood number?'),
+      me('B12 I supplement without drama because deficiency causes named damage — is that the difference? And doesn’t my genome change how badly I convert?'),
+      ai('B12 I supplement without drama because deficiency causes named damage — is that the difference? And doesn’t my genome change how badly I convert?'),
+      me('If I test sub-3% I add algae oil; 4%+ I keep the flax. Sanity-check my thresholds — am I inventing a cutoff the same way the 8% people did?'),
+      ai('If I test sub-3% I add algae oil; 4%+ I keep the flax. Sanity-check my thresholds — am I inventing a cutoff the same way the 8% people did?'),
+      me('Gap default: sit tight. Order the test, thresholds pre-registered. The B12 stays because that chain actually reaches the end.'),
+      ai('Gap default: sit tight. Order the test, thresholds pre-registered. The B12 stays because that chain actually reaches the end.'),
+    ],
+  },
   {
     id: 'conv-seed-statin',
     title: 'My doctor wants me on a statin. My calcium score was zero — why does a guy in the best shape of his life need a heart disease pill?',
