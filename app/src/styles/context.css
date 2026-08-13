@@ -274,6 +274,27 @@
 .store-line button:hover { border-bottom-color: var(--brand); }
 .store-line button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 
+/* ---------- guest threads ----------
+   A conversation seeded from another patient's instance (mock/guests.js). The
+   banner replaces the suggest-chips + store-line (that store is Ravi's), and
+   the ask bar is swapped for a read-only note — you cannot append to someone
+   else's record, and the demo says so instead of pretending. */
+.guest-banner {
+  border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
+  margin: -6px 0 16px; background: var(--panel, transparent);
+}
+.guest-banner .guest-tag {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--brand);
+}
+.guest-banner p { font-size: 12.5px; color: var(--mute); line-height: 1.55; margin: 6px 0 0; }
+.askbar.guest-locked .note { font-size: 12.5px; color: var(--mute); margin: 0; line-height: 1.5; }
+.askbar.guest-locked button.linkish {
+  all: unset; cursor: pointer; color: var(--brand); border-bottom: 1px solid transparent;
+}
+.askbar.guest-locked button.linkish:hover { border-bottom-color: var(--brand); }
+.askbar.guest-locked button.linkish:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
 @media (max-width: 640px) {
   .ctx-cf-row { grid-template-columns: 40px 1fr; }
   .ctx-cf-cost { grid-column: 2; }

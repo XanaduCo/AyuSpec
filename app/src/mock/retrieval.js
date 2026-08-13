@@ -1157,6 +1157,291 @@ export const retrieval = {
     counterfactuals: {},
     caveats: {},
   },
+
+  // --- guest thread · Maya ----------------------------------------------------
+  // `guest: 'maya'` points the assembly at her miniature store (mock/guests.js):
+  // her units, her counts, her records. Everything else is the same math.
+  'It’s 3pm and my brain shut off again. My ring says my sleep is fine, which makes it worse. What is going on with me? And don’t tell me my labs are normal.': {
+    guest: 'maya',
+    intent: 'Validate the crash pattern from her own data, then re-read "normal" against her personal baseline.',
+    tags: ['sleep', 'recovery', 'energy', 'thyroid', 'labs'],
+    windowDays: 90,
+    plan: [
+      { tool: 'get_time_series', args: 'sleep nightly summary, 92 nights', yields: 'duration and efficiency stable' },
+      { tool: 'get_trend', args: 'energy logs by time of day', yields: '7 captures, all 13:40–15:10' },
+      { tool: 'query_clinical', args: 'TSH series vs. her own treated baseline', yields: '3 draws, monotonic drift' },
+    ],
+    picks: [
+      { id: 'maya-sleep-summary', reasons: ['contradiction'], note: 'rules OUT the easy answer — by her own data, which is what makes it land as vindication' },
+      { id: 'maya-energy-logs', reasons: ['change', 'aggregate'], note: 'the tight afternoon cluster: a pattern, not a mood' },
+      { id: 'maya-tsh-series', reasons: ['change', 'baseline'], note: 'every point "normal" against the population range; doubled against her own' },
+      { id: 'maya-ft4', reasons: ['weak-signal'], note: 'low-normal — included so the answer can say it looked' },
+    ],
+    aggregate: [{ id: 'maya-sleep-summary', method: '92 nights → duration, efficiency, trend' }],
+    guidelines: ['Individual TSH set-points are far narrower than the population range — a doubling within range is a real signal for a treated patient.'],
+    counterfactuals: {},
+    caveats: {
+      local: 'Maya’s instance runs every model role locally — this trace never had a cloud destination to consider.',
+    },
+  },
+
+  'It doubled and nobody said anything?? Is this the Hashimoto’s getting worse? That’s the thing I don’t let myself google at 2am.': {
+    guest: 'maya',
+    intent: 'Answer the progression fear first, with the marker that tracks it — then rank the ordinary candidates.',
+    tags: ['thyroid', 'labs', 'meds', 'iron', 'energy'],
+    windowDays: 730,
+    plan: [
+      { tool: 'query_clinical', args: 'TPO antibodies, all measurements', yields: '3 values, roughly stable' },
+      { tool: 'search_records', args: 'intake captures — pill/coffee co-log', yields: '29 of 34 mornings' },
+      { tool: 'query_clinical', args: 'ferritin, vitamin D, CBC', yields: '1 low-normal, 1 borderline, rest unremarkable' },
+    ],
+    picks: [
+      { id: 'maya-tpo', reasons: ['contradiction', 'baseline'], note: 'the marker her 2am fear is about — stable, and retrieved first for exactly that reason' },
+      { id: 'maya-intake-log', reasons: ['change', 'correlation'], note: 'the absorption candidate: passively captured, never asked for' },
+      { id: 'maya-ferritin', reasons: ['outlier', 'guideline'], note: 'in range and still a candidate — 22 is where the fatigue evidence starts' },
+      { id: 'maya-vitd', reasons: ['weak-signal'], note: 'borderline, but the supplementation-fatigue evidence is weak — carried as context' },
+      { id: 'maya-cond-hashimotos', reasons: ['baseline'] },
+    ],
+    aggregate: [],
+    guidelines: [
+      'Coffee, calcium, or iron near a levothyroxine dose measurably reduces absorption.',
+      'Ferritin < 30 µg/L is associated with fatigue; repletion evidence in low-ferritin women is moderate.',
+    ],
+    counterfactuals: {},
+    caveats: {},
+  },
+
+  'The coffee thing is real?? And since we’re here — I’ve got a tab open for a thyroid glandular supplement. Wouldn’t a natural boost cover the gap?': {
+    guest: 'maya',
+    intent: 'Price the free fix, and fill in the label on the high-liability browser tab.',
+    tags: ['meds', 'thyroid'],
+    windowDays: 90,
+    plan: [
+      { tool: 'search_guidelines', args: '"levothyroxine absorption coffee timing"', yields: '2 statements' },
+      { tool: 'query_health_model', args: 'intervention=thyroid glandular → interaction with levothyroxine', yields: '1 flagged interaction, unmonitored hormone content' },
+    ],
+    picks: [
+      { id: 'maya-med-levo', reasons: ['interaction'], note: 'every new intake is checked against this — for her it is the highest-liability class' },
+      { id: 'maya-intake-log', reasons: ['change'], note: 'the pattern the free fix acts on' },
+      { id: 'iv-glandular', reasons: ['comparator'], virtual: true, label: 'Thyroid glandular (graph node — unlabeled T3/T4 content)',
+        note: 'resolves to an unmonitored second hormone dose, not a supplement — the frame names it rather than scolding it' },
+    ],
+    aggregate: [],
+    guidelines: [
+      'Guidance: levothyroxine with water only; food and coffee 30–60 minutes later.',
+      'Independent testing finds clinically significant, highly variable T3/T4 in "glandular" supplements; chronic excess risks atrial fibrillation and bone loss.',
+    ],
+    counterfactuals: {},
+    caveats: {},
+  },
+
+  'Tab closed. Mostly. Now be honest about the 30-day gluten elimination every Hashimoto’s podcast swears by.': {
+    guest: 'maya',
+    intent: 'Grade the gluten evidence honestly, price the effort against her profile, and protect the running experiment.',
+    tags: ['thyroid', 'nutrition', 'experiment', 'labs'],
+    windowDays: 90,
+    plan: [
+      { tool: 'search_guidelines', args: '"gluten-free Hashimoto’s trials" + celiac overlap', yields: '3 statements, low quality' },
+      { tool: 'query_clinical', args: 'celiac serology — ever tested?', yields: 'no result in the record' },
+      { tool: 'search_records', args: 'in-flight experiments', yields: 'ashwagandha, day 12 of 21' },
+    ],
+    picks: [
+      { id: 'maya-exp-ashwagandha', reasons: ['experiment', 'in-flight'], note: 'the collision: a second change now and neither gets credit' },
+      { id: 'celiac-gap', reasons: ['coverage'], virtual: true, label: 'No celiac serology in the record',
+        note: 'the one test that would move gluten from podcast question to real one — a gap, stated as the finding' },
+      { id: 'maya-cond-hashimotos', reasons: ['baseline'] },
+    ],
+    aggregate: [],
+    guidelines: ['Gluten-free evidence in Hashimoto’s is small and mixed; the clearest benefit is in confirmed celiac disease.'],
+    counterfactuals: {},
+    caveats: {
+      design: 'A 30-day elimination is also a high-effort intervention for this specific user — effort is a cost the ranking weighs, not a virtue.',
+    },
+  },
+
+  'A draw means facing the endocrinologist I’ve been dodging for a year and a half. If I go, give me the receipts. And is the ashwagandha even doing anything?': {
+    guest: 'maya',
+    intent: 'Assemble the packet that turns "normal labs" into a plotted baseline, and read the running experiment honestly.',
+    tags: ['thyroid', 'labs', 'meds', 'iron', 'experiment', 'energy'],
+    windowDays: 730,
+    plan: [
+      { tool: 'query_clinical', args: 'packet contents: TSH series, ferritin, intake pattern', yields: '4 items + 1 requested add-on' },
+      { tool: 'get_trend', args: 'energy logs across the experiment window', yields: 'no shift vs. pre-experiment' },
+    ],
+    picks: [
+      { id: 'maya-tsh-series', reasons: ['change', 'baseline'], note: 'the packet’s lead: the picture that changes the room' },
+      { id: 'maya-intake-log', reasons: ['correlation'] },
+      { id: 'maya-ferritin', reasons: ['outlier', 'guideline'] },
+      { id: 'maya-exp-ashwagandha', reasons: ['experiment', 'in-flight'], note: 'goes in the packet too — it can nudge thyroid hormones, and the endo reads the TSH' },
+      { id: 'maya-energy-logs', reasons: ['aggregate'], note: 'the experiment’s outcome measure, read at day 12: no visible shift' },
+    ],
+    aggregate: [{ id: 'maya-energy-logs', method: '7 one-tap captures → time-of-day cluster' }],
+    guidelines: ['Ashwagandha can modestly raise thyroid hormone levels — disclosed alongside any TSH drawn during the run.'],
+    counterfactuals: {},
+    caveats: {
+      local: 'The packet is assembled on her machine. Nothing leaves until she hands it to her endocrinologist herself.',
+    },
+  },
+
+  'Six weeks then: coffee fix tomorrow, the ashwagandha finishes its run, then the draw. And the antibodies being stable did more for my 2am brain than any appointment ever has.': {
+    guest: 'maya',
+    intent: 'Record the plan — timeline, packet, and the condition that moves the timeline up.',
+    tags: ['thyroid', 'meds', 'experiment', 'labs'],
+    windowDays: 90,
+    plan: [
+      { tool: 'search_records', args: 'record plan: coffee timing, experiment verdict, six-week draw', yields: '3 scheduled items' },
+    ],
+    picks: [
+      { id: 'plan-sixweeks', reasons: ['preference'], virtual: true, label: 'Recorded plan — coffee fix · finish run · one draw, four questions',
+        note: 'two low-effort steps at a time, by design — the cap is hers, from her own profile' },
+      { id: 'maya-tsh-series', reasons: ['baseline'], note: 'the six-week draw is scored against this series' },
+      { id: 'maya-exp-ashwagandha', reasons: ['experiment', 'in-flight'] },
+    ],
+    aggregate: [],
+    guidelines: [],
+    counterfactuals: {},
+    caveats: {},
+  },
+
+  // --- guest thread · Dev -------------------------------------------------------
+  'Every longevity podcast says plant omega-3 barely converts and my brain needs algae oil. You have my data — real physiology or supplement funnel?': {
+    guest: 'dev',
+    intent: 'Separate mechanism-is-real from your-levels-are-low, and surface the measurement the record has never made.',
+    tags: ['nutrition', 'labs', 'micronutrients'],
+    windowDays: 365,
+    plan: [
+      { tool: 'query_clinical', args: 'omega-3 index or fatty-acid panel — ever measured?', yields: 'no result in the record' },
+      { tool: 'get_trend', args: 'diet log: ALA sources, logged-day average', yields: '≈4–5 g ALA/day across 126 logged days' },
+      { tool: 'search_guidelines', args: '"ALA conversion EPA DHA" + vegetarian index ranges', yields: '4 statements' },
+    ],
+    picks: [
+      { id: 'dev-diet-log', reasons: ['aggregate', 'baseline'], note: 'his intake is strong — the question is what it converts to, which the log cannot say' },
+      { id: 'omega3-gap', reasons: ['coverage', 'unique'], virtual: true, label: 'No omega-3 measurement in the record',
+        note: 'the gap the whole conversation turns on — every claim about his levels is an extrapolation until this exists' },
+    ],
+    aggregate: [{ id: 'dev-diet-log', method: '126 logged days → ALA-source trend + coverage' }],
+    guidelines: [
+      'ALA→EPA ≈ 5–8%; ALA→DHA well under 1%. The conversion bottleneck is enzymatic — more ALA does not raise DHA.',
+      'Vegetarians typically measure omega-3 index ~3.5–4.5% vs omnivores ~4–6%.',
+    ],
+    counterfactuals: {},
+    caveats: {
+      coverage: 'The diet log covers ~70% of days. The ALA average is a logged-day average, and the answer says so.',
+      local: 'Dev’s instance runs locally; his genome never needed a policy exception to be in scope.',
+    },
+  },
+
+  'Before I spend $70 — wasn’t the omega-3 index invented by the people selling omega-3s? And are my eggs already giving me actual DHA?': {
+    guest: 'dev',
+    intent: 'Audit the test: separate the assay from the target painted on it, and name the conflicts in every direction.',
+    tags: ['labs', 'nutrition', 'quality'],
+    windowDays: 365,
+    plan: [
+      { tool: 'search_guidelines', args: '"omega-3 index reproducibility" + "8% target derivation" + VITAL', yields: '5 statements' },
+      { tool: 'get_trend', args: 'egg frequency from the diet log', yields: 'most days · ~75 mg DHA each' },
+    ],
+    picks: [
+      { id: 'dev-diet-log', reasons: ['corroborate'], note: 'the direct-DHA line item he did not know he had' },
+    ],
+    aggregate: [],
+    guidelines: [
+      'The RBC assay is reproducible and tracks ~120 days of intake; the 8% target derives from fish-eating cohorts and researchers with commercial ties to the test.',
+      'VITAL (1 g/day, 25,000+ adults): null primary for major cardiovascular events; cognition substudies null.',
+    ],
+    counterfactuals: {},
+    caveats: {},
+  },
+
+  'VITAL was null for cognition? Is there any chain where someone like me supplements and an actual outcome improves — not a blood number?': {
+    guest: 'dev',
+    intent: 'Let the evidence run out in public, and size the absolute stakes from his own record.',
+    tags: ['labs', 'lipids', 'cardiac', 'family', 'training'],
+    windowDays: 365,
+    plan: [
+      { tool: 'search_guidelines', args: 'DHA cognition RCTs in healthy adults + REDUCE-IT population', yields: '4 statements, none applicable' },
+      { tool: 'query_clinical', args: 'his baseline risk: lipids, inflammation, family history', yields: 'all unremarkable' },
+    ],
+    picks: [
+      { id: 'dev-lipids', reasons: ['contradiction'], note: 'ApoB 78 — a low-baseline-risk person buys little absolute benefit from any cardiovascular intervention' },
+      { id: 'dev-metabolic', reasons: ['weak-signal'], note: 'hs-CRP 0.6, HbA1c 5.2 — checked, unremarkable' },
+      { id: 'dev-fh', reasons: ['contradiction'], note: 'nothing premature — the prior the podcasts never ask about' },
+      { id: 'dev-garmin', reasons: ['corroborate'] },
+    ],
+    aggregate: [],
+    guidelines: [
+      'No RCT shows cognitive benefit from DHA supplementation in healthy midlife adults.',
+      'Vegetarian populations show lower cardiovascular event rates than omnivores despite lower omega-3 indices.',
+    ],
+    counterfactuals: {},
+    caveats: {},
+  },
+
+  'B12 I supplement without drama because deficiency causes named damage — is that the difference? And doesn’t my genome change how badly I convert?': {
+    guest: 'dev',
+    intent: 'Apply his own evidence bar consistently, and label the genomic finding at its real tier.',
+    tags: ['micronutrients', 'meds', 'genomics', 'nutrition'],
+    windowDays: 1095,
+    plan: [
+      { tool: 'query_clinical', args: 'supplement log + B12 level', yields: 'B12/D, 3+ years, levels fine' },
+      { tool: 'get_genomic_variants', args: 'genes=[FADS1, FADS2]', yields: '1 annotated haplotype' },
+    ],
+    picks: [
+      { id: 'dev-supplements', reasons: ['baseline', 'corroborate'], note: 'the precedent: he already supplements where the chain reaches an outcome' },
+      { id: 'dev-b12-levels', reasons: ['weak-signal'], note: 'in range — the B12 chain is working' },
+      { id: 'dev-genome-fads', reasons: ['unique', 'corroborate'], note: 'direction favourable, effect modest, evidence low-to-moderate — a prior-nudger, not a substitute for measuring' },
+    ],
+    aggregate: [],
+    guidelines: [
+      'B12: deficiency-to-disease and supplement-to-prevention are both demonstrated — the complete chain omega-3 lacks.',
+      'Derived FADS haplotypes are associated with more efficient ALA conversion; common in South Asian ancestry.',
+    ],
+    counterfactuals: {},
+    caveats: {},
+  },
+
+  'If I test sub-3% I add algae oil; 4%+ I keep the flax. Sanity-check my thresholds — am I inventing a cutoff the same way the 8% people did?': {
+    guest: 'dev',
+    intent: 'Audit a user-authored decision criterion: what it claims, where its noise is, and the region it leaves undefined.',
+    tags: ['labs', 'nutrition', 'genomics', 'experiment', 'quality'],
+    windowDays: 365,
+    plan: [
+      { tool: 'search_guidelines', args: 'dried-blood-spot assay variability + algae-oil dose→index kinetics', yields: '3 statements' },
+      { tool: 'query_health_model', args: 'intervention=algae DHA → reversibility, cost, risk', yields: 'reversible · $10–25/mo · low risk' },
+    ],
+    picks: [
+      { id: 'threshold-audit', reasons: ['preference'], virtual: true, label: 'His thresholds (sub-3% act · 4%+ hold · 3–4% undefined)',
+        note: 'audited, not assigned: a distributional rule that claims nothing about outcomes — unlike the 8% target' },
+      { id: 'dev-diet-log', reasons: ['baseline'] },
+      { id: 'dev-genome-fads', reasons: ['corroborate'], note: 'part of why the undefined 3–4% region is where he is most likely to land' },
+    ],
+    aggregate: [],
+    guidelines: [
+      'A single dried-blood-spot result carries assay plus biological noise — boundaries are bands, not lines.',
+      '250–500 mg/day algae DHA typically moves the index over 4–6 months (red-cell turnover).',
+    ],
+    counterfactuals: {},
+    caveats: {},
+  },
+
+  'Gap default: sit tight. Order the test, thresholds pre-registered. The B12 stays because that chain actually reaches the end.': {
+    guest: 'dev',
+    intent: 'Store the pre-registered plan and the decision surface it came from.',
+    tags: ['labs', 'nutrition', 'experiment'],
+    windowDays: 365,
+    plan: [
+      { tool: 'search_records', args: 'preference model: write omega-3 decision surface', yields: '1 stored object, provenance=this conversation' },
+    ],
+    picks: [
+      { id: 'omega3-surface', reasons: ['preference'], virtual: true, label: 'Decision surface — outlier-within-reference-class + cheap reversible fix',
+        note: 'moderate-to-high confidence: it matches three years of his own behaviour, B12 included' },
+      { id: 'exp-omega3-test', reasons: ['experiment'], virtual: true, label: 'Pre-registered: test → thresholds → (maybe) supplement → retest at 6 months' },
+      { id: 'dev-supplements', reasons: ['baseline'] },
+    ],
+    aggregate: [],
+    guidelines: [],
+    counterfactuals: {},
+    caveats: {},
+  },
 }
 
 // A question with no authored spec still gets a real trace: the concept net is

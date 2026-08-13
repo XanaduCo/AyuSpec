@@ -22,6 +22,7 @@ import {
   pharmacogenomics, carrierStatus, wgs, familyHistory,
 } from './persona.js'
 import { experiments } from './experiments.js'
+import { guestRecord } from './guests.js'
 
 const subject = { reference: 'Patient/ravi-mehta', display: persona.name }
 
@@ -136,6 +137,11 @@ function panelBundle(id, drawn, obs) {
 // id -> { title, subtitle, tier, fhir }
 export function resolveRecord(id) {
   if (!id) return null
+
+  // Guest-persona records (the seeded Maya/Dev threads) live in their own
+  // registry — namespaced ids, so they can never shadow anything of Ravi's.
+  const guest = guestRecord(id)
+  if (guest) return guest
 
   // Any lab result — current draw ids are canonical (`obs-apob`), historic ones
   // carry their draw date (`obs-apob-2024-02-24`).

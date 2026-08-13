@@ -49,6 +49,10 @@
   display: flex; align-items: center; flex-wrap: wrap; gap: 3px 6px; margin-top: 5px;
   font-family: var(--mono); font-size: 10px; letter-spacing: .01em; color: var(--faint);
 }
+.conv-guest {
+  border: 1px solid var(--line); border-radius: 4px; padding: 0 4px;
+  color: var(--brand); font-weight: 600;
+}
 .conv-dot { width: 6px; height: 6px; border-radius: 99px; flex: 0 0 auto; }
 .conv-dot.local { background: var(--local); }
 .conv-dot.cloud { background: var(--egress); }

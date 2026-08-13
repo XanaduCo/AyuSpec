@@ -13,6 +13,7 @@ import { storeStats } from '../mock/persona.js'
 import { assemble, REASONS } from '../context/assemble.js'
 import { useSession, useConversations } from '../state/store.js'
 import { threadPosture, POSTURE_LABEL, POSTURE_TIP } from '../state/conversations.js'
+import { GUESTS } from '../mock/guests.js'
 import '../styles/ask-history.css'
 
 // Inline renderer: **bold**, {{ev:kind}} evidence labels, {{cite:id}} citations.
@@ -85,8 +86,10 @@ function AiAnswer({ question, answer, declined }) {
   const { posture, blocked, egressMode } = usePosture()
   const [toggles, setToggles] = useState({})
   // When egress is blocked, a cloud-configured reasoner resolves to local, so the
-  // trace is assembled under a local destination too.
-  const where = blocked ? 'local' : posture.reasoner.where
+  // trace is assembled under a local destination too. Guest answers run on that
+  // persona's own instance — local by construction — so Ravi's header posture
+  // does not govern them.
+  const where = answer.guest ? 'local' : blocked ? 'local' : posture.reasoner.where
 
   const ctx = useMemo(
     () => assemble(question, { where, toggles }),
@@ -321,6 +324,11 @@ function ConversationHistory({ list, activeId, onSelect, onNew }) {
               aria-current={c.id === activeId ? 'true' : undefined}>
               <span className="conv-title">{c.title}</span>
               <span className="conv-meta">
+                {c.persona && (
+                  <span className="conv-guest" title={GUESTS[c.persona]?.tagline}>
+                    {GUESTS[c.persona]?.name}
+                  </span>
+                )}
                 <span className={`conv-dot ${posture}`} title={POSTURE_TIP[posture]} />
                 <span className={`conv-posture ${posture}`}>{POSTURE_LABEL[posture]}</span>
                 <span className="conv-sep">·</span>
@@ -368,6 +376,9 @@ export default function Ask() {
   // the landing is unchanged: a fresh session has no active conversation, so the
   // chat is empty and the cursor is ready.
   const thread = active?.messages ?? []
+  // A guest thread is seeded from another patient's instance (mock/guests.js):
+  // its own store, its own register, and read-only from Ravi's ask bar.
+  const guest = active?.persona ? GUESTS[active.persona] : null
   const [input, setInput] = useState('')
   const endRef = useRef(null)
 
@@ -419,20 +430,29 @@ export default function Ask() {
     <div className="page ask-page">
       <div className="ask-layout">
         <div className="chat">
-          <div className="suggest-chips">
-            {suggestedQuestions.map(q => (
-              <button key={q} onClick={() => submit(q)}>{q}</button>
-            ))}
-          </div>
+          {guest ? (
+            <div className="guest-banner">
+              <span className="guest-tag">{guest.tagline} · seeded thread</span>
+              <p>{guest.banner} {guest.storeLine}</p>
+            </div>
+          ) : (
+            <>
+              <div className="suggest-chips">
+                {suggestedQuestions.map(q => (
+                  <button key={q} onClick={() => submit(q)}>{q}</button>
+                ))}
+              </div>
 
-          <p className="store-line">
-            Answering from <b>{storeStats.withoutGenome.toLocaleString()}</b> stored records —{' '}
-            <b>{storeStats.analytes}</b> analytes across <b>9</b> draws, <b>{storeStats.activities}</b>{' '}
-            activities, <b>1,092</b> nights, <b>4.7M</b> genotyped variants, over{' '}
-            <b>{storeStats.years}</b> years. None of that fits in a prompt, so every answer opens with
-            what it actually pulled.{' '}
-            <button onClick={() => drawer?.openRecord('store-stats')}>See the full inventory →</button>
-          </p>
+              <p className="store-line">
+                Answering from <b>{storeStats.withoutGenome.toLocaleString()}</b> stored records —{' '}
+                <b>{storeStats.analytes}</b> analytes across <b>9</b> draws, <b>{storeStats.activities}</b>{' '}
+                activities, <b>1,092</b> nights, <b>4.7M</b> genotyped variants, over{' '}
+                <b>{storeStats.years}</b> years. None of that fits in a prompt, so every answer opens with
+                what it actually pulled.{' '}
+                <button onClick={() => drawer?.openRecord('store-stats')}>See the full inventory →</button>
+              </p>
+            </>
+          )}
 
           {thread.map((m, i) => {
             if (m.role === 'me') return <div key={i} className="bubble me">{m.text}</div>
@@ -451,18 +471,30 @@ export default function Ask() {
 
           <div ref={endRef} />
 
-          <div className="askbar">
-            <div className="inner">
-              <input
-                value={input}
-                placeholder="Ask about your health…"
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && submit()}
-              />
-              <VoiceInput onTranscript={t => submit(t)} />
-              <button className="btn pri" onClick={() => submit()}>Ask</button>
+          {guest ? (
+            <div className="askbar guest-locked">
+              <div className="inner">
+                <p className="note">
+                  Seeded from {guest.name}’s instance — read-only here; your ask bar cannot append to
+                  another person’s record. <button className="linkish" onClick={startNew}>Start a new conversation</button> to
+                  ask your own.
+                </p>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="askbar">
+              <div className="inner">
+                <input
+                  value={input}
+                  placeholder="Ask about your health…"
+                  onChange={e => setInput(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && submit()}
+                />
+                <VoiceInput onTranscript={t => submit(t)} />
+                <button className="btn pri" onClick={() => submit()}>Ask</button>
+              </div>
+            </div>
+          )}
         </div>
 
         <ConversationHistory

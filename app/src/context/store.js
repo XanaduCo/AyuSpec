@@ -275,8 +275,15 @@ export const indexedRowsExGenome = units.reduce((a, x) => a + (x.id === 'gen-wgs
  * honest "considered X" number rather than a made-up one.
  */
 export function candidates({ tags, from, to }) {
+  return sweep(units, { tags, from, to })
+}
+
+// The same mechanical sweep over an arbitrary unit list — used by the guest
+// personas' miniature stores, so their context strips run the same math
+// against their own records instead of borrowing Ravi's counts.
+export function sweep(unitList, { tags, from, to }) {
   const want = new Set(tags)
-  return units.filter(x => {
+  return unitList.filter(x => {
     if (!x.tags.some(t => want.has(t))) return false
     // Standing facts — a genotype, a diagnosis, a family history — do not age out
     // of a window. Filtering them by date would make the genome look irrelevant
